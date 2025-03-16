@@ -23,6 +23,13 @@ const Landing: React.FC = () => {
     // Navigate to the timer page after "authentication"
     navigate("/timer");
   };
+
+  const handleGetStarted = () => {
+    // Set a demo user to allow navigation to protected routes
+    localStorage.setItem("meowdoro-user", JSON.stringify({ email: "demo@meowdoro.app" }));
+    // Navigate to the timer page
+    navigate("/timer");
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -47,7 +54,7 @@ const Landing: React.FC = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button size="lg" className="gap-2" onClick={() => setActiveTab("login")}>
+                <Button size="lg" className="gap-2" onClick={handleGetStarted}>
                   Get Started
                 </Button>
                 <Button size="lg" variant="outline" className="gap-2">
