@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { TimerCircle } from "@/components/timer/TimerCircle";
 import { ProgressBar } from "@/components/timer/ProgressBar";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Timer as TimerIcon, Stopwatch, Umbrella, Music, VolumeX } from "lucide-react";
+import { Timer as TimerIcon, Clock, Umbrella, Music, VolumeX } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const Timer: React.FC = () => {
@@ -22,25 +21,21 @@ const Timer: React.FC = () => {
   
   const { toast } = useToast();
   
-  // Audio elements
   const rainAudio = React.useRef<HTMLAudioElement | null>(null);
   const cafeAudio = React.useRef<HTMLAudioElement | null>(null);
   const birdsAudio = React.useRef<HTMLAudioElement | null>(null);
   
   useEffect(() => {
-    // Initialize audio elements
     rainAudio.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-light-rain-loop-1253.mp3");
     cafeAudio.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-coffee-shop-ambience-583.mp3");
     birdsAudio.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-forest-birds-singing-58.mp3");
     
-    // Set to loop
     [rainAudio.current, cafeAudio.current, birdsAudio.current].forEach(audio => {
       if (audio) {
         audio.loop = true;
       }
     });
     
-    // Cleanup
     return () => {
       [rainAudio.current, cafeAudio.current, birdsAudio.current].forEach(audio => {
         if (audio) {
@@ -52,7 +47,6 @@ const Timer: React.FC = () => {
   }, []);
   
   useEffect(() => {
-    // Update cat status based on timer and focus time
     if (timerCompleted) {
       setCatStatus("happy");
     } else if (!isCountdown) {
@@ -63,7 +57,6 @@ const Timer: React.FC = () => {
       setCatStatus("idle");
     }
     
-    // When milestones are reached, make the cat happy temporarily
     if (totalFocusMinutes === 30 || totalFocusMinutes === 60 || totalFocusMinutes === 90) {
       setCatStatus("happy");
       setTimeout(() => {
@@ -75,21 +68,17 @@ const Timer: React.FC = () => {
   const handleTimerComplete = () => {
     setTimerCompleted(true);
     
-    // Increment total focus minutes
-    const newTotal = totalFocusMinutes + 25; // Assuming 25-minute sessions
+    const newTotal = totalFocusMinutes + 25;
     setTotalFocusMinutes(newTotal);
     localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
     
-    // Show toast notification
     toast({
       title: "Focus session completed!",
       description: `You've focused for ${newTotal} minutes today.`,
     });
     
-    // Cat is happy after completing a session
     setCatStatus("happy");
     
-    // After 5 seconds, set the cat to sleeping for break
     setTimeout(() => {
       setCatStatus("sleeping");
     }, 5000);
@@ -98,7 +87,6 @@ const Timer: React.FC = () => {
   const handleTimerUpdate = (seconds: number) => {
     setCurrentSeconds(seconds);
     
-    // If we're in stopwatch mode, update the total focus time
     if (!isCountdown && seconds % 60 === 0 && seconds > 0) {
       const additionalMinute = 1;
       const newTotal = totalFocusMinutes + additionalMinute;
@@ -114,7 +102,6 @@ const Timer: React.FC = () => {
   };
   
   const playSound = (soundType: string) => {
-    // Stop any currently playing sound
     [rainAudio.current, cafeAudio.current, birdsAudio.current].forEach(audio => {
       if (audio) {
         audio.pause();
@@ -122,9 +109,7 @@ const Timer: React.FC = () => {
       }
     });
     
-    // Play the selected sound
     if (soundType === soundPlaying) {
-      // If clicking the same sound, toggle it off
       setSoundPlaying(null);
       return;
     }
@@ -163,7 +148,7 @@ const Timer: React.FC = () => {
             className="gap-2" 
             onClick={() => setIsCountdown(false)}
           >
-            <Stopwatch className="w-4 h-4" />
+            <Clock className="w-4 h-4" />
             <span>Stopwatch</span>
           </Button>
         </div>
@@ -179,7 +164,6 @@ const Timer: React.FC = () => {
           <ProgressBar currentMinutes={totalFocusMinutes} />
         </div>
         
-        {/* Sound Controls */}
         <div className="mt-8 flex items-center gap-4">
           <Popover>
             <PopoverTrigger asChild>
@@ -239,7 +223,6 @@ const Timer: React.FC = () => {
         </div>
       </div>
       
-      {/* Cat Companion */}
       <div className="fixed bottom-6 right-6">
         <CatCompanion status={catStatus} />
       </div>

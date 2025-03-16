@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +16,7 @@ import {
   MoreVertical, 
   Trash, 
   Edit,
-  PinTop,
+  Pin,
   Clock
 } from "lucide-react";
 import { 
@@ -227,7 +226,7 @@ const Tasks: React.FC = () => {
               <CardHeader className="p-4 pb-0 flex flex-row items-start justify-between">
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2">
-                    {item.isPinned && <PinTop className="w-3 h-3 text-primary" />}
+                    {item.isPinned && <Pin className="w-3 h-3 text-primary" />}
                     <h3 className="font-medium">{item.title}</h3>
                   </div>
                 </div>
@@ -250,7 +249,7 @@ const Tasks: React.FC = () => {
                     <DropdownMenuItem 
                       onClick={() => toggleItemPin(item.id)}
                     >
-                      <PinTop className="mr-2 h-4 w-4" />
+                      <Pin className="mr-2 h-4 w-4" />
                       {item.isPinned ? 'Unpin' : 'Pin to top'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
