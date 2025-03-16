@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   Timer, 
   CheckSquare, 
@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { mode, setMode } = useTheme();
   
   const navItems = [
@@ -53,12 +54,21 @@ export const Navbar: React.FC = () => {
     setMode(mode === "light" ? "dark" : "light");
   };
 
+  const goToLanding = () => {
+    // Remove the user to trigger the conditional in App.tsx to hide the navbar
+    localStorage.removeItem("meowdoro-user");
+    navigate("/");
+  };
+
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 glass">
+    <div className="fixed top-0 left-0 right-0 z-50 glass animate-fade-in">
       <div className="container mx-auto">
         <nav className="flex justify-between items-center py-4">
           {/* Logo and App Name */}
-          <div className="flex items-center gap-2">
+          <div 
+            className="flex items-center gap-2 cursor-pointer transition-all hover:opacity-80"
+            onClick={goToLanding}
+          >
             <div className="text-primary w-8 h-8">
               <div className="relative">
                 <Timer className="w-8 h-8" />
@@ -75,7 +85,7 @@ export const Navbar: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex flex-col items-center justify-center p-2 rounded-lg transition-all-150",
+                  "flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-150",
                   location.pathname === item.path 
                     ? "text-primary bg-accent/50" 
                     : "text-foreground/60 hover:text-primary hover:bg-accent/30"
@@ -95,7 +105,7 @@ export const Navbar: React.FC = () => {
             
             <button 
               onClick={toggleMode} 
-              className="p-2 rounded-full hover:bg-accent/50 transition-all-150"
+              className="p-2 rounded-full hover:bg-accent/50 transition-all duration-150"
             >
               {mode === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
@@ -103,7 +113,7 @@ export const Navbar: React.FC = () => {
             <Link 
               to="/settings" 
               className={cn(
-                "p-2 rounded-full transition-all-150",
+                "p-2 rounded-full transition-all duration-150",
                 location.pathname === "/settings" 
                   ? "text-primary bg-accent/50" 
                   : "text-foreground/60 hover:text-primary hover:bg-accent/30"

@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "cyan" | "green" | "yellow";
+type Theme = "cyan" | "green" | "yellow" | "lavender" | "peach";
 type Mode = "light" | "dark";
 
 interface ThemeContextType {
@@ -41,7 +41,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem("meowdoro-theme", theme);
     
     // Remove any existing theme classes and add the new one
-    document.documentElement.classList.remove("theme-cyan", "theme-green", "theme-yellow");
+    document.documentElement.classList.remove(
+      "theme-cyan", 
+      "theme-green", 
+      "theme-yellow", 
+      "theme-lavender", 
+      "theme-peach"
+    );
     if (theme !== "cyan") {
       document.documentElement.classList.add(`theme-${theme}`);
     }

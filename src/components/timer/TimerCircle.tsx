@@ -17,8 +17,8 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   onTimerComplete,
   onTimerUpdate,
 }) => {
-  const [timeRemaining, setTimeRemaining] = useState(initialMinutes * 60);
-  const [initialTime] = useState(initialMinutes * 60);
+  const [timeRemaining, setTimeRemaining] = useState(isCountdown ? initialMinutes * 60 : 0);
+  const [initialTime] = useState(isCountdown ? initialMinutes * 60 : 0);
   const [isActive, setIsActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   
@@ -79,8 +79,8 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   const resetTimer = () => {
     setIsActive(false);
     setIsCompleted(false);
-    setTimeRemaining(initialMinutes * 60);
-    if (onTimerUpdate) onTimerUpdate(initialMinutes * 60);
+    setTimeRemaining(isCountdown ? initialMinutes * 60 : 0);
+    if (onTimerUpdate) onTimerUpdate(isCountdown ? initialMinutes * 60 : 0);
   };
   
   // Format time as MM:SS
@@ -143,20 +143,11 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="text-4xl font-mono font-bold mb-4">{formatTime(timeRemaining)}</div>
         
-        <div className="flex items-center space-x-4">
-          <Button 
-            size="lg"
-            variant="outline"
-            className="rounded-full w-12 h-12 p-0 flex items-center justify-center"
-            onClick={resetTimer}
-          >
-            <RotateCcw className="w-5 h-5" />
-          </Button>
-          
+        <div className="flex items-center justify-center">          
           <Button 
             size="lg"
             className={cn(
-              "rounded-full w-16 h-16 p-0 flex items-center justify-center",
+              "rounded-full w-16 h-16 p-0 flex items-center justify-center transition-all duration-300",
               isCompleted && "bg-green-500 hover:bg-green-600"
             )}
             onClick={toggleTimer}

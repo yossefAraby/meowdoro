@@ -3,12 +3,12 @@ import React, { useState, useEffect } from "react";
 import { TimerCircle } from "@/components/timer/TimerCircle";
 import { ProgressBar } from "@/components/timer/ProgressBar";
 import { CatCompanion } from "@/components/timer/CatCompanion";
+import { SoundControls } from "@/components/timer/SoundControls";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Timer as TimerIcon, Clock, Umbrella, Music, VolumeX } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Timer as TimerIcon, Clock } from "lucide-react";
 
 const Timer: React.FC = () => {
   const [isCountdown, setIsCountdown] = useState(true);
@@ -135,23 +135,22 @@ const Timer: React.FC = () => {
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 page-transition">
       <div className="flex flex-col items-center">
-        <div className="mb-8 flex items-center space-x-4">
-          <Button 
-            variant={isCountdown ? "default" : "outline"} 
-            className="gap-2" 
-            onClick={() => setIsCountdown(true)}
-          >
-            <TimerIcon className="w-4 h-4" />
-            <span>Timer</span>
-          </Button>
-          <Button 
-            variant={!isCountdown ? "default" : "outline"} 
-            className="gap-2" 
-            onClick={() => setIsCountdown(false)}
-          >
-            <Clock className="w-4 h-4" />
-            <span>Stopwatch</span>
-          </Button>
+        {/* Mode Toggle and Sound Controls */}
+        <div className="w-full flex justify-end space-x-4 mb-6">
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="timer-mode" className={!isCountdown ? "text-muted-foreground" : ""}>Timer</Label>
+            <Switch 
+              id="timer-mode" 
+              checked={!isCountdown}
+              onCheckedChange={toggleTimerMode}
+            />
+            <Label htmlFor="timer-mode" className={isCountdown ? "text-muted-foreground" : ""}>Stopwatch</Label>
+          </div>
+          
+          <SoundControls 
+            soundPlaying={soundPlaying} 
+            onPlaySound={playSound} 
+          />
         </div>
         
         <TimerCircle 
@@ -163,64 +162,6 @@ const Timer: React.FC = () => {
         
         <div className="mt-12 w-full">
           <ProgressBar currentMinutes={totalFocusMinutes} />
-        </div>
-        
-        <div className="mt-8 flex items-center gap-4">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="icon" className="relative">
-                <Umbrella className="w-5 h-5" />
-                {soundPlaying && (
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full" />
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56">
-              <div className="space-y-3">
-                <h4 className="font-medium text-sm">Focus Sounds</h4>
-                <div className="flex flex-col gap-2">
-                  <Button 
-                    variant={soundPlaying === "rain" ? "default" : "outline"} 
-                    size="sm" 
-                    className="justify-start gap-2" 
-                    onClick={() => playSound("rain")}
-                  >
-                    <Umbrella className="w-4 h-4" />
-                    Rain
-                  </Button>
-                  <Button 
-                    variant={soundPlaying === "cafe" ? "default" : "outline"} 
-                    size="sm" 
-                    className="justify-start gap-2" 
-                    onClick={() => playSound("cafe")}
-                  >
-                    <Music className="w-4 h-4" />
-                    Cafe
-                  </Button>
-                  <Button 
-                    variant={soundPlaying === "birds" ? "default" : "outline"} 
-                    size="sm" 
-                    className="justify-start gap-2" 
-                    onClick={() => playSound("birds")}
-                  >
-                    <Music className="w-4 h-4" />
-                    Birds
-                  </Button>
-                  {soundPlaying && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="justify-start gap-2 text-destructive hover:text-destructive" 
-                      onClick={() => playSound(soundPlaying)}
-                    >
-                      <VolumeX className="w-4 h-4" />
-                      Stop Sound
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
         </div>
       </div>
       

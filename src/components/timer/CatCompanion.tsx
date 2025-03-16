@@ -33,18 +33,16 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({
     }
   }, [status, mood]);
   
-  // Cat SVG elements based on the current mood
+  // Cat SVG elements based on the current mood - more minimalist designs
   const renderCat = () => {
     switch (mood) {
       case "sleeping":
         return (
           <div className="relative">
             <svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Simple cat silhouette */}
               <ellipse cx="60" cy="60" rx="40" ry="20" fill="currentColor" className="text-primary/20" />
               <path d="M40 40C40 40 50 25 60 25C70 25 80 40 80 40" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <path d="M45 35C45 35 50 30 60 30C70 30 75 35 75 35" fill="currentColor" />
-              <ellipse cx="45" cy="45" rx="5" ry="3" fill="currentColor" />
-              <ellipse cx="75" cy="45" rx="5" ry="3" fill="currentColor" />
               {/* Sleeping Z's */}
               <text x="85" y="25" fontSize="14" fontWeight="bold" fill="currentColor">Z</text>
               <text x="95" y="15" fontSize="10" fontWeight="bold" fill="currentColor">z</text>
@@ -60,13 +58,12 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({
         return (
           <div className="relative animate-float">
             <svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Simple cat silhouette */}
               <ellipse cx="60" cy="60" rx="40" ry="20" fill="currentColor" className="text-primary/20" />
               <path d="M40 40C40 40 50 25 60 25C70 25 80 40 80 40" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <path d="M45 35C45 35 50 30 60 30C70 30 75 35 75 35" fill="currentColor" />
-              <ellipse cx="45" cy="42" rx="5" ry="5" fill="currentColor" />
-              <ellipse cx="75" cy="42" rx="5" ry="5" fill="currentColor" />
-              <circle cx="45" cy="40" r="2" fill="white" />
-              <circle cx="75" cy="40" r="2" fill="white" />
+              {/* Happy eyes - just dots */}
+              <circle cx="50" cy="40" r="3" fill="currentColor" />
+              <circle cx="70" cy="40" r="3" fill="currentColor" />
               {/* Happy mouth */}
               <path d="M55 55 Q60 65 65 55" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               {/* Stars around the happy cat */}
@@ -81,14 +78,13 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({
         return (
           <div className="relative">
             <svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Simple cat silhouette */}
               <ellipse cx="60" cy="60" rx="40" ry="20" fill="currentColor" className="text-primary/20" />
               <path d="M40 40C40 40 50 25 60 25C70 25 80 40 80 40" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <path d="M45 35C45 35 50 30 60 30C70 30 75 35 75 35" fill="currentColor" />
-              <ellipse cx="45" cy="42" rx="3" ry="5" fill="currentColor" />
-              <ellipse cx="75" cy="42" rx="3" ry="5" fill="currentColor" />
-              <circle cx="45" cy="40" r="1" fill="white" />
-              <circle cx="75" cy="40" r="1" fill="white" />
-              {/* Focused mouth */}
+              {/* Focused eyes - small dots */}
+              <circle cx="50" cy="40" r="2" fill="currentColor" />
+              <circle cx="70" cy="40" r="2" fill="currentColor" />
+              {/* Focused mouth - straight line */}
               <line x1="57" y1="55" x2="63" y2="55" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </div>
@@ -99,13 +95,12 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({
         return (
           <div className="relative">
             <svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Simple cat silhouette */}
               <ellipse cx="60" cy="60" rx="40" ry="20" fill="currentColor" className="text-primary/20" />
               <path d="M40 40C40 40 50 25 60 25C70 25 80 40 80 40" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <path d="M45 35C45 35 50 30 60 30C70 30 75 35 75 35" fill="currentColor" />
-              <ellipse cx="45" cy="42" rx="5" ry="3" fill="currentColor" />
-              <ellipse cx="75" cy="42" rx="5" ry="3" fill="currentColor" />
-              <circle cx="45" cy="42" r="1" fill="white" />
-              <circle cx="75" cy="42" r="1" fill="white" />
+              {/* Regular eyes - dots */}
+              <circle cx="50" cy="40" r="3" fill="currentColor" />
+              <circle cx="70" cy="40" r="3" fill="currentColor" />
               {/* Neutral mouth */}
               <path d="M55 52 Q60 55 65 52" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>

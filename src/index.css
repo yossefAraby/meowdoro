@@ -39,6 +39,8 @@
     /* Alternative themes */
     --green-primary: 145 85% 65%;
     --yellow-primary: 45 85% 70%;
+    --lavender-primary: 270 85% 80%;
+    --peach-primary: 25 85% 75%;
 
     /* Radius */
     --radius: 1rem;
@@ -54,6 +56,18 @@
     --primary: 45 85% 70%;
     --accent: 45 95% 85%; 
     --ring: 45 85% 70%;
+  }
+  
+  .theme-lavender {
+    --primary: 270 85% 80%;
+    --accent: 270 95% 90%;
+    --ring: 270 85% 80%;
+  }
+  
+  .theme-peach {
+    --primary: 25 85% 75%;
+    --accent: 25 95% 85%;
+    --ring: 25 85% 75%;
   }
 
   .dark {
@@ -94,6 +108,18 @@
     --primary: 45 70% 55%;
     --accent: 45 40% 30%;
     --ring: 45 70% 55%;
+  }
+  
+  .dark.theme-lavender {
+    --primary: 270 70% 65%;
+    --accent: 270 40% 25%;
+    --ring: 270 70% 65%;
+  }
+  
+  .dark.theme-peach {
+    --primary: 25 70% 60%;
+    --accent: 25 40% 25%;
+    --ring: 25 70% 60%;
   }
 }
 

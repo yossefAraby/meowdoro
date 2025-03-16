@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   RadioGroup,
   RadioGroupItem 
@@ -95,42 +94,63 @@ const Settings: React.FC = () => {
           <CardContent className="space-y-4">
             <div>
               <Label className="text-base mb-2 block">Color Theme</Label>
-              <RadioGroup 
-                value={theme} 
-                onValueChange={(value) => setTheme(value as any)}
-                className="flex flex-wrap gap-3"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="cyan" id="cyan" />
-                  <Label htmlFor="cyan" className="cursor-pointer">Cyan</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <div 
+                  className={`flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${theme === 'cyan' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
+                  onClick={() => setTheme('cyan')}
+                >
+                  <div className="w-12 h-12 rounded-full bg-[hsl(195,85%,65%)]"></div>
+                  <span className="text-sm">Cyan</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="green" id="green" />
-                  <Label htmlFor="green" className="cursor-pointer">Green</Label>
+                <div 
+                  className={`flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${theme === 'green' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
+                  onClick={() => setTheme('green')}
+                >
+                  <div className="w-12 h-12 rounded-full bg-[hsl(145,85%,65%)]"></div>
+                  <span className="text-sm">Green</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="yellow" id="yellow" />
-                  <Label htmlFor="yellow" className="cursor-pointer">Yellow</Label>
+                <div 
+                  className={`flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${theme === 'yellow' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
+                  onClick={() => setTheme('yellow')}
+                >
+                  <div className="w-12 h-12 rounded-full bg-[hsl(45,85%,70%)]"></div>
+                  <span className="text-sm">Yellow</span>
                 </div>
-              </RadioGroup>
+                <div 
+                  className={`flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${theme === 'lavender' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
+                  onClick={() => setTheme('lavender')}
+                >
+                  <div className="w-12 h-12 rounded-full bg-[hsl(270,85%,80%)]"></div>
+                  <span className="text-sm">Lavender</span>
+                </div>
+                <div 
+                  className={`flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${theme === 'peach' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
+                  onClick={() => setTheme('peach')}
+                >
+                  <div className="w-12 h-12 rounded-full bg-[hsl(25,85%,75%)]"></div>
+                  <span className="text-sm">Peach</span>
+                </div>
+              </div>
             </div>
             
             <div>
               <Label className="text-base mb-2 block">Mode</Label>
-              <RadioGroup 
-                value={mode} 
-                onValueChange={(value) => setMode(value as any)}
-                className="flex flex-wrap gap-3"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="light" id="light" />
-                  <Label htmlFor="light" className="cursor-pointer">Light</Label>
+              <div className="flex gap-4">
+                <div 
+                  className={`flex-1 flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${mode === 'light' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
+                  onClick={() => setMode('light')}
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#f8f9fa] border"></div>
+                  <span className="text-sm">Light</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="dark" id="dark" />
-                  <Label htmlFor="dark" className="cursor-pointer">Dark</Label>
+                <div 
+                  className={`flex-1 flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${mode === 'dark' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
+                  onClick={() => setMode('dark')}
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#212529]"></div>
+                  <span className="text-sm">Dark</span>
                 </div>
-              </RadioGroup>
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,6 @@ const Landing: React.FC = () => {
     e.preventDefault();
     
     // For demonstration purposes, we'll just store a simple user object
-    // In a real app, you would validate credentials and fetch user data
     localStorage.setItem("meowdoro-user", JSON.stringify({ email }));
     
     // Navigate to the timer page after "authentication"
@@ -32,9 +30,9 @@ const Landing: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col animate-fade-in">
       {/* Hero Section */}
-      <div className="flex flex-col items-center justify-center px-6 py-20 lg:py-32 animate-fade-in">
+      <div className="flex flex-col items-center justify-center px-6 py-20 lg:py-32">
         <div className="container max-w-7xl">
           <div className="flex flex-col lg:flex-row items-center gap-12">
             <div className="flex-1 space-y-6">
