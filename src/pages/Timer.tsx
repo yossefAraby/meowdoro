@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { TimerCircle } from "@/components/timer/TimerCircle";
 import { ProgressBar } from "@/components/timer/ProgressBar";
@@ -22,6 +21,7 @@ import {
 } from "@/components/ui/drawer";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -55,7 +55,6 @@ const Timer: React.FC = () => {
   const birdsAudio = React.useRef<HTMLAudioElement | null>(null);
   
   useEffect(() => {
-    // Updated audio URLs to working sound files
     rainAudio.current = new Audio("https://assets.coderrocketfuel.com/pomodoro-times-up.mp3");
     cafeAudio.current = new Audio("https://assets.coderrocketfuel.com/pomodoro-times-up.mp3");
     birdsAudio.current = new Audio("https://assets.coderrocketfuel.com/pomodoro-times-up.mp3");
@@ -171,7 +170,6 @@ const Timer: React.FC = () => {
     });
   };
 
-  // Choose between Dialog (desktop) and Drawer (mobile)
   const SettingsContainer = isMobile ? Drawer : Dialog;
   const SettingsTrigger = isMobile ? DrawerTrigger : DialogTrigger;
   const SettingsContent = isMobile ? DrawerContent : DialogContent;
@@ -184,9 +182,7 @@ const Timer: React.FC = () => {
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 page-transition">
       <div className="flex flex-col items-center">
-        {/* Control Buttons - rearranged order */}
         <div className="w-full flex justify-end space-x-4 mb-6">
-          {/* Timer/Stopwatch Toggle */}
           <Button
             variant="outline"
             size="icon"
@@ -201,13 +197,11 @@ const Timer: React.FC = () => {
             )}
           </Button>
           
-          {/* Sound Controls - now in the middle */}
           <SoundControls 
             soundPlaying={soundPlaying} 
             onPlaySound={playSound} 
           />
           
-          {/* Timer Settings - now on the right */}
           <SettingsContainer>
             <SettingsTrigger asChild>
               <Button variant="outline" size="icon" className="relative">
