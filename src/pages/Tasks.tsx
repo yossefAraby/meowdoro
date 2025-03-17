@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +20,8 @@ import {
   Edit,
   Pin,
   Clock,
-  Palette
+  Palette,
+  ListChecks
 } from "lucide-react";
 import { 
   DropdownMenu,
@@ -32,16 +34,34 @@ import { cn } from "@/lib/utils";
 // Task and note types
 type ItemType = "task" | "note";
 
+interface Task {
+  id: string;
+  text: string;
+  isCompleted: boolean;
+}
+
 interface Item {
   id: string;
   type: ItemType;
   title: string;
   content: string;
+  tasks?: Task[];
   isPinned: boolean;
   isCompleted?: boolean;
   color?: string;
   createdAt: number;
 }
+
+// Helper function to format dates
+const formatDate = (timestamp: number) => {
+  const date = new Date(timestamp);
+  return date.toLocaleDateString(undefined, { 
+    month: 'short', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
 
 const Tasks: React.FC = () => {
   const [items, setItems] = useState<Item[]>(() => {
@@ -54,6 +74,7 @@ const Tasks: React.FC = () => {
   const [content, setContent] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedColor, setSelectedColor] = useState("bg-white dark:bg-card");
+  const [taskItems, setTaskItems] = useState<string[]>([""]);
   
   const { toast } = useToast();
   
@@ -63,13 +84,26 @@ const Tasks: React.FC = () => {
   }, [items]);
   
   const addItem = () => {
-    if (!content.trim() && !title.trim()) return;
+    if (activeTab === "note" && !content.trim() && !title.trim()) return;
+    if (activeTab === "task" && !title.trim() && taskItems.every(item => !item.trim())) return;
+    
+    // Create tasks array from taskItems for task type
+    const tasks = activeTab === "task" 
+      ? taskItems
+          .filter(item => item.trim())
+          .map(item => ({
+            id: Math.random().toString(36).substr(2, 9),
+            text: item,
+            isCompleted: false
+          }))
+      : undefined;
     
     const newItem: Item = {
       id: Date.now().toString(),
       type: activeTab,
-      title: title.trim() || (activeTab === "task" ? "Task" : "Note"),
-      content,
+      title: title.trim() || (activeTab === "task" ? "Task list" : "Note"),
+      content: activeTab === "note" ? content : "",
+      tasks: tasks,
       isPinned: false,
       isCompleted: activeTab === "task" ? false : undefined,
       color: selectedColor,
@@ -79,12 +113,13 @@ const Tasks: React.FC = () => {
     setItems([newItem, ...items]);
     setTitle("");
     setContent("");
+    setTaskItems([""]);
     setIsExpanded(false);
     setSelectedColor("bg-white dark:bg-card");
     
     toast({
       title: `New ${activeTab} added`,
-      description: title.trim() || content.substring(0, 20) + "...",
+      description: title.trim() || (activeTab === "task" ? "Task list" : content.substring(0, 20) + "..."),
     });
   };
   
@@ -93,6 +128,20 @@ const Tasks: React.FC = () => {
       items.map(item => 
         item.id === id ? { ...item, isCompleted: !item.isCompleted } : item
       )
+    );
+  };
+  
+  const toggleTaskCompletion = (itemId: string, taskId: string) => {
+    setItems(
+      items.map(item => {
+        if (item.id === itemId && item.tasks) {
+          const updatedTasks = item.tasks.map(task => 
+            task.id === taskId ? { ...task, isCompleted: !task.isCompleted } : task
+          );
+          return { ...item, tasks: updatedTasks };
+        }
+        return item;
+      })
     );
   };
   
@@ -121,6 +170,23 @@ const Tasks: React.FC = () => {
     );
   };
   
+  const handleTaskItemChange = (index: number, value: string) => {
+    const newTaskItems = [...taskItems];
+    newTaskItems[index] = value;
+    
+    // Add a new empty task if we're editing the last one and it's not empty
+    if (index === taskItems.length - 1 && value.trim() !== "") {
+      newTaskItems.push("");
+    }
+    
+    // Remove empty tasks except for the last one
+    if (value === "" && index !== taskItems.length - 1) {
+      newTaskItems.splice(index, 1);
+    }
+    
+    setTaskItems(newTaskItems);
+  };
+  
   // Filter and sort items
   const filteredItems = items
     .filter(item => item.type === activeTab)
@@ -144,17 +210,6 @@ const Tasks: React.FC = () => {
     { value: "bg-violet-100 dark:bg-violet-900/20", label: "Purple" },
   ];
   
-  // Format the creation date 
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString(undefined, { 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-  
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8 page-transition">
       <div className="mb-8">
@@ -164,37 +219,53 @@ const Tasks: React.FC = () => {
           <Tabs defaultValue="task" value={activeTab} onValueChange={(v) => setActiveTab(v as ItemType)} className="mb-4">
             <TabsList className="w-full">
               <TabsTrigger value="task" className="flex-1 flex items-center justify-center gap-2">
-                <CheckSquare className="w-4 h-4" />
-                Task
+                <ListChecks className="w-4 h-4" />
+                Tasks
               </TabsTrigger>
               <TabsTrigger value="note" className="flex-1 flex items-center justify-center gap-2">
                 <FileText className="w-4 h-4" />
-                Note
+                Notes
               </TabsTrigger>
             </TabsList>
           </Tabs>
           
           <Card className={cn("transition-all duration-300 shadow-soft hover:shadow-soft-md", selectedColor)}>
             <CardContent className="p-4">
-              {isExpanded && (
-                <Input
-                  placeholder="Title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="mb-2 border-0 bg-transparent p-0 text-lg font-medium focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              )}
-              
-              <Textarea
-                placeholder={activeTab === "task" ? "Add a task..." : "Take a note..."}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
+              <Input
+                placeholder="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 onFocus={() => setIsExpanded(true)}
-                className={cn(
-                  "min-h-[40px] resize-none border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-                  isExpanded ? "min-h-[80px]" : ""
-                )}
+                className="mb-2 border-0 bg-transparent p-0 text-lg font-medium focus-visible:ring-0 focus-visible:ring-offset-0"
               />
+              
+              {activeTab === "note" ? (
+                <Textarea
+                  placeholder="Take a note..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  onFocus={() => setIsExpanded(true)}
+                  className={cn(
+                    "min-h-[40px] resize-none border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0",
+                    isExpanded ? "min-h-[80px]" : ""
+                  )}
+                />
+              ) : (
+                <div className="space-y-2">
+                  {taskItems.map((task, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <CheckSquare className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-1" />
+                      <Input
+                        value={task}
+                        onChange={(e) => handleTaskItemChange(index, e.target.value)}
+                        placeholder={index === 0 ? "List item" : "Add another item"}
+                        onFocus={() => setIsExpanded(true)}
+                        className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
               
               {isExpanded && (
                 <div className="flex items-center justify-between mt-4">
@@ -228,13 +299,14 @@ const Tasks: React.FC = () => {
                         setIsExpanded(false);
                         setTitle("");
                         setContent("");
+                        setTaskItems([""]);
                         setSelectedColor("bg-white dark:bg-card");
                       }}
                     >
                       Close
                     </Button>
                     <Button size="sm" onClick={addItem}>
-                      {activeTab === "task" ? "Add task" : "Add note"}
+                      {activeTab === "task" ? "Add task list" : "Add note"}
                     </Button>
                   </div>
                 </div>
@@ -256,6 +328,7 @@ const Tasks: React.FC = () => {
                   key={item.id} 
                   item={item} 
                   onToggleCompletion={toggleItemCompletion}
+                  onToggleTaskCompletion={toggleTaskCompletion}
                   onTogglePin={toggleItemPin}
                   onDelete={deleteItem}
                   onUpdateColor={updateItemColor}
@@ -287,6 +360,7 @@ const Tasks: React.FC = () => {
                   key={item.id} 
                   item={item} 
                   onToggleCompletion={toggleItemCompletion}
+                  onToggleTaskCompletion={toggleTaskCompletion}
                   onTogglePin={toggleItemPin}
                   onDelete={deleteItem}
                   onUpdateColor={updateItemColor}
@@ -304,6 +378,7 @@ const Tasks: React.FC = () => {
 const ItemCard: React.FC<{
   item: Item;
   onToggleCompletion: (id: string) => void;
+  onToggleTaskCompletion: (itemId: string, taskId: string) => void;
   onTogglePin: (id: string) => void;
   onDelete: (id: string) => void;
   onUpdateColor: (id: string, color: string) => void;
@@ -311,6 +386,7 @@ const ItemCard: React.FC<{
 }> = ({ 
   item, 
   onToggleCompletion, 
+  onToggleTaskCompletion,
   onTogglePin, 
   onDelete,
   onUpdateColor,
@@ -340,7 +416,7 @@ const ItemCard: React.FC<{
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {item.type === "task" && (
+            {item.type === "task" && item.tasks === undefined && (
               <DropdownMenuItem 
                 onClick={() => onToggleCompletion(item.id)}
               >
@@ -388,9 +464,34 @@ const ItemCard: React.FC<{
       </CardHeader>
       
       <CardContent className="p-4">
-        <p className={cn(item.isCompleted && "line-through text-muted-foreground")}>
-          {item.content}
-        </p>
+        {item.type === "note" ? (
+          <p className={cn(item.isCompleted && "line-through text-muted-foreground")}>
+            {item.content}
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {item.tasks?.map((task) => (
+              <div 
+                key={task.id} 
+                className="flex items-start gap-2"
+                onClick={() => onToggleTaskCompletion(item.id, task.id)}
+              >
+                <div className={cn(
+                  "mt-1 w-4 h-4 rounded border flex items-center justify-center transition-colors cursor-pointer", 
+                  task.isCompleted ? 'bg-primary/20 border-primary/30' : 'border-foreground/30'
+                )}>
+                  {task.isCompleted && <CheckSquare className="w-3 h-3 text-primary" />}
+                </div>
+                <p className={cn(
+                  "flex-1", 
+                  task.isCompleted && "line-through text-muted-foreground"
+                )}>
+                  {task.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
       
       <CardFooter className="p-3 pt-0 flex justify-between items-center text-xs text-muted-foreground">
@@ -399,7 +500,7 @@ const ItemCard: React.FC<{
           <span>{formatDate(item.createdAt)}</span>
         </div>
         
-        {item.type === "task" && (
+        {item.type === "task" && item.tasks === undefined && (
           <button 
             onClick={() => onToggleCompletion(item.id)}
             className={cn(

@@ -81,6 +81,17 @@ const Settings: React.FC = () => {
     });
   };
   
+  // Theme color options
+  const themeOptions = [
+    { value: 'cyan', color: 'bg-[hsl(195,75%,65%)]', name: 'Cyan' },
+    { value: 'green', color: 'bg-[hsl(145,75%,60%)]', name: 'Green' },
+    { value: 'yellow', color: 'bg-[hsl(45,75%,65%)]', name: 'Yellow' },
+    { value: 'lavender', color: 'bg-[hsl(270,75%,75%)]', name: 'Lavender' },
+    { value: 'peach', color: 'bg-[hsl(25,75%,70%)]', name: 'Peach' },
+    { value: 'mint', color: 'bg-[hsl(165,75%,65%)]', name: 'Mint' },
+    { value: 'rose', color: 'bg-[hsl(355,75%,70%)]', name: 'Rose' }
+  ];
+  
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 page-transition">
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
@@ -94,42 +105,17 @@ const Settings: React.FC = () => {
           <CardContent className="space-y-4">
             <div>
               <Label className="text-base mb-2 block">Color Theme</Label>
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div 
-                  className={`flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${theme === 'cyan' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
-                  onClick={() => setTheme('cyan')}
-                >
-                  <div className="w-12 h-12 rounded-full bg-[hsl(195,85%,65%)]"></div>
-                  <span className="text-sm">Cyan</span>
-                </div>
-                <div 
-                  className={`flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${theme === 'green' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
-                  onClick={() => setTheme('green')}
-                >
-                  <div className="w-12 h-12 rounded-full bg-[hsl(145,85%,65%)]"></div>
-                  <span className="text-sm">Green</span>
-                </div>
-                <div 
-                  className={`flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${theme === 'yellow' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
-                  onClick={() => setTheme('yellow')}
-                >
-                  <div className="w-12 h-12 rounded-full bg-[hsl(45,85%,70%)]"></div>
-                  <span className="text-sm">Yellow</span>
-                </div>
-                <div 
-                  className={`flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${theme === 'lavender' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
-                  onClick={() => setTheme('lavender')}
-                >
-                  <div className="w-12 h-12 rounded-full bg-[hsl(270,85%,80%)]"></div>
-                  <span className="text-sm">Lavender</span>
-                </div>
-                <div 
-                  className={`flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${theme === 'peach' ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
-                  onClick={() => setTheme('peach')}
-                >
-                  <div className="w-12 h-12 rounded-full bg-[hsl(25,85%,75%)]"></div>
-                  <span className="text-sm">Peach</span>
-                </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+                {themeOptions.map(option => (
+                  <div 
+                    key={option.value}
+                    className={`flex flex-col items-center gap-2 p-3 cursor-pointer rounded-lg border-2 transition-all ${theme === option.value ? 'border-primary' : 'border-transparent hover:border-primary/30'}`}
+                    onClick={() => setTheme(option.value as any)}
+                  >
+                    <div className={`w-12 h-12 rounded-full ${option.color}`}></div>
+                    <span className="text-sm">{option.name}</span>
+                  </div>
+                ))}
               </div>
             </div>
             

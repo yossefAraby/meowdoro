@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "cyan" | "green" | "yellow" | "lavender" | "peach";
+type Theme = "cyan" | "green" | "yellow" | "lavender" | "peach" | "mint" | "rose";
 type Mode = "light" | "dark";
 
 interface ThemeContextType {
@@ -46,7 +46,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       "theme-green", 
       "theme-yellow", 
       "theme-lavender", 
-      "theme-peach"
+      "theme-peach",
+      "theme-mint",
+      "theme-rose"
     );
     if (theme !== "cyan") {
       document.documentElement.classList.add(`theme-${theme}`);

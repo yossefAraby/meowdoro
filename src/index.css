@@ -16,7 +16,7 @@
     --popover-foreground: 195 30% 15%;
 
     /* Primary - Cyan Theme (Default) */
-    --primary: 195 85% 65%;
+    --primary: 195 75% 65%;
     --primary-foreground: 195 30% 15%;
 
     /* Secondary & Accent */
@@ -34,40 +34,54 @@
     /* Border & Input */
     --border: 195 20% 90%;
     --input: 195 20% 90%;
-    --ring: 195 85% 65%;
+    --ring: 195 75% 65%;
 
     /* Alternative themes */
-    --green-primary: 145 85% 65%;
-    --yellow-primary: 45 85% 70%;
-    --lavender-primary: 270 85% 80%;
-    --peach-primary: 25 85% 75%;
+    --green-primary: 145 75% 60%;
+    --yellow-primary: 45 75% 65%;
+    --lavender-primary: 270 75% 75%;
+    --peach-primary: 25 75% 70%;
+    --mint-primary: 165 75% 65%;
+    --rose-primary: 355 75% 70%;
 
     /* Radius */
     --radius: 1rem;
   }
 
   .theme-green {
-    --primary: 145 85% 65%;
-    --accent: 145 95% 85%;
-    --ring: 145 85% 65%;
+    --primary: 145 75% 60%;
+    --accent: 145 85% 85%;
+    --ring: 145 75% 60%;
   }
 
   .theme-yellow {
-    --primary: 45 85% 70%;
-    --accent: 45 95% 85%; 
-    --ring: 45 85% 70%;
+    --primary: 45 75% 65%;
+    --accent: 45 85% 85%; 
+    --ring: 45 75% 65%;
   }
   
   .theme-lavender {
-    --primary: 270 85% 80%;
-    --accent: 270 95% 90%;
-    --ring: 270 85% 80%;
+    --primary: 270 75% 75%;
+    --accent: 270 85% 90%;
+    --ring: 270 75% 75%;
   }
   
   .theme-peach {
-    --primary: 25 85% 75%;
-    --accent: 25 95% 85%;
-    --ring: 25 85% 75%;
+    --primary: 25 75% 70%;
+    --accent: 25 85% 85%;
+    --ring: 25 75% 70%;
+  }
+  
+  .theme-mint {
+    --primary: 165 75% 65%;
+    --accent: 165 85% 85%;
+    --ring: 165 75% 65%;
+  }
+  
+  .theme-rose {
+    --primary: 355 75% 70%;
+    --accent: 355 85% 85%;
+    --ring: 355 75% 70%;
   }
 
   .dark {
@@ -79,7 +93,7 @@
     --popover: 195 30% 15%;
     --popover-foreground: 195 10% 90%;
 
-    --primary: 195 70% 60%;
+    --primary: 195 65% 55%;
     --primary-foreground: 195 10% 98%;
 
     --secondary: 195 20% 20%;
@@ -95,31 +109,43 @@
 
     --border: 195 20% 25%;
     --input: 195 20% 25%;
-    --ring: 195 70% 60%;
+    --ring: 195 65% 55%;
   }
 
   .dark.theme-green {
-    --primary: 145 70% 50%;
+    --primary: 145 60% 45%;
     --accent: 145 40% 25%;
-    --ring: 145 70% 50%;
+    --ring: 145 60% 45%;
   }
 
   .dark.theme-yellow {
-    --primary: 45 70% 55%;
+    --primary: 45 65% 50%;
     --accent: 45 40% 30%;
-    --ring: 45 70% 55%;
+    --ring: 45 65% 50%;
   }
   
   .dark.theme-lavender {
-    --primary: 270 70% 65%;
+    --primary: 270 65% 60%;
     --accent: 270 40% 25%;
-    --ring: 270 70% 65%;
+    --ring: 270 65% 60%;
   }
   
   .dark.theme-peach {
-    --primary: 25 70% 60%;
+    --primary: 25 60% 55%;
     --accent: 25 40% 25%;
-    --ring: 25 70% 60%;
+    --ring: 25 60% 55%;
+  }
+  
+  .dark.theme-mint {
+    --primary: 165 60% 45%;
+    --accent: 165 40% 25%;
+    --ring: 165 60% 45%;
+  }
+  
+  .dark.theme-rose {
+    --primary: 355 60% 55%;
+    --accent: 355 40% 25%;
+    --ring: 355 60% 55%;
   }
 }
 
@@ -191,5 +217,17 @@
   
   .page-transition {
     @apply animate-slide-up;
+  }
+  
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+  
+  .focus-ring {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-md;
   }
 }
