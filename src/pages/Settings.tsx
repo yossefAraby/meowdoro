@@ -4,22 +4,22 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  RadioGroup,
-  RadioGroupItem 
-} from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/layout/ThemeProvider";
 import { useToast } from "@/hooks/use-toast";
 import { Image, Upload, Trash, Check } from "lucide-react";
 
 const Settings: React.FC = () => {
   const { toast } = useToast();
-  const { theme, setTheme, mode, setMode } = useTheme();
+  const { theme, setTheme, mode, setMode, transparency, setTransparency } = useTheme();
   const [selectedBackground, setSelectedBackground] = useState(() => {
     return localStorage.getItem("meowdoro-background") || "none";
   });
   const [customBackgroundUrl, setCustomBackgroundUrl] = useState(() => {
     return localStorage.getItem("meowdoro-custom-background-url") || "";
+  });
+  const [backgroundOpacity, setBackgroundOpacity] = useState(() => {
+    return Number(localStorage.getItem("meowdoro-background-opacity") || "1");
   });
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,26 +38,33 @@ const Settings: React.FC = () => {
   const saveSettings = () => {
     // Save background settings
     localStorage.setItem("meowdoro-background", selectedBackground);
+    localStorage.setItem("meowdoro-background-opacity", backgroundOpacity.toString());
+    
+    // Clear any existing backgrounds first
+    document.body.style.backgroundImage = '';
+    document.body.style.backgroundSize = '';
+    document.body.style.backgroundPosition = '';
+    document.body.style.backgroundAttachment = '';
+    document.body.className = document.body.className
+      .replace(/bg-\S+/g, '')
+      .replace(/opacity-\S+/g, '');
     
     if (selectedBackground === 'custom' && customBackgroundUrl) {
       localStorage.setItem("meowdoro-custom-background-url", customBackgroundUrl);
       
-      // Apply background to body
+      // Apply background to body with opacity
       document.body.style.backgroundImage = `url('${customBackgroundUrl}')`;
       document.body.style.backgroundSize = 'cover';
       document.body.style.backgroundPosition = 'center';
       document.body.style.backgroundAttachment = 'fixed';
+      document.body.style.backgroundBlendMode = 'overlay';
+      document.body.style.opacity = backgroundOpacity.toString();
     } else if (selectedBackground === 'none') {
-      // Remove background
-      document.body.style.backgroundImage = '';
-      document.body.style.backgroundSize = '';
-      document.body.style.backgroundPosition = '';
-      document.body.style.backgroundAttachment = '';
+      // Already cleared above
     } else {
       // Apply preset background
       const option = backgroundOptions.find(opt => opt.value === selectedBackground);
       if (option) {
-        document.body.className = document.body.className.replace(/bg-\S+/g, '');
         const classes = option.preview.split(' ');
         classes.forEach(cls => {
           if (cls.trim()) document.body.classList.add(cls.trim());
@@ -76,17 +83,22 @@ const Settings: React.FC = () => {
     // Reset background settings
     setSelectedBackground('none');
     setCustomBackgroundUrl('');
+    setBackgroundOpacity(1);
     
     // Remove background
     document.body.style.backgroundImage = '';
     document.body.style.backgroundSize = '';
     document.body.style.backgroundPosition = '';
     document.body.style.backgroundAttachment = '';
-    document.body.className = document.body.className.replace(/bg-\S+/g, '');
+    document.body.style.backgroundBlendMode = '';
+    document.body.className = document.body.className
+      .replace(/bg-\S+/g, '')
+      .replace(/opacity-\S+/g, '');
     
     // Clear localStorage
     localStorage.removeItem("meowdoro-background");
     localStorage.removeItem("meowdoro-custom-background-url");
+    localStorage.removeItem("meowdoro-background-opacity");
     
     // Notify user
     toast({
@@ -176,6 +188,20 @@ const Settings: React.FC = () => {
                 </div>
               </div>
             </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="transparency-toggle" className="text-base">UI Transparency</Label>
+                <p className="text-sm text-muted-foreground">
+                  Enable transparency effects (lighter on system resources when disabled)
+                </p>
+              </div>
+              <Switch
+                id="transparency-toggle"
+                checked={transparency}
+                onCheckedChange={setTransparency}
+              />
+            </div>
           </CardContent>
         </Card>
         
@@ -257,6 +283,23 @@ const Settings: React.FC = () => {
                     onChange={handleImageUpload}
                   />
                 </div>
+                
+                <div>
+                  <Label className="text-base mb-2 block">Background Opacity</Label>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="range"
+                      min="0.3"
+                      max="1"
+                      step="0.05"
+                      value={backgroundOpacity}
+                      onChange={(e) => setBackgroundOpacity(parseFloat(e.target.value))}
+                      className="flex-grow" 
+                    />
+                    <span className="w-10 text-center">{Math.round(backgroundOpacity * 100)}%</span>
+                  </div>
+                </div>
+                
                 <p className="text-sm text-muted-foreground">
                   Upload an image or enter a URL. Images should be less than 5MB.
                 </p>

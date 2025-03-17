@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Cat, Users, Link, Copy, ArrowRight } from "lucide-react";
@@ -159,14 +159,11 @@ const Party: React.FC = () => {
         </Tabs>
       </Card>
       
-      {/* Cat Illustrations using Lucide icons */}
+      {/* Cat Illustrations using Lucide icons with animation */}
       <div className="mt-16 flex justify-center items-end gap-12">
         <div className="relative">
           <div className="animate-float">
             <Cat className="h-12 w-12 text-primary" />
-          </div>
-          <div className="absolute -top-10 -left-5 bg-card p-2 rounded-lg shadow-sm w-24 text-center text-xs animate-pulse-soft">
-            <span>Let's study together!</span>
           </div>
         </div>
         
@@ -175,10 +172,6 @@ const Party: React.FC = () => {
         <div className="relative">
           <div className="animate-float" style={{ animationDelay: "1s" }}>
             <Cat className="h-12 w-12 text-foreground" />
-          </div>
-          <div className="absolute -top-8 right-2">
-            <div className="w-8 h-10 rounded-sm bg-accent rotate-6 border border-primary/20"></div>
-            <div className="w-8 h-10 rounded-sm bg-primary/20 absolute top-1 right-1 -rotate-3 border border-primary/20"></div>
           </div>
         </div>
       </div>

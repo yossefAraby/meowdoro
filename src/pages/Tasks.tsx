@@ -3,14 +3,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +21,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Plus, 
   MoreVertical, 
@@ -38,12 +32,10 @@ import {
   X, 
   Search, 
   CheckSquare, 
-  Image,
-  PinIcon,
   ListPlus,
-  Palette
+  Palette,
+  PinIcon,
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 // Types for our notes
 type TaskItem = {
@@ -68,15 +60,15 @@ type Note = {
 
 const colorOptions = [
   { name: 'Default', value: 'default', class: 'bg-card' },
-  { name: 'Red', value: 'red', class: 'bg-red-100 dark:bg-red-900' },
-  { name: 'Orange', value: 'orange', class: 'bg-orange-100 dark:bg-orange-900' },
-  { name: 'Yellow', value: 'yellow', class: 'bg-yellow-100 dark:bg-yellow-900' },
-  { name: 'Green', value: 'green', class: 'bg-green-100 dark:bg-green-900' },
-  { name: 'Teal', value: 'teal', class: 'bg-teal-100 dark:bg-teal-900' },
-  { name: 'Blue', value: 'blue', class: 'bg-blue-100 dark:bg-blue-900' },
-  { name: 'Purple', value: 'purple', class: 'bg-purple-100 dark:bg-purple-900' },
-  { name: 'Pink', value: 'pink', class: 'bg-pink-100 dark:bg-pink-900' },
-  { name: 'Gray', value: 'gray', class: 'bg-gray-100 dark:bg-gray-900' },
+  { name: 'Red', value: 'red', class: 'bg-red-100 dark:bg-red-900/80' },
+  { name: 'Orange', value: 'orange', class: 'bg-orange-100 dark:bg-orange-900/80' },
+  { name: 'Yellow', value: 'yellow', class: 'bg-yellow-100 dark:bg-yellow-900/80' },
+  { name: 'Green', value: 'green', class: 'bg-green-100 dark:bg-green-900/80' },
+  { name: 'Teal', value: 'teal', class: 'bg-teal-100 dark:bg-teal-900/80' },
+  { name: 'Blue', value: 'blue', class: 'bg-blue-100 dark:bg-blue-900/80' },
+  { name: 'Purple', value: 'purple', class: 'bg-purple-100 dark:bg-purple-900/80' },
+  { name: 'Pink', value: 'pink', class: 'bg-pink-100 dark:bg-pink-900/80' },
+  { name: 'Gray', value: 'gray', class: 'bg-gray-100 dark:bg-gray-900/80' },
 ];
 
 const Tasks: React.FC = () => {
@@ -88,7 +80,6 @@ const Tasks: React.FC = () => {
   
   // UI state
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [activeFilter, setActiveFilter] = useState<string>('all');
   const [composeType, setComposeType] = useState<NoteType>('note');
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
   
@@ -127,10 +118,6 @@ const Tasks: React.FC = () => {
   
   // Filter and search notes
   const filteredNotes = notes.filter(note => {
-    // Apply type filter
-    if (activeFilter === 'lists' && note.type !== 'list') return false;
-    if (activeFilter === 'notes' && note.type !== 'note') return false;
-    
     // Apply search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -375,36 +362,21 @@ const Tasks: React.FC = () => {
   
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8 page-transition">
-      {/* Search and filter bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
-        <div className="relative flex-grow">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search your notes"
-            className="pl-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        
-        <Select value={activeFilter} onValueChange={setActiveFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="notes">Notes only</SelectItem>
-            <SelectItem value="lists">Lists only</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Search bar */}
+      <div className="relative max-w-xl mx-auto mb-6">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search your notes"
+          className="pl-10 shadow-sm"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
       
       {/* Note composer */}
       <div 
         ref={composeRef}
-        className={`mb-8 rounded-lg border shadow-sm transition-all duration-200 overflow-hidden ${
-          isComposerExpanded ? 'max-w-xl mx-auto' : 'max-w-3xl mx-auto'
-        }`}
+        className={`mb-8 rounded-lg border shadow-sm transition-all duration-200 overflow-hidden max-w-xl mx-auto`}
       >
         <div className="p-4">
           {isComposerExpanded && (
@@ -493,8 +465,8 @@ const Tasks: React.FC = () => {
         )}
       </div>
       
-      {/* Notes grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {/* Notes masonry grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-min">
         {sortedNotes.map(note => (
           <div 
             key={note.id} 
@@ -502,7 +474,7 @@ const Tasks: React.FC = () => {
               getNoteColorClass(note.color)
             } transition-all hover:shadow-md ${
               note.pinned ? 'ring-1 ring-primary' : ''
-            }`}
+            } h-fit`}
           >
             {note.pinned && (
               <div className="absolute top-1 right-1 text-primary">
@@ -624,35 +596,7 @@ const Tasks: React.FC = () => {
                   )}
                 </div>
                 
-                <div className="flex justify-between items-center p-2 border-t bg-background/30">
-                  {note.type === 'list' && (
-                    <div className="relative flex-grow mr-2">
-                      <Input
-                        placeholder="Add item..."
-                        className="h-8 text-sm"
-                        value={newTaskText}
-                        onChange={(e) => setNewTaskText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            addTask(note.id, newTaskText);
-                            setNewTaskText('');
-                          }
-                        }}
-                      />
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="absolute right-0 top-0 h-8 w-8"
-                        onClick={() => {
-                          addTask(note.id, newTaskText);
-                          setNewTaskText('');
-                        }}
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
-                  
+                <div className="flex justify-between items-center p-2 border-t bg-background/40">
                   <div className="flex">
                     <Button 
                       variant="ghost" 
@@ -663,71 +607,87 @@ const Tasks: React.FC = () => {
                       <PinIcon className="h-4 w-4" />
                     </Button>
                     
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => startEditingNote(note)}>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuItem onClick={() => duplicateNote(note)}>
-                          <Copy className="h-4 w-4 mr-2" />
-                          Make a copy
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuSeparator />
-                        
-                        <DropdownMenuItem>
-                          <Palette className="h-4 w-4 mr-2" />
-                          <span>Background</span>
-                          
-                          <div className="ml-auto flex gap-1">
-                            {colorOptions.map(color => (
-                              <button
-                                key={color.value}
-                                className={`w-4 h-4 rounded-full ${color.class} border border-border hover:scale-125 transition-transform`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  changeNoteColor(note.id, color.value);
-                                }}
-                                title={color.name}
-                              />
-                            ))}
-                          </div>
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuSeparator />
-                        
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                              <Trash className="h-4 w-4 mr-2 text-destructive" />
-                              <span className="text-destructive">Delete</span>
-                            </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete note?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteNote(note.id)}>
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {note.type === 'list' && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => {
+                          setComposeType('list');
+                          setNewTaskText('');
+                          setIsComposerExpanded(true);
+                          expandComposer('list');
+                        }}
+                        title="Add item"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => startEditingNote(note)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      
+                      <DropdownMenuItem onClick={() => duplicateNote(note)}>
+                        <Copy className="h-4 w-4 mr-2" />
+                        Make a copy
+                      </DropdownMenuItem>
+                      
+                      <DropdownMenuSeparator />
+                      
+                      <DropdownMenuItem>
+                        <Palette className="h-4 w-4 mr-2" />
+                        <span>Background</span>
+                        
+                        <div className="ml-auto flex gap-1">
+                          {colorOptions.map(color => (
+                            <button
+                              key={color.value}
+                              className={`w-4 h-4 rounded-full ${color.class} border border-border hover:scale-125 transition-transform`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                changeNoteColor(note.id, color.value);
+                              }}
+                              title={color.name}
+                            />
+                          ))}
+                        </div>
+                      </DropdownMenuItem>
+                      
+                      <DropdownMenuSeparator />
+                      
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            <Trash className="h-4 w-4 mr-2 text-destructive" />
+                            <span className="text-destructive">Delete</span>
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete note?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => deleteNote(note.id)}>
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </>
             )}
@@ -756,10 +716,10 @@ const Tasks: React.FC = () => {
           </div>
           <h3 className="text-xl font-medium mb-2">No matching notes</h3>
           <p className="text-muted-foreground mb-4">
-            Try changing your search or filter
+            Try changing your search
           </p>
-          <Button variant="outline" onClick={() => { setSearchQuery(''); setActiveFilter('all'); }}>
-            Clear filters
+          <Button variant="outline" onClick={() => setSearchQuery('')}>
+            Clear search
           </Button>
         </div>
       )}

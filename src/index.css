@@ -158,6 +158,19 @@
     font-feature-settings: "rlig" 1, "calt" 1;
     transition: background-color 0.3s ease, background-image 0.3s ease;
   }
+  
+  /* Transparency styles */
+  .transparency-enabled .card,
+  .transparency-enabled .popover,
+  .transparency-enabled .dialog,
+  .transparency-enabled .hover-card,
+  .transparency-enabled .dropdown-menu {
+    @apply backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90;
+  }
+  
+  .transparency-enabled .glass {
+    @apply backdrop-blur-lg bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10;
+  }
 }
 
 /* Animation Keyframes */
