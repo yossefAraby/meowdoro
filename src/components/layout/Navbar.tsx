@@ -10,8 +10,7 @@ import {
   Sun, 
   Moon, 
   Cat,
-  Menu,
-  X
+  Menu
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -24,8 +23,7 @@ export const Navbar: React.FC = () => {
   const { mode, setMode } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   
-  // Check if on landing page for some visual adjustments
-  const isLandingPage = location.pathname === "/";
+  // Check if user is authenticated
   const isAuthenticated = localStorage.getItem("meowdoro-user") !== null;
   
   const navItems = [
@@ -51,14 +49,6 @@ export const Navbar: React.FC = () => {
     },
   ];
 
-  const getPageTitle = () => {
-    if (isLandingPage) return "Welcome";
-    
-    const currentPath = location.pathname;
-    const item = navItems.find(item => item.path === currentPath);
-    return item ? item.label : "";
-  };
-
   const toggleMode = () => {
     setMode(mode === "light" ? "dark" : "light");
   };
@@ -69,17 +59,10 @@ export const Navbar: React.FC = () => {
     navigate("/timer");
   };
 
-  const handleLogout = () => {
-    // Remove the user to trigger the conditional in App.tsx
-    localStorage.removeItem("meowdoro-user");
-    navigate("/");
-  };
+  // Removed logout functionality, as per instructions
 
   return (
-    <div className={cn(
-      "fixed top-0 left-0 right-0 z-50 glass animate-fade-in",
-      isLandingPage && !isAuthenticated ? "bg-opacity-90" : ""
-    )}>
+    <div className="fixed top-0 left-0 right-0 z-50 glass animate-fade-in">
       <div className="container mx-auto">
         <nav className="flex justify-between items-center py-4">
           {/* Logo and App Name */}
@@ -117,9 +100,9 @@ export const Navbar: React.FC = () => {
             ))}
           </div>
 
-          {/* Right Side - Current Page, Theme Toggle & Settings */}
+          {/* Right Side - Mode Toggle & Actions */}
           <div className="flex items-center space-x-2">
-            <span className="font-medium hidden sm:inline">{getPageTitle()}</span>
+            {/* Removed page title display as requested */}
             
             <button 
               onClick={toggleMode} 
@@ -129,28 +112,17 @@ export const Navbar: React.FC = () => {
             </button>
             
             {isAuthenticated ? (
-              <>
-                <Link 
-                  to="/settings" 
-                  className={cn(
-                    "p-2 rounded-full transition-all duration-150 hidden sm:inline-flex",
-                    location.pathname === "/settings" 
-                      ? "text-primary bg-accent/50" 
-                      : "text-foreground/60 hover:text-primary hover:bg-accent/30"
-                  )}
-                >
-                  <Settings className="w-5 h-5" />
-                </Link>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="hidden sm:inline-flex"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
-              </>
+              <Link 
+                to="/settings" 
+                className={cn(
+                  "p-2 rounded-full transition-all duration-150 hidden sm:inline-flex",
+                  location.pathname === "/settings" 
+                    ? "text-primary bg-accent/50" 
+                    : "text-foreground/60 hover:text-primary hover:bg-accent/30"
+                )}
+              >
+                <Settings className="w-5 h-5" />
+              </Link>
             ) : (
               <Button 
                 size="sm" 
@@ -207,15 +179,7 @@ export const Navbar: React.FC = () => {
                         </Link>
                       </div>
                       
-                      <div className="mt-auto">
-                        <Button 
-                          variant="outline" 
-                          className="w-full"
-                          onClick={handleLogout}
-                        >
-                          Logout
-                        </Button>
-                      </div>
+                      {/* Removed logout button as requested */}
                     </>
                   ) : (
                     <div className="mt-auto">

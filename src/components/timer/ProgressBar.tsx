@@ -39,8 +39,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         />
       </div>
       
-      {/* Milestones */}
-      <div className="flex justify-between">
+      {/* Milestones - separate from the progress bar */}
+      <div className="flex justify-between mt-4">
         <div className="flex flex-col items-center">
           <Star 
             className={cn(

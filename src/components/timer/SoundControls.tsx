@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Umbrella, Music, VolumeX, Coffee, Bird } from "lucide-react";
+import { Umbrella, Volume2, VolumeX, Coffee, Bird } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface SoundControlsProps {
@@ -17,7 +17,7 @@ export const SoundControls: React.FC<SoundControlsProps> = ({
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
-          <Umbrella className="w-5 h-5" />
+          <Volume2 className="w-5 h-5" />
           {soundPlaying && (
             <span className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse" />
           )}

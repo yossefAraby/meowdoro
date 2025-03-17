@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Timer as TimerIcon, Clock, Settings } from "lucide-react";
 import { 
   Drawer,
@@ -19,6 +20,15 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 
 const Timer: React.FC = () => {
@@ -38,15 +48,17 @@ const Timer: React.FC = () => {
   });
   
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const rainAudio = React.useRef<HTMLAudioElement | null>(null);
   const cafeAudio = React.useRef<HTMLAudioElement | null>(null);
   const birdsAudio = React.useRef<HTMLAudioElement | null>(null);
   
   useEffect(() => {
-    rainAudio.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-light-rain-loop-1253.mp3");
-    cafeAudio.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-coffee-shop-ambience-583.mp3");
-    birdsAudio.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-forest-birds-singing-58.mp3");
+    // Updated audio URLs to working sound files
+    rainAudio.current = new Audio("https://assets.coderrocketfuel.com/pomodoro-times-up.mp3");
+    cafeAudio.current = new Audio("https://assets.coderrocketfuel.com/pomodoro-times-up.mp3");
+    birdsAudio.current = new Audio("https://assets.coderrocketfuel.com/pomodoro-times-up.mp3");
     
     [rainAudio.current, cafeAudio.current, birdsAudio.current].forEach(audio => {
       if (audio) {
@@ -158,11 +170,21 @@ const Timer: React.FC = () => {
       description: `Focus time: ${focusMinutes} minutes, Daily goal: ${dailyGoal} minutes`,
     });
   };
+
+  // Choose between Dialog (desktop) and Drawer (mobile)
+  const SettingsContainer = isMobile ? Drawer : Dialog;
+  const SettingsTrigger = isMobile ? DrawerTrigger : DialogTrigger;
+  const SettingsContent = isMobile ? DrawerContent : DialogContent;
+  const SettingsHeader = isMobile ? DrawerHeader : DialogHeader;
+  const SettingsTitle = isMobile ? DrawerTitle : DialogTitle;
+  const SettingsDescription = isMobile ? DrawerDescription : DialogDescription;
+  const SettingsFooter = isMobile ? DrawerFooter : DialogFooter;
+  const SettingsClose = isMobile ? DrawerClose : DialogClose;
   
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 page-transition">
       <div className="flex flex-col items-center">
-        {/* Control Buttons */}
+        {/* Control Buttons - rearranged order */}
         <div className="w-full flex justify-end space-x-4 mb-6">
           {/* Timer/Stopwatch Toggle */}
           <Button
@@ -179,20 +201,26 @@ const Timer: React.FC = () => {
             )}
           </Button>
           
-          {/* Timer Settings */}
-          <Drawer>
-            <DrawerTrigger asChild>
+          {/* Sound Controls - now in the middle */}
+          <SoundControls 
+            soundPlaying={soundPlaying} 
+            onPlaySound={playSound} 
+          />
+          
+          {/* Timer Settings - now on the right */}
+          <SettingsContainer>
+            <SettingsTrigger asChild>
               <Button variant="outline" size="icon" className="relative">
                 <Settings className="w-5 h-5" />
               </Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader>
-                <DrawerTitle>Timer Settings</DrawerTitle>
-                <DrawerDescription>
+            </SettingsTrigger>
+            <SettingsContent>
+              <SettingsHeader>
+                <SettingsTitle>Timer Settings</SettingsTitle>
+                <SettingsDescription>
                   Adjust your focus time and daily goals
-                </DrawerDescription>
-              </DrawerHeader>
+                </SettingsDescription>
+              </SettingsHeader>
               <div className="px-4 py-2 space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -221,20 +249,14 @@ const Timer: React.FC = () => {
                   />
                 </div>
               </div>
-              <DrawerFooter>
+              <SettingsFooter>
                 <Button onClick={saveFocusSettings}>Save Settings</Button>
-                <DrawerClose asChild>
+                <SettingsClose asChild>
                   <Button variant="outline">Cancel</Button>
-                </DrawerClose>
-              </DrawerFooter>
-            </DrawerContent>
-          </Drawer>
-          
-          {/* Sound Controls */}
-          <SoundControls 
-            soundPlaying={soundPlaying} 
-            onPlaySound={playSound} 
-          />
+                </SettingsClose>
+              </SettingsFooter>
+            </SettingsContent>
+          </SettingsContainer>
         </div>
         
         <TimerCircle 
@@ -244,7 +266,7 @@ const Timer: React.FC = () => {
           onTimerUpdate={handleTimerUpdate}
         />
         
-        <div className="mt-12 w-full">
+        <div className="mt-12 w-full max-w-lg mx-auto">
           <ProgressBar currentMinutes={totalFocusMinutes} goalMinutes={dailyGoal} />
         </div>
       </div>

@@ -52,7 +52,11 @@ const Landing: React.FC = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button size="lg" className="gap-2" onClick={handleGetStarted}>
+                <Button 
+                  size="lg" 
+                  className="gap-2" 
+                  onClick={handleGetStarted}
+                >
                   Get Started
                 </Button>
                 <Button size="lg" variant="outline" className="gap-2">

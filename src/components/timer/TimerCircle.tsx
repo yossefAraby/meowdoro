@@ -154,7 +154,7 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="text-4xl font-mono font-bold mb-4">{formatTime(timeRemaining)}</div>
         
-        <div className="flex items-center justify-center space-x-3">
+        <div className="flex flex-col items-center justify-center space-y-3">
           {/* Main Timer Button (Start/Pause/Reset) */}
           <Button 
             size="lg"
@@ -174,15 +174,16 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
             )}
           </Button>
           
-          {/* Take Break Button */}
+          {/* Take Break Button - Now below the main button */}
           {isCountdown && !isActive && !isCompleted && (
             <Button
               variant="outline"
-              size="icon"
-              className="rounded-full w-10 h-10 transition-all duration-300 hover:bg-amber-100 dark:hover:bg-amber-900"
+              size="sm"
+              className="rounded-full transition-all duration-300 hover:bg-amber-100 dark:hover:bg-amber-900 flex items-center gap-2"
               onClick={takeBreak}
             >
-              <Coffee className="w-5 h-5" />
+              <Coffee className="w-4 h-4" />
+              <span>Take a break</span>
             </Button>
           )}
         </div>

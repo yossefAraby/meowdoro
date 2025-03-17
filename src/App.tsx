@@ -36,11 +36,26 @@ const App = () => {
                 <Route path="/" element={<Landing />} />
                 
                 {/* Protected routes */}
-                <Route path="/timer" element={isAuthenticated ? <Timer /> : <Navigate to="/" />} />
-                <Route path="/tasks" element={isAuthenticated ? <Tasks /> : <Navigate to="/" />} />
-                <Route path="/party" element={isAuthenticated ? <Party /> : <Navigate to="/" />} />
-                <Route path="/stats" element={isAuthenticated ? <Stats /> : <Navigate to="/" />} />
-                <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/" />} />
+                <Route 
+                  path="/timer" 
+                  element={isAuthenticated ? <Timer /> : <Navigate to="/" replace />} 
+                />
+                <Route 
+                  path="/tasks" 
+                  element={isAuthenticated ? <Tasks /> : <Navigate to="/" replace />} 
+                />
+                <Route 
+                  path="/party" 
+                  element={isAuthenticated ? <Party /> : <Navigate to="/" replace />} 
+                />
+                <Route 
+                  path="/stats" 
+                  element={isAuthenticated ? <Stats /> : <Navigate to="/" replace />} 
+                />
+                <Route 
+                  path="/settings" 
+                  element={isAuthenticated ? <Settings /> : <Navigate to="/" replace />} 
+                />
                 
                 {/* Catch-all route */}
                 <Route path="*" element={<NotFound />} />
