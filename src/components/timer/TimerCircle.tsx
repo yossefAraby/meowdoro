@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw } from "lucide-react";
+import { Play, Pause, RotateCcw, Coffee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +21,7 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   const [initialTime] = useState(isCountdown ? initialMinutes * 60 : 0);
   const [isActive, setIsActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isBreak, setIsBreak] = useState(false);
   
   const intervalRef = useRef<number | null>(null);
   
@@ -74,6 +75,16 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     } else {
       setIsActive(!isActive);
     }
+  };
+
+  const takeBreak = () => {
+    resetTimer();
+    setIsBreak(true);
+    // In a real app, you might change the timer duration here
+    // For now, we'll just show visual feedback
+    setTimeout(() => {
+      setIsBreak(false);
+    }, 300);
   };
   
   const resetTimer = () => {
@@ -143,12 +154,14 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="text-4xl font-mono font-bold mb-4">{formatTime(timeRemaining)}</div>
         
-        <div className="flex items-center justify-center">          
+        <div className="flex items-center justify-center space-x-3">
+          {/* Main Timer Button (Start/Pause/Reset) */}
           <Button 
             size="lg"
             className={cn(
               "rounded-full w-16 h-16 p-0 flex items-center justify-center transition-all duration-300",
-              isCompleted && "bg-green-500 hover:bg-green-600"
+              isCompleted && "bg-green-500 hover:bg-green-600",
+              isBreak && "bg-amber-500 hover:bg-amber-600"
             )}
             onClick={toggleTimer}
           >
@@ -160,6 +173,18 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
               <Play className="w-6 h-6 ml-1" />
             )}
           </Button>
+          
+          {/* Take Break Button */}
+          {isCountdown && !isActive && !isCompleted && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full w-10 h-10 transition-all duration-300 hover:bg-amber-100 dark:hover:bg-amber-900"
+              onClick={takeBreak}
+            >
+              <Coffee className="w-5 h-5" />
+            </Button>
+          )}
         </div>
       </div>
     </div>

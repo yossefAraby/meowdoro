@@ -8,7 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Timer as TimerIcon, Clock } from "lucide-react";
+import { Timer as TimerIcon, Clock, Settings } from "lucide-react";
+import { 
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Slider } from "@/components/ui/slider";
 
 const Timer: React.FC = () => {
   const [isCountdown, setIsCountdown] = useState(true);
@@ -19,6 +30,12 @@ const Timer: React.FC = () => {
   const [catStatus, setCatStatus] = useState<"sleeping" | "idle" | "happy" | "focused">("idle");
   const [timerCompleted, setTimerCompleted] = useState(false);
   const [soundPlaying, setSoundPlaying] = useState<string | null>(null);
+  const [focusMinutes, setFocusMinutes] = useState(() => {
+    return parseInt(localStorage.getItem("meowdoro-focus-time") || "25", 10);
+  });
+  const [dailyGoal, setDailyGoal] = useState(() => {
+    return parseInt(localStorage.getItem("meowdoro-daily-goal") || "90", 10);
+  });
   
   const { toast } = useToast();
   
@@ -69,7 +86,7 @@ const Timer: React.FC = () => {
   const handleTimerComplete = () => {
     setTimerCompleted(true);
     
-    const newTotal = totalFocusMinutes + 25;
+    const newTotal = totalFocusMinutes + focusMinutes;
     setTotalFocusMinutes(newTotal);
     localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
     
@@ -132,21 +149,88 @@ const Timer: React.FC = () => {
     }
   };
   
+  const saveFocusSettings = () => {
+    localStorage.setItem("meowdoro-focus-time", focusMinutes.toString());
+    localStorage.setItem("meowdoro-daily-goal", dailyGoal.toString());
+    
+    toast({
+      title: "Settings saved",
+      description: `Focus time: ${focusMinutes} minutes, Daily goal: ${dailyGoal} minutes`,
+    });
+  };
+  
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 page-transition">
       <div className="flex flex-col items-center">
-        {/* Mode Toggle and Sound Controls */}
+        {/* Control Buttons */}
         <div className="w-full flex justify-end space-x-4 mb-6">
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="timer-mode" className={!isCountdown ? "text-muted-foreground" : ""}>Timer</Label>
-            <Switch 
-              id="timer-mode" 
-              checked={!isCountdown}
-              onCheckedChange={toggleTimerMode}
-            />
-            <Label htmlFor="timer-mode" className={isCountdown ? "text-muted-foreground" : ""}>Stopwatch</Label>
-          </div>
+          {/* Timer/Stopwatch Toggle */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="relative"
+            onClick={toggleTimerMode}
+            title={isCountdown ? "Switch to Stopwatch" : "Switch to Timer"}
+          >
+            {isCountdown ? (
+              <Clock className="w-5 h-5" />
+            ) : (
+              <TimerIcon className="w-5 h-5" />
+            )}
+          </Button>
           
+          {/* Timer Settings */}
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button variant="outline" size="icon" className="relative">
+                <Settings className="w-5 h-5" />
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>Timer Settings</DrawerTitle>
+                <DrawerDescription>
+                  Adjust your focus time and daily goals
+                </DrawerDescription>
+              </DrawerHeader>
+              <div className="px-4 py-2 space-y-6">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="focus-time">Focus Time: {focusMinutes} minutes</Label>
+                  </div>
+                  <Slider
+                    id="focus-time"
+                    defaultValue={[focusMinutes]}
+                    max={60}
+                    min={5}
+                    step={5}
+                    onValueChange={(value) => setFocusMinutes(value[0])}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="daily-goal">Daily Goal: {dailyGoal} minutes</Label>
+                  </div>
+                  <Slider
+                    id="daily-goal"
+                    defaultValue={[dailyGoal]}
+                    max={180}
+                    min={30}
+                    step={30}
+                    onValueChange={(value) => setDailyGoal(value[0])}
+                  />
+                </div>
+              </div>
+              <DrawerFooter>
+                <Button onClick={saveFocusSettings}>Save Settings</Button>
+                <DrawerClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+          
+          {/* Sound Controls */}
           <SoundControls 
             soundPlaying={soundPlaying} 
             onPlaySound={playSound} 
@@ -154,14 +238,14 @@ const Timer: React.FC = () => {
         </div>
         
         <TimerCircle 
-          initialMinutes={25}
+          initialMinutes={focusMinutes}
           isCountdown={isCountdown}
           onTimerComplete={handleTimerComplete}
           onTimerUpdate={handleTimerUpdate}
         />
         
         <div className="mt-12 w-full">
-          <ProgressBar currentMinutes={totalFocusMinutes} />
+          <ProgressBar currentMinutes={totalFocusMinutes} goalMinutes={dailyGoal} />
         </div>
       </div>
       

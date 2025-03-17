@@ -5,57 +5,71 @@ import { cn } from "@/lib/utils";
 
 interface ProgressBarProps {
   currentMinutes: number;
-  dailyGoalMinutes?: number;
-  milestones?: number[];
+  goalMinutes?: number; // Optional with a default in the component
 }
 
-export const ProgressBar: React.FC<ProgressBarProps> = ({
-  currentMinutes,
-  dailyGoalMinutes = 90,  // Default 3 milestones of 30 minutes each
-  milestones = [30, 60, 90]  // Default milestone positions (in minutes)
+export const ProgressBar: React.FC<ProgressBarProps> = ({ 
+  currentMinutes, 
+  goalMinutes = 90 // Default if not provided
 }) => {
-  // Calculate progress percentage
-  const progressPercentage = Math.min((currentMinutes / dailyGoalMinutes) * 100, 100);
+  // Calculate milestone values
+  const firstMilestone = goalMinutes / 3;
+  const secondMilestone = (goalMinutes / 3) * 2;
+  const thirdMilestone = goalMinutes;
+  
+  // Calculate percentage
+  const percentage = Math.min(100, (currentMinutes / goalMinutes) * 100);
+  
+  // Determine which milestones have been reached
+  const firstReached = currentMinutes >= firstMilestone;
+  const secondReached = currentMinutes >= secondMilestone;
+  const thirdReached = currentMinutes >= thirdMilestone;
   
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="text-sm flex justify-between mb-1">
-        <span>Today's Focus</span>
-        <span className="font-medium">{currentMinutes}/{dailyGoalMinutes} min</span>
+    <div className="space-y-3">
+      <div className="flex justify-between items-center">
+        <h3 className="text-sm font-medium">Today's Focus</h3>
+        <span className="text-sm font-medium">{currentMinutes}/{goalMinutes} min</span>
       </div>
       
-      <div className="h-4 bg-accent/50 rounded-lg relative overflow-hidden">
-        {/* Progress fill */}
+      <div className="relative h-3 bg-accent rounded-full overflow-hidden">
         <div 
-          className="h-full bg-primary transition-all duration-1000 ease-out"
-          style={{ width: `${progressPercentage}%` }}
+          className="h-full bg-primary transition-all duration-1000 ease-out" 
+          style={{ width: `${percentage}%` }}
         />
       </div>
       
-      {/* Milestone stars below the progress bar */}
-      <div className="flex justify-between mt-2">
-        {milestones.map((milestone, index) => {
-          const position = (milestone / dailyGoalMinutes) * 100;
-          const isReached = currentMinutes >= milestone;
-          
-          return (
-            <div 
-              key={index}
-              className="flex flex-col items-center"
-              style={{ width: `${100 / milestones.length}%` }}
-            >
-              <Star 
-                className={cn(
-                  "w-6 h-6 transition-all duration-300", 
-                  isReached 
-                    ? "text-yellow-400 fill-yellow-400 animate-pulse-soft" 
-                    : "text-muted"
-                )}
-              />
-              <span className="text-xs mt-1">{milestone} min</span>
-            </div>
-          );
-        })}
+      {/* Milestones */}
+      <div className="flex justify-between">
+        <div className="flex flex-col items-center">
+          <Star 
+            className={cn(
+              "w-6 h-6 transition-all duration-300",
+              firstReached ? "text-yellow-400 fill-yellow-400 animate-scale-in" : "text-muted-foreground"
+            )}
+          />
+          <span className="text-xs mt-1">{firstMilestone} min</span>
+        </div>
+        
+        <div className="flex flex-col items-center">
+          <Star 
+            className={cn(
+              "w-6 h-6 transition-all duration-300",
+              secondReached ? "text-yellow-400 fill-yellow-400 animate-scale-in" : "text-muted-foreground"
+            )}
+          />
+          <span className="text-xs mt-1">{secondMilestone} min</span>
+        </div>
+        
+        <div className="flex flex-col items-center">
+          <Star 
+            className={cn(
+              "w-6 h-6 transition-all duration-300",
+              thirdReached ? "text-yellow-400 fill-yellow-400 animate-scale-in" : "text-muted-foreground"
+            )}
+          />
+          <span className="text-xs mt-1">{thirdMilestone} min</span>
+        </div>
       </div>
     </div>
   );

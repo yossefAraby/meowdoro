@@ -9,15 +9,24 @@ import {
   Settings, 
   Sun, 
   Moon, 
-  Cat
+  Cat,
+  Menu,
+  X
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { mode, setMode } = useTheme();
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  
+  // Check if on landing page for some visual adjustments
+  const isLandingPage = location.pathname === "/";
+  const isAuthenticated = localStorage.getItem("meowdoro-user") !== null;
   
   const navItems = [
     { 
@@ -43,9 +52,9 @@ export const Navbar: React.FC = () => {
   ];
 
   const getPageTitle = () => {
-    const currentPath = location.pathname;
-    if (currentPath === "/") return "Landing";
+    if (isLandingPage) return "Welcome";
     
+    const currentPath = location.pathname;
     const item = navItems.find(item => item.path === currentPath);
     return item ? item.label : "";
   };
@@ -54,20 +63,29 @@ export const Navbar: React.FC = () => {
     setMode(mode === "light" ? "dark" : "light");
   };
 
-  const goToLanding = () => {
-    // Remove the user to trigger the conditional in App.tsx to hide the navbar
+  const handleLogin = () => {
+    // Set a demo user to enable navigation to protected routes
+    localStorage.setItem("meowdoro-user", JSON.stringify({ email: "demo@meowdoro.app" }));
+    navigate("/timer");
+  };
+
+  const handleLogout = () => {
+    // Remove the user to trigger the conditional in App.tsx
     localStorage.removeItem("meowdoro-user");
     navigate("/");
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 glass animate-fade-in">
+    <div className={cn(
+      "fixed top-0 left-0 right-0 z-50 glass animate-fade-in",
+      isLandingPage && !isAuthenticated ? "bg-opacity-90" : ""
+    )}>
       <div className="container mx-auto">
         <nav className="flex justify-between items-center py-4">
           {/* Logo and App Name */}
           <div 
             className="flex items-center gap-2 cursor-pointer transition-all hover:opacity-80"
-            onClick={goToLanding}
+            onClick={() => navigate("/")}
           >
             <div className="text-primary w-8 h-8">
               <div className="relative">
@@ -78,9 +96,9 @@ export const Navbar: React.FC = () => {
             <span className="font-bold text-xl">Meowdoro</span>
           </div>
 
-          {/* Navigation Links */}
-          <div className="flex items-center justify-center space-x-1 sm:space-x-2">
-            {navItems.map((item) => (
+          {/* Navigation Links - Desktop */}
+          <div className="hidden md:flex items-center justify-center space-x-1 sm:space-x-2">
+            {isAuthenticated && navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
@@ -93,7 +111,7 @@ export const Navbar: React.FC = () => {
               >
                 <item.icon className="w-5 h-5" />
                 <span className="text-xs mt-1">
-                  {location.pathname === item.path ? item.label : ""}
+                  {item.label}
                 </span>
               </Link>
             ))}
@@ -101,7 +119,7 @@ export const Navbar: React.FC = () => {
 
           {/* Right Side - Current Page, Theme Toggle & Settings */}
           <div className="flex items-center space-x-2">
-            <span className="font-medium">{getPageTitle()}</span>
+            <span className="font-medium hidden sm:inline">{getPageTitle()}</span>
             
             <button 
               onClick={toggleMode} 
@@ -110,17 +128,108 @@ export const Navbar: React.FC = () => {
               {mode === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             
-            <Link 
-              to="/settings" 
-              className={cn(
-                "p-2 rounded-full transition-all duration-150",
-                location.pathname === "/settings" 
-                  ? "text-primary bg-accent/50" 
-                  : "text-foreground/60 hover:text-primary hover:bg-accent/30"
-              )}
-            >
-              <Settings className="w-5 h-5" />
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link 
+                  to="/settings" 
+                  className={cn(
+                    "p-2 rounded-full transition-all duration-150 hidden sm:inline-flex",
+                    location.pathname === "/settings" 
+                      ? "text-primary bg-accent/50" 
+                      : "text-foreground/60 hover:text-primary hover:bg-accent/30"
+                  )}
+                >
+                  <Settings className="w-5 h-5" />
+                </Link>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="hidden sm:inline-flex"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button 
+                size="sm" 
+                className="hidden sm:inline-flex"
+                onClick={handleLogin}
+              >
+                Get Started
+              </Button>
+            )}
+            
+            {/* Mobile Menu Button */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="md:hidden">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <div className="flex flex-col h-full py-6">
+                  <div className="text-xl font-bold mb-6">Meowdoro</div>
+                  
+                  {isAuthenticated ? (
+                    <>
+                      <div className="space-y-2">
+                        {navItems.map((item) => (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            className={cn(
+                              "flex items-center gap-3 p-3 rounded-lg transition-all",
+                              location.pathname === item.path 
+                                ? "bg-accent text-primary" 
+                                : "hover:bg-accent/50"
+                            )}
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <item.icon className="w-5 h-5" />
+                            <span>{item.label}</span>
+                          </Link>
+                        ))}
+                        
+                        <Link
+                          to="/settings"
+                          className={cn(
+                            "flex items-center gap-3 p-3 rounded-lg transition-all",
+                            location.pathname === "/settings" 
+                              ? "bg-accent text-primary" 
+                              : "hover:bg-accent/50"
+                          )}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Settings className="w-5 h-5" />
+                          <span>Settings</span>
+                        </Link>
+                      </div>
+                      
+                      <div className="mt-auto">
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={handleLogout}
+                        >
+                          Logout
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="mt-auto">
+                      <Button 
+                        className="w-full"
+                        onClick={handleLogin}
+                      >
+                        Get Started
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </nav>
       </div>

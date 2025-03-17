@@ -27,10 +27,10 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            {/* Only show Navbar for authenticated routes */}
-            {isAuthenticated && <Navbar />}
+            {/* Always show Navbar */}
+            <Navbar />
             
-            <main className={isAuthenticated ? "pt-20 min-h-screen" : "min-h-screen"}>
+            <main className="pt-20 min-h-screen">
               <Routes>
                 {/* Public route */}
                 <Route path="/" element={<Landing />} />
