@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { TimerCircle } from "@/components/timer/TimerCircle";
 import { ProgressBar } from "@/components/timer/ProgressBar";
@@ -55,9 +56,9 @@ const Timer: React.FC = () => {
   const birdsAudio = React.useRef<HTMLAudioElement | null>(null);
   
   useEffect(() => {
-    rainAudio.current = new Audio("https://assets.coderrocketfuel.com/pomodoro-times-up.mp3");
-    cafeAudio.current = new Audio("https://assets.coderrocketfuel.com/pomodoro-times-up.mp3");
-    birdsAudio.current = new Audio("https://assets.coderrocketfuel.com/pomodoro-times-up.mp3");
+    rainAudio.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-distant-thunder-storm-1294.mp3");
+    cafeAudio.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-coffee-shop-ambience-612.mp3");
+    birdsAudio.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-forest-birds-ambience-1210.mp3");
     
     [rainAudio.current, cafeAudio.current, birdsAudio.current].forEach(audio => {
       if (audio) {

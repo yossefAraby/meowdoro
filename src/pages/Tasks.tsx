@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,14 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -42,26 +35,28 @@ import {
   Trash, 
   Edit, 
   Copy, 
-  Check, 
   X, 
   Search, 
-  StickyNote, 
-  ListChecks 
+  CheckSquare, 
+  Image,
+  PinIcon,
+  ListPlus,
+  Palette
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// Types for our cards
+// Types for our notes
 type TaskItem = {
   id: string;
   text: string;
   completed: boolean;
 };
 
-type CardType = 'note' | 'task';
+type NoteType = 'note' | 'list';
 
-type Card = {
+type Note = {
   id: string;
-  type: CardType;
+  type: NoteType;
   title: string;
   content: string;
   tasks?: TaskItem[];
@@ -71,40 +66,77 @@ type Card = {
   updatedAt: Date;
 };
 
+const colorOptions = [
+  { name: 'Default', value: 'default', class: 'bg-card' },
+  { name: 'Red', value: 'red', class: 'bg-red-100 dark:bg-red-900' },
+  { name: 'Orange', value: 'orange', class: 'bg-orange-100 dark:bg-orange-900' },
+  { name: 'Yellow', value: 'yellow', class: 'bg-yellow-100 dark:bg-yellow-900' },
+  { name: 'Green', value: 'green', class: 'bg-green-100 dark:bg-green-900' },
+  { name: 'Teal', value: 'teal', class: 'bg-teal-100 dark:bg-teal-900' },
+  { name: 'Blue', value: 'blue', class: 'bg-blue-100 dark:bg-blue-900' },
+  { name: 'Purple', value: 'purple', class: 'bg-purple-100 dark:bg-purple-900' },
+  { name: 'Pink', value: 'pink', class: 'bg-pink-100 dark:bg-pink-900' },
+  { name: 'Gray', value: 'gray', class: 'bg-gray-100 dark:bg-gray-900' },
+];
+
 const Tasks: React.FC = () => {
-  const [cards, setCards] = useState<Card[]>(() => {
-    const savedCards = localStorage.getItem('meowdoro-cards');
-    return savedCards ? JSON.parse(savedCards) : [];
+  // Main state
+  const [notes, setNotes] = useState<Note[]>(() => {
+    const savedNotes = localStorage.getItem('meowdoro-notes');
+    return savedNotes ? JSON.parse(savedNotes) : [];
   });
   
-  const [filter, setFilter] = useState<string>('all');
+  // UI state
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [editingCard, setEditingCard] = useState<Card | null>(null);
-  const [newTaskText, setNewTaskText] = useState<string>('');
+  const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [composeType, setComposeType] = useState<NoteType>('note');
+  const [isComposerExpanded, setIsComposerExpanded] = useState(false);
+  
+  // New note state
+  const [newNoteTitle, setNewNoteTitle] = useState('');
+  const [newNoteContent, setNewNoteContent] = useState('');
+  const [newNoteTasks, setNewNoteTasks] = useState<TaskItem[]>([]);
+  const [newTaskText, setNewTaskText] = useState('');
+  
+  // Edit note state
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
   
   const { toast } = useToast();
+  const composeRef = useRef<HTMLDivElement>(null);
   
-  // Save cards to localStorage whenever they change
+  // Save notes to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('meowdoro-cards', JSON.stringify(cards));
-  }, [cards]);
+    localStorage.setItem('meowdoro-notes', JSON.stringify(notes));
+  }, [notes]);
   
-  // Filter and search cards
-  const filteredCards = cards.filter(card => {
-    // Apply type filter
-    if (filter === 'notes' && card.type !== 'note') return false;
-    if (filter === 'tasks' && card.type !== 'task') return false;
-    if (filter === 'completed' && card.type === 'task') {
-      const allTasksCompleted = card.tasks && card.tasks.length > 0 && card.tasks.every(task => task.completed);
-      if (!allTasksCompleted) return false;
+  // Handle clicking outside composer to collapse it if empty
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (composeRef.current && !composeRef.current.contains(event.target as Node)) {
+        if (newNoteTitle === '' && newNoteContent === '' && newNoteTasks.length === 0) {
+          setIsComposerExpanded(false);
+        }
+      }
     }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [newNoteTitle, newNoteContent, newNoteTasks]);
+  
+  // Filter and search notes
+  const filteredNotes = notes.filter(note => {
+    // Apply type filter
+    if (activeFilter === 'lists' && note.type !== 'list') return false;
+    if (activeFilter === 'notes' && note.type !== 'note') return false;
     
     // Apply search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      const matchesTitle = card.title.toLowerCase().includes(query);
-      const matchesContent = card.content.toLowerCase().includes(query);
-      const matchesTasks = card.tasks?.some(task => task.text.toLowerCase().includes(query));
+      const matchesTitle = note.title.toLowerCase().includes(query);
+      const matchesContent = note.content.toLowerCase().includes(query);
+      const matchesTasks = note.tasks?.some(task => task.text.toLowerCase().includes(query));
       
       return matchesTitle || matchesContent || matchesTasks;
     }
@@ -112,293 +144,444 @@ const Tasks: React.FC = () => {
     return true;
   });
   
-  // Sort cards: pinned first, then by updatedAt date
-  filteredCards.sort((a, b) => {
+  // Sort notes: pinned first, then by updatedAt date
+  const sortedNotes = [...filteredNotes].sort((a, b) => {
     if (a.pinned && !b.pinned) return -1;
     if (!a.pinned && b.pinned) return 1;
     return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
   });
   
-  const handleCreateNewCard = (type: CardType) => {
-    const newCard: Card = {
+  // Create a new note
+  const handleCreateNote = () => {
+    if (!newNoteTitle && !newNoteContent && newNoteTasks.length === 0) {
+      return;
+    }
+    
+    const newNote: Note = {
       id: Date.now().toString(),
-      type,
-      title: '',
-      content: '',
-      tasks: type === 'task' ? [] : undefined,
+      type: composeType,
+      title: newNoteTitle,
+      content: composeType === 'note' ? newNoteContent : '',
+      tasks: composeType === 'list' ? newNoteTasks : undefined,
       color: 'default',
       pinned: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
     
-    setCards([newCard, ...cards]);
-    setEditingCard(newCard);
+    setNotes([newNote, ...notes]);
+    
+    // Reset form
+    setNewNoteTitle('');
+    setNewNoteContent('');
+    setNewNoteTasks([]);
+    setNewTaskText('');
+    setIsComposerExpanded(false);
     
     toast({
-      title: `New ${type} created`,
-      description: "You can now add your content."
+      title: "Note created",
+      description: "Your note has been saved."
     });
   };
   
-  const handleSaveCard = (card: Card) => {
-    setCards(cards.map(c => c.id === card.id ? {...card, updatedAt: new Date()} : c));
-    setEditingCard(null);
+  // Pin/unpin a note
+  const togglePin = (id: string) => {
+    setNotes(notes.map(note => 
+      note.id === id ? {...note, pinned: !note.pinned, updatedAt: new Date()} : note
+    ));
   };
   
-  const handleDeleteCard = (id: string) => {
-    setCards(cards.filter(card => card.id !== id));
+  // Change note color
+  const changeNoteColor = (id: string, color: string) => {
+    setNotes(notes.map(note => 
+      note.id === id ? {...note, color, updatedAt: new Date()} : note
+    ));
+  };
+  
+  // Delete a note
+  const deleteNote = (id: string) => {
+    setNotes(notes.filter(note => note.id !== id));
     
     toast({
-      title: "Card deleted",
-      description: "Your card has been deleted."
+      title: "Note deleted",
+      description: "Your note has been deleted."
     });
   };
   
-  const handleDuplicateCard = (card: Card) => {
-    const newCard: Card = {
-      ...card,
+  // Duplicate a note
+  const duplicateNote = (note: Note) => {
+    const newNote: Note = {
+      ...note,
       id: Date.now().toString(),
-      title: `${card.title} (Copy)`,
+      title: `${note.title} (Copy)`,
+      pinned: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
     
-    setCards([newCard, ...cards]);
+    setNotes([newNote, ...notes]);
     
     toast({
-      title: "Card duplicated",
-      description: "A copy of your card has been created."
+      title: "Note duplicated",
+      description: "A copy of your note has been created."
     });
   };
   
-  const handleTogglePin = (id: string) => {
-    setCards(cards.map(card => 
-      card.id === id ? {...card, pinned: !card.pinned, updatedAt: new Date()} : card
-    ));
-  };
-  
-  const handleAddTask = (cardId: string, taskText: string) => {
-    if (!taskText.trim()) return;
+  // Add a task to a list note
+  const addTask = (id: string, text: string) => {
+    if (!text.trim()) return;
     
-    const newTask: TaskItem = {
-      id: Date.now().toString(),
-      text: taskText,
-      completed: false
-    };
-    
-    setCards(cards.map(card => {
-      if (card.id === cardId && card.tasks) {
+    setNotes(notes.map(note => {
+      if (note.id === id && note.type === 'list') {
+        const newTask: TaskItem = {
+          id: Date.now().toString(),
+          text: text.trim(),
+          completed: false
+        };
+        
         return {
-          ...card,
-          tasks: [...card.tasks, newTask],
+          ...note,
+          tasks: [...(note.tasks || []), newTask],
           updatedAt: new Date()
         };
       }
-      return card;
+      return note;
     }));
-    
-    setNewTaskText('');
   };
   
-  const handleToggleTask = (cardId: string, taskId: string) => {
-    setCards(cards.map(card => {
-      if (card.id === cardId && card.tasks) {
+  // Toggle a task's completed status
+  const toggleTask = (noteId: string, taskId: string) => {
+    setNotes(notes.map(note => {
+      if (note.id === noteId && note.tasks) {
         return {
-          ...card,
-          tasks: card.tasks.map(task => 
+          ...note,
+          tasks: note.tasks.map(task => 
             task.id === taskId ? {...task, completed: !task.completed} : task
           ),
           updatedAt: new Date()
         };
       }
-      return card;
+      return note;
     }));
   };
   
-  const handleDeleteTask = (cardId: string, taskId: string) => {
-    setCards(cards.map(card => {
-      if (card.id === cardId && card.tasks) {
+  // Delete a task from a list note
+  const deleteTask = (noteId: string, taskId: string) => {
+    setNotes(notes.map(note => {
+      if (note.id === noteId && note.tasks) {
         return {
-          ...card,
-          tasks: card.tasks.filter(task => task.id !== taskId),
+          ...note,
+          tasks: note.tasks.filter(task => task.id !== taskId),
           updatedAt: new Date()
         };
       }
-      return card;
+      return note;
     }));
+  };
+  
+  // Add a task to the new note composer
+  const addNewNoteTask = () => {
+    if (!newTaskText.trim()) return;
+    
+    const newTask: TaskItem = {
+      id: Date.now().toString(),
+      text: newTaskText.trim(),
+      completed: false
+    };
+    
+    setNewNoteTasks([...newNoteTasks, newTask]);
+    setNewTaskText('');
+  };
+  
+  // Delete a task from the new note composer
+  const deleteNewNoteTask = (id: string) => {
+    setNewNoteTasks(newNoteTasks.filter(task => task.id !== id));
+  };
+  
+  // Expand the composer and optionally set type
+  const expandComposer = (type?: NoteType) => {
+    if (type) {
+      setComposeType(type);
+    }
+    setIsComposerExpanded(true);
+  };
+  
+  // Get note background color class
+  const getNoteColorClass = (color: string) => {
+    const colorOption = colorOptions.find(option => option.value === color);
+    return colorOption ? colorOption.class : 'bg-card';
+  };
+  
+  // Begin editing a note
+  const startEditingNote = (note: Note) => {
+    setEditingNote(note);
+  };
+  
+  // Save edits to a note
+  const saveEditedNote = () => {
+    if (!editingNote) return;
+    
+    setNotes(notes.map(note => 
+      note.id === editingNote.id ? {...editingNote, updatedAt: new Date()} : note
+    ));
+    
+    setEditingNote(null);
+    
+    toast({
+      title: "Note updated",
+      description: "Your changes have been saved."
+    });
+  };
+  
+  // Update a task in the editing note
+  const updateEditingNoteTask = (taskId: string, text: string) => {
+    if (!editingNote || !editingNote.tasks) return;
+    
+    setEditingNote({
+      ...editingNote,
+      tasks: editingNote.tasks.map(task => 
+        task.id === taskId ? {...task, text} : task
+      )
+    });
+  };
+  
+  // Add a task to the editing note
+  const addTaskToEditingNote = () => {
+    if (!editingNote || !newTaskText.trim()) return;
+    
+    const newTask: TaskItem = {
+      id: Date.now().toString(),
+      text: newTaskText.trim(),
+      completed: false
+    };
+    
+    setEditingNote({
+      ...editingNote,
+      tasks: [...(editingNote.tasks || []), newTask]
+    });
+    
+    setNewTaskText('');
+  };
+  
+  // Delete a task from the editing note
+  const deleteTaskFromEditingNote = (taskId: string) => {
+    if (!editingNote || !editingNote.tasks) return;
+    
+    setEditingNote({
+      ...editingNote,
+      tasks: editingNote.tasks.filter(task => task.id !== taskId)
+    });
   };
   
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8 page-transition">
-      {/* Header section - removed "My Tasks & Notes" heading */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        {/* Card creation buttons */}
-        <div className="flex flex-wrap gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="gap-2"
-            onClick={() => handleCreateNewCard('note')}
-          >
-            <Plus className="w-4 h-4" />
-            New Note
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="gap-2"
-            onClick={() => handleCreateNewCard('task')}
-          >
-            <Plus className="w-4 h-4" />
-            New Task List
-          </Button>
+      {/* Search and filter bar */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <div className="relative flex-grow">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search your notes"
+            className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
         
-        {/* Search and filter */}
-        <div className="flex gap-2">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search notes & tasks..."
-              className="w-full sm:w-[200px] pl-8"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <Select 
-            value={filter} 
-            onValueChange={setFilter}
-          >
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Filter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="notes">Notes only</SelectItem>
-              <SelectItem value="tasks">Tasks only</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Select value={activeFilter} onValueChange={setActiveFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="notes">Notes only</SelectItem>
+            <SelectItem value="lists">Lists only</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       
-      {/* Card Grid */}
+      {/* Note composer */}
+      <div 
+        ref={composeRef}
+        className={`mb-8 rounded-lg border shadow-sm transition-all duration-200 overflow-hidden ${
+          isComposerExpanded ? 'max-w-xl mx-auto' : 'max-w-3xl mx-auto'
+        }`}
+      >
+        <div className="p-4">
+          {isComposerExpanded && (
+            <Input
+              placeholder="Title"
+              className="w-full border-none text-lg font-medium mb-2 p-0 focus-visible:ring-0"
+              value={newNoteTitle}
+              onChange={(e) => setNewNoteTitle(e.target.value)}
+            />
+          )}
+          
+          {composeType === 'note' ? (
+            <Textarea
+              placeholder={isComposerExpanded ? "Take a note..." : "Click to add a note..."}
+              className={`w-full resize-none border-none focus-visible:ring-0 p-0 ${
+                isComposerExpanded ? 'min-h-[100px]' : 'h-12'
+              }`}
+              value={newNoteContent}
+              onChange={(e) => setNewNoteContent(e.target.value)}
+              onClick={() => expandComposer()}
+            />
+          ) : (
+            <div className="space-y-2">
+              {newNoteTasks.map(task => (
+                <div key={task.id} className="flex items-center gap-2">
+                  <Checkbox checked={task.completed} onCheckedChange={() => {
+                    setNewNoteTasks(
+                      newNoteTasks.map(t => t.id === task.id ? {...t, completed: !t.completed} : t)
+                    );
+                  }} />
+                  <span className="flex-grow">{task.text}</span>
+                  <Button variant="ghost" size="icon" onClick={() => deleteNewNoteTask(task.id)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder={isComposerExpanded ? "Add list item..." : "Click to add a list..."}
+                  className="flex-grow border-none focus-visible:ring-0 p-0"
+                  value={newTaskText}
+                  onChange={(e) => setNewTaskText(e.target.value)}
+                  onClick={() => expandComposer('list')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newTaskText.trim()) {
+                      addNewNoteTask();
+                    }
+                  }}
+                />
+                {isComposerExpanded && (
+                  <Button variant="ghost" size="icon" onClick={addNewNoteTask}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {isComposerExpanded && (
+          <div className="flex justify-between items-center p-2 border-t">
+            <div className="flex gap-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setComposeType('note')}
+                className={composeType === 'note' ? 'bg-accent/50' : ''}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setComposeType('list')}
+                className={composeType === 'list' ? 'bg-accent/50' : ''}
+              >
+                <CheckSquare className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <Button variant="default" size="sm" onClick={handleCreateNote}>
+              Save
+            </Button>
+          </div>
+        )}
+      </div>
+      
+      {/* Notes grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {/* Existing cards */}
-        {filteredCards.map(card => (
-          <Card 
-            key={card.id} 
-            className={`overflow-hidden transition-all hover:shadow-md ${card.pinned ? 'border-primary' : ''}`}
+        {sortedNotes.map(note => (
+          <div 
+            key={note.id} 
+            className={`relative rounded-lg border shadow-sm overflow-hidden ${
+              getNoteColorClass(note.color)
+            } transition-all hover:shadow-md ${
+              note.pinned ? 'ring-1 ring-primary' : ''
+            }`}
           >
-            {editingCard?.id === card.id ? (
+            {note.pinned && (
+              <div className="absolute top-1 right-1 text-primary">
+                <PinIcon className="h-4 w-4 fill-primary" />
+              </div>
+            )}
+            
+            {editingNote?.id === note.id ? (
               // Edit mode
-              <div className="p-4 space-y-3">
+              <div className="p-4">
                 <Input
                   placeholder="Title"
-                  value={editingCard.title}
-                  onChange={(e) => setEditingCard({...editingCard, title: e.target.value})}
-                  className="font-medium text-lg"
+                  className="w-full border-none text-lg font-medium mb-2 p-0 focus-visible:ring-0"
+                  value={editingNote.title}
+                  onChange={(e) => setEditingNote({...editingNote, title: e.target.value})}
                 />
                 
-                {editingCard.type === 'note' ? (
+                {editingNote.type === 'note' ? (
                   <Textarea
-                    placeholder="Add your notes here..."
-                    value={editingCard.content}
-                    onChange={(e) => setEditingCard({...editingCard, content: e.target.value})}
-                    className="min-h-[100px]"
+                    placeholder="Note content..."
+                    className="w-full resize-none border-none focus-visible:ring-0 p-0 min-h-[100px]"
+                    value={editingNote.content}
+                    onChange={(e) => setEditingNote({...editingNote, content: e.target.value})}
                   />
                 ) : (
                   <div className="space-y-2">
-                    {editingCard.tasks?.map(task => (
+                    {editingNote.tasks?.map(task => (
                       <div key={task.id} className="flex items-center gap-2">
                         <Checkbox 
                           checked={task.completed}
-                          onCheckedChange={() => handleToggleTask(card.id, task.id)}
-                        />
-                        <Input 
-                          value={task.text}
-                          onChange={(e) => {
-                            setEditingCard({
-                              ...editingCard,
-                              tasks: editingCard.tasks?.map(t => 
-                                t.id === task.id ? {...t, text: e.target.value} : t
+                          onCheckedChange={() => {
+                            if (!editingNote.tasks) return;
+                            setEditingNote({
+                              ...editingNote,
+                              tasks: editingNote.tasks.map(t => 
+                                t.id === task.id ? {...t, completed: !t.completed} : t
                               )
                             });
                           }}
-                          className="flex-1"
+                        />
+                        <Input
+                          className="flex-grow border-none focus-visible:ring-0 p-0"
+                          value={task.text}
+                          onChange={(e) => updateEditingNoteTask(task.id, e.target.value)}
                         />
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          onClick={() => {
-                            setEditingCard({
-                              ...editingCard,
-                              tasks: editingCard.tasks?.filter(t => t.id !== task.id)
-                            });
-                          }}
+                          onClick={() => deleteTaskFromEditingNote(task.id)}
                         >
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
                     ))}
                     
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2">
                       <Input
-                        placeholder="Add a task..."
+                        placeholder="Add item..."
+                        className="flex-grow border-none focus-visible:ring-0 p-0"
                         value={newTaskText}
                         onChange={(e) => setNewTaskText(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && newTaskText.trim()) {
-                            const newTask: TaskItem = {
-                              id: Date.now().toString(),
-                              text: newTaskText,
-                              completed: false
-                            };
-                            setEditingCard({
-                              ...editingCard,
-                              tasks: [...(editingCard.tasks || []), newTask]
-                            });
-                            setNewTaskText('');
+                            addTaskToEditingNote();
                           }
                         }}
                       />
-                      <Button 
-                        variant="outline"
-                        onClick={() => {
-                          if (newTaskText.trim()) {
-                            const newTask: TaskItem = {
-                              id: Date.now().toString(),
-                              text: newTaskText,
-                              completed: false
-                            };
-                            setEditingCard({
-                              ...editingCard,
-                              tasks: [...(editingCard.tasks || []), newTask]
-                            });
-                            setNewTaskText('');
-                          }
-                        }}
-                      >
+                      <Button variant="ghost" size="icon" onClick={addTaskToEditingNote}>
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 )}
                 
-                <div className="flex justify-end gap-2 pt-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => setEditingCard(null)}
-                  >
+                <div className="flex justify-between mt-4">
+                  <Button variant="ghost" size="sm" onClick={() => setEditingNote(null)}>
                     Cancel
                   </Button>
-                  <Button 
-                    size="sm"
-                    onClick={() => handleSaveCard(editingCard)}
-                  >
+                  <Button variant="default" size="sm" onClick={saveEditedNote}>
                     Save
                   </Button>
                 </div>
@@ -406,51 +589,120 @@ const Tasks: React.FC = () => {
             ) : (
               // View mode
               <>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        {card.type === 'note' ? (
-                          <StickyNote className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <ListChecks className="h-4 w-4 text-muted-foreground" />
-                        )}
-                        {card.title || (card.type === 'note' ? 'Untitled Note' : 'Untitled Tasks')}
-                      </CardTitle>
-                      <CardDescription>
-                        {new Date(card.updatedAt).toLocaleDateString()}
-                      </CardDescription>
+                <div className="p-4">
+                  {note.title && (
+                    <h3 className="text-lg font-medium mb-1">{note.title}</h3>
+                  )}
+                  
+                  {note.type === 'note' ? (
+                    <div className="whitespace-pre-wrap">
+                      {note.content || <span className="text-muted-foreground italic">Empty note</span>}
                     </div>
+                  ) : (
+                    <div className="space-y-1">
+                      {note.tasks && note.tasks.length > 0 ? (
+                        note.tasks.map(task => (
+                          <div key={task.id} className="flex items-start gap-2">
+                            <Checkbox 
+                              id={`task-${task.id}`}
+                              checked={task.completed}
+                              onCheckedChange={() => toggleTask(note.id, task.id)}
+                              className="mt-1"
+                            />
+                            <label 
+                              htmlFor={`task-${task.id}`}
+                              className={`flex-1 ${task.completed ? 'line-through text-muted-foreground' : ''}`}
+                            >
+                              {task.text}
+                            </label>
+                          </div>
+                        ))
+                      ) : (
+                        <span className="text-muted-foreground italic">Empty list</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex justify-between items-center p-2 border-t bg-background/30">
+                  {note.type === 'list' && (
+                    <div className="relative flex-grow mr-2">
+                      <Input
+                        placeholder="Add item..."
+                        className="h-8 text-sm"
+                        value={newTaskText}
+                        onChange={(e) => setNewTaskText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            addTask(note.id, newTaskText);
+                            setNewTaskText('');
+                          }
+                        }}
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="absolute right-0 top-0 h-8 w-8"
+                        onClick={() => {
+                          addTask(note.id, newTaskText);
+                          setNewTaskText('');
+                        }}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                  
+                  <div className="flex">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => togglePin(note.id)}
+                      title={note.pinned ? "Unpin" : "Pin"}
+                    >
+                      <PinIcon className="h-4 w-4" />
+                    </Button>
                     
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="-mt-1">
+                        <Button variant="ghost" size="icon">
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setEditingCard(card)}>
+                        <DropdownMenuItem onClick={() => startEditingNote(note)}>
                           <Edit className="h-4 w-4 mr-2" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleTogglePin(card.id)}>
-                          {card.pinned ? (
-                            <>
-                              <span className="h-4 w-4 mr-2">📌</span>
-                              Unpin
-                            </>
-                          ) : (
-                            <>
-                              <span className="h-4 w-4 mr-2">📌</span>
-                              Pin
-                            </>
-                          )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDuplicateCard(card)}>
+                        
+                        <DropdownMenuItem onClick={() => duplicateNote(note)}>
                           <Copy className="h-4 w-4 mr-2" />
-                          Duplicate
+                          Make a copy
                         </DropdownMenuItem>
+                        
                         <DropdownMenuSeparator />
+                        
+                        <DropdownMenuItem>
+                          <Palette className="h-4 w-4 mr-2" />
+                          <span>Background</span>
+                          
+                          <div className="ml-auto flex gap-1">
+                            {colorOptions.map(color => (
+                              <button
+                                key={color.value}
+                                className={`w-4 h-4 rounded-full ${color.class} border border-border hover:scale-125 transition-transform`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  changeNoteColor(note.id, color.value);
+                                }}
+                                title={color.name}
+                              />
+                            ))}
+                          </div>
+                        </DropdownMenuItem>
+                        
+                        <DropdownMenuSeparator />
+                        
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -460,14 +712,14 @@ const Tasks: React.FC = () => {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogTitle>Delete note?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete this card.
+                                This action cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteCard(card.id)}>
+                              <AlertDialogAction onClick={() => deleteNote(note.id)}>
                                 Delete
                               </AlertDialogAction>
                             </AlertDialogFooter>
@@ -476,76 +728,41 @@ const Tasks: React.FC = () => {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                </CardHeader>
-                
-                <CardContent>
-                  {card.type === 'note' ? (
-                    <div className="whitespace-pre-wrap">
-                      {card.content || <span className="text-muted-foreground italic">No content</span>}
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {card.tasks && card.tasks.length > 0 ? (
-                        card.tasks.map(task => (
-                          <div key={task.id} className="flex items-start gap-2">
-                            <Checkbox 
-                              id={`task-${task.id}`}
-                              checked={task.completed}
-                              onCheckedChange={() => handleToggleTask(card.id, task.id)}
-                              className="mt-0.5"
-                            />
-                            <label 
-                              htmlFor={`task-${task.id}`}
-                              className={`flex-1 ${task.completed ? 'line-through text-muted-foreground' : ''}`}
-                            >
-                              {task.text}
-                            </label>
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => handleDeleteTask(card.id, task.id)}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-muted-foreground italic">No tasks</div>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-                
-                {card.type === 'task' && (
-                  <CardFooter className="pt-0">
-                    <div className="flex w-full gap-2">
-                      <Input
-                        placeholder="Add a task..."
-                        value={newTaskText}
-                        onChange={(e) => setNewTaskText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            handleAddTask(card.id, newTaskText);
-                          }
-                        }}
-                        className="text-sm"
-                      />
-                      <Button 
-                        variant="outline" 
-                        size="icon"
-                        onClick={() => handleAddTask(card.id, newTaskText)}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardFooter>
-                )}
+                </div>
               </>
             )}
-          </Card>
+          </div>
         ))}
       </div>
+      
+      {/* Empty state */}
+      {notes.length === 0 && (
+        <div className="text-center py-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <ListPlus className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-xl font-medium mb-2">No notes yet</h3>
+          <p className="text-muted-foreground mb-4">
+            Click the input above to create your first note
+          </p>
+        </div>
+      )}
+      
+      {/* Filtered empty state */}
+      {notes.length > 0 && sortedNotes.length === 0 && (
+        <div className="text-center py-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <Search className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-xl font-medium mb-2">No matching notes</h3>
+          <p className="text-muted-foreground mb-4">
+            Try changing your search or filter
+          </p>
+          <Button variant="outline" onClick={() => { setSearchQuery(''); setActiveFilter('all'); }}>
+            Clear filters
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
