@@ -5,8 +5,6 @@ import { ProgressBar } from "@/components/timer/ProgressBar";
 import { CatCompanion } from "@/components/timer/CatCompanion";
 import { SoundControls } from "@/components/timer/SoundControls";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Timer as TimerIcon, Clock, Settings } from "lucide-react";
@@ -252,7 +250,7 @@ const Timer: React.FC = () => {
               <div className="px-4 py-2 space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="focus-time">Focus Time: {focusMinutes} minutes</Label>
+                    <label htmlFor="focus-time">Focus Time: {focusMinutes} minutes</label>
                   </div>
                   <Slider
                     id="focus-time"
@@ -265,7 +263,7 @@ const Timer: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="break-time">Short Break: {breakMinutes} minutes</Label>
+                    <label htmlFor="break-time">Short Break: {breakMinutes} minutes</label>
                   </div>
                   <Slider
                     id="break-time"
@@ -278,7 +276,7 @@ const Timer: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="long-break-time">Long Break: {longBreakMinutes} minutes</Label>
+                    <label htmlFor="long-break-time">Long Break: {longBreakMinutes} minutes</label>
                   </div>
                   <Slider
                     id="long-break-time"
@@ -291,9 +289,9 @@ const Timer: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="sessions-before-long-break">
+                    <label htmlFor="sessions-before-long-break">
                       Sessions before long break: {sessionsBeforeLongBreak}
-                    </Label>
+                    </label>
                   </div>
                   <Slider
                     id="sessions-before-long-break"
@@ -306,7 +304,7 @@ const Timer: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="daily-goal">Daily Goal: {dailyGoal} minutes</Label>
+                    <label htmlFor="daily-goal">Daily Goal: {dailyGoal} minutes</label>
                   </div>
                   <Slider
                     id="daily-goal"

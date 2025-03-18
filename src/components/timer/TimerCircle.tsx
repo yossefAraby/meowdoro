@@ -216,7 +216,6 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
       <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm font-medium rounded-full px-3 py-1 bg-background/80 backdrop-blur-sm border">
         {currentMode === "focus" ? "Focus Session" : 
          currentMode === "break" ? "Short Break" : "Long Break"}
-        {isCountdown && <span className="ml-2 text-xs">({completedSessions} completed)</span>}
       </div>
       
       {/* Progress Circle */}

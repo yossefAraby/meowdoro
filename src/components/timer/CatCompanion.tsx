@@ -155,12 +155,12 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({
           <div 
             className={cn(
               "relative p-4 rounded-full shadow-md bg-background/60 backdrop-blur-sm",
-              "animate-float transition-all duration-300 hover:scale-110 cursor-help",
+              "transition-all duration-300 hover:scale-110 hover:rotate-6 cursor-help",
               className
             )}
             onMouseEnter={getRandomTip}
           >
-            <Cat className={cn("h-10 w-10", getColor())} />
+            <Cat className={cn("h-12 w-12", getColor())} />
           </div>
         </TooltipTrigger>
         <TooltipContent side="top" align="center" className="max-w-xs p-4 text-center">
