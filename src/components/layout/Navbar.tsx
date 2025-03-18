@@ -11,7 +11,8 @@ import {
   Moon, 
   Cat,
   Menu,
-  BookOpen
+  BookOpen,
+  Briefcase
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -80,6 +81,22 @@ export const Navbar: React.FC = () => {
                 </span>
               </Link>
             ))}
+            
+            {/* Business Canvas link - visible to all */}
+            <Link
+              to="/business-canvas"
+              className={cn(
+                "flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-150",
+                location.pathname === "/business-canvas" 
+                  ? "text-primary bg-accent/50" 
+                  : "text-foreground/60 hover:text-primary hover:bg-accent/30"
+              )}
+            >
+              <Briefcase className="w-5 h-5" />
+              <span className="text-xs mt-1">
+                BMC
+              </span>
+            </Link>
           </div>
 
           {/* Right Side - Mode Toggle & Actions */}
@@ -135,56 +152,72 @@ export const Navbar: React.FC = () => {
                 <div className="flex flex-col h-full py-6">
                   <div className="text-xl font-bold mb-6">Meowdoro</div>
                   
-                  {isAuthenticated ? (
-                    <div className="space-y-2">
-                      {navItems.map((item) => (
+                  <div className="space-y-2">
+                    {/* Business Canvas link - always visible in mobile menu */}
+                    <Link
+                      to="/business-canvas"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-lg transition-all",
+                        location.pathname === "/business-canvas" 
+                          ? "bg-accent text-primary" 
+                          : "hover:bg-accent/50"
+                      )}
+                    >
+                      <Briefcase className="w-5 h-5" />
+                      <span>Business Canvas</span>
+                    </Link>
+                  
+                    {isAuthenticated ? (
+                      <>
+                        {navItems.map((item) => (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            className={cn(
+                              "flex items-center gap-3 p-3 rounded-lg transition-all",
+                              location.pathname === item.path 
+                                ? "bg-accent text-primary" 
+                                : "hover:bg-accent/50"
+                            )}
+                          >
+                            <item.icon className="w-5 h-5" />
+                            <span>{item.label}</span>
+                          </Link>
+                        ))}
+                        
                         <Link
-                          key={item.path}
-                          to={item.path}
+                          to="/settings"
                           className={cn(
                             "flex items-center gap-3 p-3 rounded-lg transition-all",
-                            location.pathname === item.path 
+                            location.pathname === "/settings" 
                               ? "bg-accent text-primary" 
                               : "hover:bg-accent/50"
                           )}
                         >
-                          <item.icon className="w-5 h-5" />
-                          <span>{item.label}</span>
+                          <Settings className="w-5 h-5" />
+                          <span>Settings</span>
                         </Link>
-                      ))}
-                      
-                      <Link
-                        to="/settings"
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-lg transition-all",
-                          location.pathname === "/settings" 
-                            ? "bg-accent text-primary" 
-                            : "hover:bg-accent/50"
-                        )}
-                      >
-                        <Settings className="w-5 h-5" />
-                        <span>Settings</span>
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="mt-auto space-y-3">
-                      <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()} className="block w-full">
+                      </>
+                    ) : (
+                      <div className="mt-auto space-y-3">
+                        <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()} className="block w-full">
+                          <Button 
+                            variant="outline"
+                            className="w-full flex items-center gap-2"
+                          >
+                            <BookOpen className="h-4 w-4" />
+                            <span>Documentation</span>
+                          </Button>
+                        </Link>
                         <Button 
-                          variant="outline"
-                          className="w-full flex items-center gap-2"
+                          className="w-full"
+                          onClick={handleLogin}
                         >
-                          <BookOpen className="h-4 w-4" />
-                          <span>Documentation</span>
+                          Get Started
                         </Button>
-                      </Link>
-                      <Button 
-                        className="w-full"
-                        onClick={handleLogin}
-                      >
-                        Get Started
-                      </Button>
-                    </div>
-                  )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

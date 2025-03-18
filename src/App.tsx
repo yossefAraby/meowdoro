@@ -13,6 +13,7 @@ import Party from "./pages/Party";
 import Stats from "./pages/Stats";
 import Settings from "./pages/Settings";
 import Docs from "./pages/Docs";
+import BusinessCanvas from "./pages/BusinessCanvas";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => {
                 {/* Public routes */}
                 <Route path="/" element={<Landing />} />
                 <Route path="/docs" element={<Docs />} />
+                <Route path="/business-canvas" element={<BusinessCanvas />} />
                 
                 {/* Protected routes */}
                 <Route 
