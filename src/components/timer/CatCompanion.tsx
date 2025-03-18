@@ -6,6 +6,7 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
+import { Cat } from "lucide-react";
 
 // Study tips array
 const studyTips = [
@@ -129,31 +130,22 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
     setTip(studyTips[randomIndex]);
   };
   
-  let emoji = "😺";
-  
-  switch (status) {
-    case "sleeping":
-      emoji = "😴";
-      break;
-    case "happy":
-      emoji = "😸";
-      break;
-    case "focused":
-      emoji = "🧐";
-      break;
-    default:
-      emoji = "😺";
-  }
-  
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
           <div 
-            className="text-4xl sm:text-5xl cursor-pointer hover:scale-110 hover:rotate-3 transition-all duration-300"
+            className="text-5xl sm:text-6xl cursor-pointer hover:scale-110 hover:rotate-3 transition-all duration-300"
             onClick={getRandomTip}
+            aria-label="Click for a study tip"
           >
-            {emoji}
+            <Cat 
+              className={`w-14 h-14 sm:w-16 sm:h-16 text-primary
+                ${status === "sleeping" ? "opacity-50" : ""}
+                ${status === "happy" ? "text-primary animate-pulse-soft" : ""}
+                ${status === "focused" ? "text-primary" : ""}
+              `}
+            />
           </div>
         </TooltipTrigger>
         <TooltipContent side="left" className="max-w-xs">

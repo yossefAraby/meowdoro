@@ -11,7 +11,7 @@ import {
   Moon, 
   Cat,
   Menu,
-  FileText
+  BookOpen
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,6 @@ export const Navbar: React.FC = () => {
     { path: "/tasks", icon: CheckSquare, label: "Tasks" },
     { path: "/party", icon: Users, label: "Party" },
     { path: "/stats", icon: BarChart, label: "Stats" },
-    { path: "/docs", icon: FileText, label: "Documentation" }
   ];
 
   const toggleMode = () => {
@@ -106,13 +105,13 @@ export const Navbar: React.FC = () => {
               </Link>
             ) : (
               <div className="flex gap-2">
-                <Link to="/docs">
+                <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()}>
                   <Button 
                     variant="outline"
                     size="sm"
-                    className="hidden sm:inline-flex"
+                    className="hidden sm:inline-flex items-center gap-1"
                   >
-                    Learn More
+                    <BookOpen className="h-4 w-4" />
                   </Button>
                 </Link>
                 <Button 
@@ -169,12 +168,13 @@ export const Navbar: React.FC = () => {
                     </div>
                   ) : (
                     <div className="mt-auto space-y-3">
-                      <Link to="/docs" className="block w-full">
+                      <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()} className="block w-full">
                         <Button 
                           variant="outline"
-                          className="w-full"
+                          className="w-full flex items-center gap-2"
                         >
-                          Learn More
+                          <BookOpen className="h-4 w-4" />
+                          <span>Documentation</span>
                         </Button>
                       </Link>
                       <Button 

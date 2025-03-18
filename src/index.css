@@ -6,24 +6,24 @@
 @layer base {
   :root {
     /* Base colors with improved contrast */
-    --background: 195 30% 96%;
-    --foreground: 195 50% 15%;
+    --background: 195 30% 98%;
+    --foreground: 195 60% 12%;
 
     /* Card & UI elements */
     --card: 0 0% 100%;
-    --card-foreground: 195 50% 15%;
+    --card-foreground: 195 60% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 195 50% 15%;
+    --popover-foreground: 195 60% 12%;
 
     /* Primary - Cyan Theme (Default) with better contrast */
-    --primary: 195 85% 40%;
+    --primary: 195 85% 35%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary & Accent */
     --secondary: 195 35% 92%;
-    --secondary-foreground: 195 50% 25%;
+    --secondary-foreground: 195 60% 20%;
     --accent: 195 95% 85%;
-    --accent-foreground: 195 50% 15%;
+    --accent-foreground: 195 60% 12%;
 
     /* Status colors */
     --muted: 195 10% 85%;
@@ -32,56 +32,56 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Border & Input */
-    --border: 195 20% 85%;
-    --input: 195 20% 85%;
-    --ring: 195 75% 40%;
+    --border: 195 20% 80%;
+    --input: 195 20% 80%;
+    --ring: 195 75% 35%;
 
     /* Alternative themes */
-    --green-primary: 145 75% 35%;
-    --yellow-primary: 45 80% 40%;
-    --lavender-primary: 270 75% 45%;
-    --peach-primary: 25 75% 45%;
-    --mint-primary: 165 75% 35%;
-    --rose-primary: 355 75% 45%;
+    --green-primary: 145 75% 30%;
+    --yellow-primary: 45 80% 35%;
+    --lavender-primary: 270 75% 40%;
+    --peach-primary: 25 75% 40%;
+    --mint-primary: 165 75% 30%;
+    --rose-primary: 355 75% 40%;
 
     /* Radius */
     --radius: 1rem;
   }
 
   .theme-green {
-    --primary: 145 75% 35%;
+    --primary: 145 75% 30%;
     --accent: 145 85% 85%;
-    --ring: 145 75% 35%;
+    --ring: 145 75% 30%;
   }
 
   .theme-yellow {
-    --primary: 45 80% 40%;
+    --primary: 45 80% 35%;
     --accent: 45 85% 85%; 
-    --ring: 45 80% 40%;
+    --ring: 45 80% 35%;
   }
   
   .theme-lavender {
-    --primary: 270 75% 45%;
+    --primary: 270 75% 40%;
     --accent: 270 85% 90%;
-    --ring: 270 75% 45%;
+    --ring: 270 75% 40%;
   }
   
   .theme-peach {
-    --primary: 25 75% 45%;
+    --primary: 25 75% 40%;
     --accent: 25 85% 85%;
-    --ring: 25 75% 45%;
+    --ring: 25 75% 40%;
   }
   
   .theme-mint {
-    --primary: 165 75% 35%;
+    --primary: 165 75% 30%;
     --accent: 165 85% 85%;
-    --ring: 165 75% 35%;
+    --ring: 165 75% 30%;
   }
   
   .theme-rose {
-    --primary: 355 75% 45%;
+    --primary: 355 75% 40%;
     --accent: 355 85% 85%;
-    --ring: 355 75% 45%;
+    --ring: 355 75% 40%;
   }
 
   .dark {
