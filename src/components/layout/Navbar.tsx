@@ -10,7 +10,8 @@ import {
   Sun, 
   Moon, 
   Cat,
-  Menu
+  Menu,
+  FileText
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -21,32 +22,16 @@ export const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { mode, setMode } = useTheme();
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   
   // Check if user is authenticated
   const isAuthenticated = localStorage.getItem("meowdoro-user") !== null;
   
   const navItems = [
-    { 
-      path: "/timer", 
-      icon: Timer, 
-      label: "Timer" 
-    },
-    { 
-      path: "/tasks", 
-      icon: CheckSquare, 
-      label: "Tasks" 
-    },
-    { 
-      path: "/party", 
-      icon: Users, 
-      label: "Party" 
-    },
-    { 
-      path: "/stats", 
-      icon: BarChart, 
-      label: "Stats" 
-    },
+    { path: "/timer", icon: Timer, label: "Timer" },
+    { path: "/tasks", icon: CheckSquare, label: "Tasks" },
+    { path: "/party", icon: Users, label: "Party" },
+    { path: "/stats", icon: BarChart, label: "Stats" },
+    { path: "/docs", icon: FileText, label: "Documentation" }
   ];
 
   const toggleMode = () => {
@@ -58,8 +43,6 @@ export const Navbar: React.FC = () => {
     localStorage.setItem("meowdoro-user", JSON.stringify({ email: "demo@meowdoro.app" }));
     navigate("/timer");
   };
-
-  // Removed logout functionality, as per instructions
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 glass animate-fade-in">
@@ -102,8 +85,6 @@ export const Navbar: React.FC = () => {
 
           {/* Right Side - Mode Toggle & Actions */}
           <div className="flex items-center space-x-2">
-            {/* Removed page title display as requested */}
-            
             <button 
               onClick={toggleMode} 
               className="p-2 rounded-full hover:bg-accent/50 transition-all duration-150"
@@ -124,13 +105,24 @@ export const Navbar: React.FC = () => {
                 <Settings className="w-5 h-5" />
               </Link>
             ) : (
-              <Button 
-                size="sm" 
-                className="hidden sm:inline-flex"
-                onClick={handleLogin}
-              >
-                Get Started
-              </Button>
+              <div className="flex gap-2">
+                <Link to="/docs">
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="hidden sm:inline-flex"
+                  >
+                    Learn More
+                  </Button>
+                </Link>
+                <Button 
+                  size="sm" 
+                  className="hidden sm:inline-flex"
+                  onClick={handleLogin}
+                >
+                  Get Started
+                </Button>
+              </div>
             )}
             
             {/* Mobile Menu Button */}
@@ -145,44 +137,46 @@ export const Navbar: React.FC = () => {
                   <div className="text-xl font-bold mb-6">Meowdoro</div>
                   
                   {isAuthenticated ? (
-                    <>
-                      <div className="space-y-2">
-                        {navItems.map((item) => (
-                          <Link
-                            key={item.path}
-                            to={item.path}
-                            className={cn(
-                              "flex items-center gap-3 p-3 rounded-lg transition-all",
-                              location.pathname === item.path 
-                                ? "bg-accent text-primary" 
-                                : "hover:bg-accent/50"
-                            )}
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <item.icon className="w-5 h-5" />
-                            <span>{item.label}</span>
-                          </Link>
-                        ))}
-                        
+                    <div className="space-y-2">
+                      {navItems.map((item) => (
                         <Link
-                          to="/settings"
+                          key={item.path}
+                          to={item.path}
                           className={cn(
                             "flex items-center gap-3 p-3 rounded-lg transition-all",
-                            location.pathname === "/settings" 
+                            location.pathname === item.path 
                               ? "bg-accent text-primary" 
                               : "hover:bg-accent/50"
                           )}
-                          onClick={() => setIsMenuOpen(false)}
                         >
-                          <Settings className="w-5 h-5" />
-                          <span>Settings</span>
+                          <item.icon className="w-5 h-5" />
+                          <span>{item.label}</span>
                         </Link>
-                      </div>
+                      ))}
                       
-                      {/* Removed logout button as requested */}
-                    </>
+                      <Link
+                        to="/settings"
+                        className={cn(
+                          "flex items-center gap-3 p-3 rounded-lg transition-all",
+                          location.pathname === "/settings" 
+                            ? "bg-accent text-primary" 
+                            : "hover:bg-accent/50"
+                        )}
+                      >
+                        <Settings className="w-5 h-5" />
+                        <span>Settings</span>
+                      </Link>
+                    </div>
                   ) : (
-                    <div className="mt-auto">
+                    <div className="mt-auto space-y-3">
+                      <Link to="/docs" className="block w-full">
+                        <Button 
+                          variant="outline"
+                          className="w-full"
+                        >
+                          Learn More
+                        </Button>
+                      </Link>
                       <Button 
                         className="w-full"
                         onClick={handleLogin}

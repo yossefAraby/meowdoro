@@ -1,170 +1,164 @@
 
 import React, { useState } from "react";
-import { cn } from "@/lib/utils";
-import { Cat } from "lucide-react";
 import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
 } from "@/components/ui/tooltip";
 
-// Study tips array with 100 tips
-const STUDY_TIPS = [
-  "Use the Pomodoro technique: 25 minutes of focus followed by a 5-minute break.",
-  "Drink water regularly to stay hydrated during study sessions.",
-  "Study in a clean, distraction-free environment.",
-  "Take short breaks to stretch and move around.",
-  "Review material before bedtime for better retention.",
-  "Explain concepts out loud as if teaching someone else.",
-  "Use mind maps to connect related concepts.",
-  "Set specific, achievable goals for each study session.",
-  "Listen to instrumental music or nature sounds while studying.",
-  "Switch between different subjects to maintain engagement.",
-  "Start with the most challenging material when your mind is fresh.",
-  "Use color-coded notes to organize information visually.",
-  "Try the 'chunking' technique for memorizing complex information.",
-  "Practice retrieval by testing yourself regularly.",
-  "Get adequate sleep before and after studying.",
-  "Use flashcards for active recall practice.",
-  "Create acronyms or mnemonic devices for difficult information.",
-  "Try the Feynman technique: explain concepts in simple terms.",
-  "Avoid multitasking - focus on one thing at a time.",
-  "Study in natural light when possible.",
-  "Review notes within 24 hours of taking them.",
-  "Use the spaced repetition technique for long-term retention.",
-  "Create a consistent study schedule.",
-  "Take regular eye breaks using the 20-20-20 rule (look 20 feet away for 20 seconds every 20 minutes).",
-  "Use analogies to relate new concepts to familiar ones.",
-  "Practice active reading by highlighting and summarizing.",
-  "Create a dedicated study space your brain associates with focus.",
-  "Try standing while studying to increase alertness.",
-  "Use visual cues and symbols in your notes.",
-  "Rewrite complex notes in your own words.",
-  "Study with a group to gain different perspectives.",
-  "Use online resources to supplement your learning.",
-  "Take practice tests under exam-like conditions.",
-  "Learn keyboard shortcuts to work more efficiently.",
-  "Reward yourself after completing study goals.",
+// Study tips array
+const studyTips = [
+  "Use the Pomodoro technique: 25 minutes of focus, then a 5-minute break.",
+  "Stay hydrated! Drink water regularly to keep your brain functioning optimally.",
+  "Take short breaks to stretch and move around every 30 minutes.",
+  "Put your phone on silent or in another room to minimize distractions.",
+  "Try the 'two-minute rule' - if a task takes less than two minutes, do it now.",
   "Break large tasks into smaller, manageable chunks.",
-  "Use sticky notes for important reminders and concepts.",
-  "Try studying at different times to find your peak productivity hours.",
-  "Limit social media use during study sessions.",
-  "Use a noise-canceling app or headphones in noisy environments.",
-  "Keep a study journal to track progress and insights.",
-  "Apply what you learn to real-world scenarios.",
-  "Use the 'question, answer, evidence' method when reading.",
-  "Create a 'brain dump' before starting to clear your mind.",
-  "Set a timer to create a sense of urgency.",
-  "Use physical activity as a study break to boost blood flow to the brain.",
-  "Try teaching the material to someone else.",
-  "Use visualization techniques for abstract concepts.",
-  "Take power naps (20 minutes) when feeling mentally tired.",
-  "Create associations between new information and existing knowledge.",
-  "Study similar subjects consecutively for connection building.",
-  "Start with a brief review of previous material before new content.",
-  "Create a distraction list for random thoughts that pop up.",
-  "Use 'deep work' sessions - 90 minutes of uninterrupted focus.",
-  "Try the 'popcorn method': alternate between focused work and brief movement.",
-  "Keep your study materials organized and accessible.",
-  "Learn your learning style (visual, auditory, kinesthetic) and adapt study methods.",
-  "Use the 'rubber duck debugging' method: explain problems to an inanimate object.",
-  "Create a 'done list' alongside your to-do list.",
+  "Set specific goals for each study session.",
+  "Study in a clean, well-lit environment.",
+  "Use active recall instead of passive re-reading.",
+  "Explain concepts out loud as if teaching someone else.",
+  "Create mind maps to visualize connections between ideas.",
+  "Get enough sleep - your brain consolidates learning during rest.",
+  "Review your notes within 24 hours of taking them to improve retention.",
+  "Use spaced repetition for long-term memory improvement.",
+  "Play background sounds like white noise or instrumental music to mask distractions.",
+  "Alternate between different subjects to maintain interest.",
+  "Reward yourself after completing challenging tasks.",
+  "Practice meditation or deep breathing to reduce stress before studying.",
+  "Use colored pens or highlighters to organize information visually.",
+  "Study difficult subjects when you're most alert.",
+  "Create flashcards for key concepts and review them regularly.",
   "Try studying in different locations to improve memory recall.",
-  "Use white noise or ambient sounds to mask distractions.",
-  "Practice gratitude before studying to put your mind in a positive state.",
-  "Create concept diagrams to visualize relationships between ideas.",
-  "Use the 'five more' rule: do five more minutes, problems, or pages when tired.",
-  "Try reverse outlining after writing to check for logical flow.",
-  "Use the 'forced productivity' technique: set a timer for just 5 minutes of work.",
-  "Keep healthy snacks nearby during long study sessions.",
-  "Study with proper posture to prevent fatigue and discomfort.",
-  "Create personal examples for abstract concepts.",
-  "Use the 'focused-diffuse' technique: alternate between focused work and relaxation.",
-  "Try studying in natural settings occasionally.",
-  "Record yourself explaining difficult concepts and listen back.",
-  "Create a pre-study ritual to signal to your brain it's time to focus.",
-  "Keep a glass of water nearby during study sessions.",
-  "Use hand-writing for better memory encoding when appropriate.",
-  "Try the 'scan, question, read, recite, review' (SQ3R) reading method.",
-  "Block distracting websites during study sessions.",
-  "Explain your mistakes when practicing problems.",
-  "Create 'if-then' plans for potential distractions.",
-  "Use text-to-speech tools to listen to materials while resting your eyes.",
-  "Schedule tasks according to your energy levels throughout the day.",
-  "Try the '50/10 rule': 50 minutes of focus followed by 10 minutes of rest.",
-  "Make studying a social activity when appropriate.",
-  "Use gamification to make studying more engaging.",
-  "Create a 'curiosity list' of questions while studying to research later.",
-  "Try the 'interleaving' technique: mix different problems or subjects.",
-  "Use cognitive offloading: write things down instead of trying to remember everything.",
-  "Track your productivity patterns over time.",
-  "Create summary sheets for each subject or chapter.",
-  "Study first thing in the morning when willpower is highest.",
-  "Take a walk before studying to increase alertness.",
-  "Use humor to make difficult material more memorable.",
-  "Try meditating briefly before studying to clear your mind.",
-  "Create a growth mindset by viewing challenges as opportunities.",
-  "Practice deliberate focus on one task without switching.",
-  "Keep your study area at a comfortable temperature.",
-  "Identify and eliminate recurring distractions.",
-  "Try studying before or after exercise when your brain is active.",
-  "Create visual timelines for historical or sequential information.",
-  "Use positive affirmations to boost confidence before difficult subjects."
+  "Use the Feynman Technique: explain concepts in simple terms to test understanding.",
+  "Set a timer to create a sense of urgency and improve focus.",
+  "Take regular exercise to boost brain function and reduce stress.",
+  "Use mnemonic devices to remember complex information.",
+  "Create connections between new information and things you already know.",
+  "Study with a partner to stay accountable and discuss concepts.",
+  "Try the 'chunking' method to group related information.",
+  "Write down your distracting thoughts to deal with later.",
+  "Use online tools to block distracting websites during study time.",
+  "Create a consistent study routine to build a productive habit.",
+  "Review previous material before starting new topics.",
+  "Try standing while studying to increase alertness.",
+  "Keep healthy snacks nearby to maintain energy levels.",
+  "Create a study playlist that helps you focus.",
+  "Take brief power naps (15-20 minutes) when feeling mentally fatigued.",
+  "Use visual aids like diagrams and flowcharts when possible.",
+  "Practice past papers or sample questions under timed conditions.",
+  "Schedule study sessions at the same time each day to build consistency.",
+  "Use the SQ3R method: Survey, Question, Read, Recite, Review.",
+  "Try the 50/10 rule: 50 minutes of focused work, 10 minutes of break.",
+  "Study first thing in the morning when your mind is fresh.",
+  "Set realistic expectations for each study session.",
+  "Create a distraction-free zone dedicated solely to studying.",
+  "Consider using aromatherapy (like peppermint or rosemary) to improve concentration.",
+  "Practice self-care and maintain a healthy work-life balance.",
+  "Use retrieval practice - quiz yourself regularly on the material.",
+  "Try interleaving - mixing different topics rather than focusing on just one.",
+  "Ask questions when you don't understand something.",
+  "Create a 'done list' to track your accomplishments.",
+  "Teach concepts to someone else to solidify your understanding.",
+  "Start with the hardest subject when your energy is highest.",
+  "Set specific, measurable goals for each study session.",
+  "Try the 'Pomodoro' technique: 25 min focus, 5 min break, repeat.",
+  "Review material right before sleep to help consolidation.",
+  "Use a timer to create a sense of focus and urgency.",
+  "Take proper breaks - move around, get fresh air, rest your eyes.",
+  "Keep a small notebook for ideas that pop up while studying.",
+  "Create a dedicated study space that your brain associates with focus.",
+  "Use active learning techniques like summarizing and questioning.",
+  "Try study buddies for accountability and different perspectives.",
+  "Prioritize understanding over memorization when possible.",
+  "Break large projects into smaller, manageable chunks.",
+  "Regularly review and revise notes to strengthen memory.",
+  "Stay hydrated - your brain needs water to function optimally.",
+  "Get enough sleep - memory consolidation happens during rest.",
+  "Use visual aids like mind maps and diagrams.",
+  "Test yourself regularly instead of just re-reading material.",
+  "Try different study environments to find what works best for you.",
+  "Use the 'chunking' technique to group related information.",
+  "Practice deep work - focused concentration without distractions.",
+  "Create connections between new material and things you already know.",
+  "Use spaced repetition to review material at optimal intervals.",
+  "Try explaining complex concepts in simple terms.",
+  "Reward yourself after completing challenging tasks.",
+  "Use digital tools mindfully - they can help or hinder focus.",
+  "Maintain a healthy diet with brain-boosting foods.",
+  "Exercise regularly to improve cognitive function and reduce stress.",
+  "Practice mindfulness to improve concentration and reduce anxiety.",
+  "Set deadlines for yourself, even for small tasks.",
+  "Use memory techniques like the Method of Loci for difficult material.",
+  "Create a study routine that works with your natural energy levels.",
+  "Use keyboard shortcuts and other productivity hacks.",
+  "Take regular breaks to prevent burnout and maintain focus.",
+  "Review material right before bedtime to enhance memory.",
+  "Try color-coding your notes for better organization.",
+  "Use the Feynman Technique: explain concepts simply to test understanding.",
+  "Create a distraction list for thoughts that arise during study.",
+  "Adjust your environment - lighting, temperature, noise level.",
+  "Practice deliberate focus on one task at a time.",
+  "Try standing or walking while reviewing material.",
+  "Use positive affirmations to overcome study anxiety.",
+  "Create a pre-study ritual to get your brain in focus mode.",
+  "Alternate between subjects to maintain interest and energy.",
+  "Do your most challenging work during your peak energy hours.",
+  "Reflect on what you've learned after each study session.",
+  "Maintain a growth mindset - see challenges as opportunities.",
+  "Use retrieval practice by testing yourself frequently.",
+  "Take care of your physical health to support cognitive function.",
+  "Use analogies to understand and remember complex concepts.",
+  "Remember your 'why' - keep your motivation visible.",
+  "Focus on consistency rather than occasional marathon sessions."
 ];
 
 interface CatCompanionProps {
   status: "sleeping" | "idle" | "happy" | "focused";
-  className?: string;
 }
 
-export const CatCompanion: React.FC<CatCompanionProps> = ({
-  status = "idle",
-  className
-}) => {
+export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
   const [tip, setTip] = useState(() => {
-    // Select a random tip on initial render
-    const randomIndex = Math.floor(Math.random() * STUDY_TIPS.length);
-    return STUDY_TIPS[randomIndex];
+    const randomIndex = Math.floor(Math.random() * studyTips.length);
+    return studyTips[randomIndex];
   });
   
-  // Get a new random tip
   const getRandomTip = () => {
-    const randomIndex = Math.floor(Math.random() * STUDY_TIPS.length);
-    setTip(STUDY_TIPS[randomIndex]);
+    const randomIndex = Math.floor(Math.random() * studyTips.length);
+    setTip(studyTips[randomIndex]);
   };
   
-  // Determine color based on status
-  const getColor = () => {
-    switch (status) {
-      case "sleeping":
-        return "text-muted-foreground";
-      case "happy":
-      case "focused":
-        return "text-primary";
-      case "idle":
-      default:
-        return "text-foreground";
-    }
-  };
+  let emoji = "😺";
+  
+  switch (status) {
+    case "sleeping":
+      emoji = "😴";
+      break;
+    case "happy":
+      emoji = "😸";
+      break;
+    case "focused":
+      emoji = "🧐";
+      break;
+    default:
+      emoji = "😺";
+  }
   
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
           <div 
-            className={cn(
-              "relative p-4 rounded-full shadow-md bg-background/60 backdrop-blur-sm",
-              "transition-all duration-300 hover:scale-110 hover:rotate-6 cursor-help",
-              className
-            )}
-            onMouseEnter={getRandomTip}
+            className="text-4xl sm:text-5xl cursor-pointer hover:scale-110 hover:rotate-3 transition-all duration-300"
+            onClick={getRandomTip}
           >
-            <Cat className={cn("h-12 w-12", getColor())} />
+            {emoji}
           </div>
         </TooltipTrigger>
-        <TooltipContent side="top" align="center" className="max-w-xs p-4 text-center">
+        <TooltipContent side="left" className="max-w-xs">
           <p>{tip}</p>
+          <p className="text-xs text-muted-foreground mt-1">Click for another tip!</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

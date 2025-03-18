@@ -7,7 +7,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Plus, 
-  MoreVertical, 
   Trash, 
   Edit, 
   PinIcon,
@@ -80,9 +79,12 @@ const Tasks: React.FC = () => {
   const [newContent, setNewContent] = useState('');
   const [newTasks, setNewTasks] = useState<Task[]>([]);
   const [newTaskText, setNewTaskText] = useState('');
+  const [selectedColor, setSelectedColor] = useState('default');
+  const [isPinned, setIsPinned] = useState(false);
   
   // Refs
   const editorRef = useRef<HTMLDivElement>(null);
+  const taskInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
   // Save notes to localStorage
@@ -139,6 +141,7 @@ const Tasks: React.FC = () => {
     
     setNewTasks([...newTasks, newTask]);
     setNewTaskText('');
+    if (taskInputRef.current) taskInputRef.current.focus();
   };
   
   // Handle delete task
@@ -150,6 +153,7 @@ const Tasks: React.FC = () => {
   const saveNote = () => {
     if (!newTitle && !newContent && newTasks.length === 0) {
       setIsEditorOpen(false);
+      resetEditor();
       return;
     }
     
@@ -159,8 +163,8 @@ const Tasks: React.FC = () => {
       content: noteType === 'note' ? newContent : '',
       type: noteType,
       tasks: noteType === 'checklist' ? newTasks : [],
-      color: 'default',
-      pinned: false,
+      color: selectedColor,
+      pinned: isPinned,
       createdAt: new Date()
     };
     
@@ -179,6 +183,8 @@ const Tasks: React.FC = () => {
     setNewContent('');
     setNewTasks([]);
     setNewTaskText('');
+    setSelectedColor('default');
+    setIsPinned(false);
     setIsEditorOpen(false);
   };
   
@@ -243,25 +249,52 @@ const Tasks: React.FC = () => {
       {/* Note editor */}
       <div 
         ref={editorRef}
-        className={`max-w-lg mx-auto mb-8 bg-card rounded-lg border shadow transition-all overflow-hidden ${
-          isEditorOpen ? 'p-4' : 'hover:shadow-md cursor-pointer'
+        className={`max-w-lg mx-auto mb-8 ${getColorClass(selectedColor)} rounded-lg border shadow transition-all ${isPinned ? 'ring-1 ring-primary' : ''} ${
+          isEditorOpen ? 'p-4' : 'hover:shadow-md cursor-pointer min-h-12'
         }`}
         onClick={() => !isEditorOpen && setIsEditorOpen(true)}
       >
         {isEditorOpen ? (
           <>
-            <Input
-              type="text"
-              placeholder="Title"
-              className="w-full px-0 border-none text-lg font-medium mb-2 focus-visible:ring-0"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-            />
+            <div className="flex items-center gap-2 mb-2">
+              <Input
+                type="text"
+                placeholder="Title"
+                className="flex-1 border-none px-0 text-lg font-medium focus-visible:ring-0 bg-transparent"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-8 w-8 p-0 ${isPinned ? 'text-primary' : ''}`}
+                onClick={() => setIsPinned(!isPinned)}
+              >
+                <PinIcon className={`h-4 w-4 ${isPinned ? 'fill-primary' : ''}`} />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Palette className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-auto flex p-1 gap-1">
+                  {colorOptions.map(color => (
+                    <button
+                      key={color.value}
+                      className={`w-6 h-6 rounded-full ${color.class} border hover:scale-110 transition-transform ${selectedColor === color.value ? 'ring-2 ring-primary' : ''}`}
+                      onClick={() => setSelectedColor(color.value)}
+                      title={color.name}
+                    />
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             
             {noteType === 'note' ? (
               <Textarea
                 placeholder="Take a note..."
-                className="w-full resize-none border-none px-0 focus-visible:ring-0 min-h-[100px]"
+                className="w-full resize-none border-none px-0 focus-visible:ring-0 min-h-[100px] bg-transparent"
                 value={newContent}
                 onChange={(e) => setNewContent(e.target.value)}
               />
@@ -277,13 +310,13 @@ const Tasks: React.FC = () => {
                         ));
                       }}
                     />
-                    <span className={task.completed ? 'line-through text-muted-foreground' : ''}>
+                    <span className={task.completed ? 'line-through text-muted-foreground flex-1' : 'flex-1'}>
                       {task.text}
                     </span>
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="ml-auto h-8 w-8"
+                      className="h-8 w-8 opacity-50 hover:opacity-100"
                       onClick={() => deleteTask(task.id)}
                     >
                       <Trash className="h-4 w-4" />
@@ -293,9 +326,10 @@ const Tasks: React.FC = () => {
                 
                 <div className="flex items-center gap-2">
                   <Input
+                    ref={taskInputRef}
                     type="text"
                     placeholder="Add item..."
-                    className="flex-1 border-none focus-visible:ring-0 px-0"
+                    className="border-none focus-visible:ring-0 px-0 bg-transparent"
                     value={newTaskText}
                     onChange={(e) => setNewTaskText(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && addTask()}
@@ -356,16 +390,16 @@ const Tasks: React.FC = () => {
         {filteredNotes.map(note => (
           <div 
             key={note.id} 
-            className={`${getColorClass(note.color)} rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow relative min-h-[100px]`}
+            className={`${getColorClass(note.color)} rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow relative p-4 flex flex-col min-h-[100px] h-full`}
           >
             {/* Pin indicator */}
             {note.pinned && (
-              <div className="absolute top-1 right-1">
+              <div className="absolute top-2 right-2">
                 <PinIcon className="h-4 w-4 text-primary fill-primary" />
               </div>
             )}
             
-            <div className="p-4">
+            <div className="flex-1 mb-2">
               {note.title && (
                 <h3 className="font-medium text-lg mb-2 pr-6">{note.title}</h3>
               )}
@@ -396,75 +430,55 @@ const Tasks: React.FC = () => {
               )}
             </div>
             
-            <div className="flex justify-between items-center p-2 border-t mt-auto bg-background/30">
+            <div className="flex justify-end mt-auto space-x-1 opacity-0 group-hover:opacity-100 hover:opacity-100 focus-within:opacity-100 transition-opacity">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                    <Palette className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="flex p-1 gap-1">
+                  {colorOptions.map(color => (
+                    <button
+                      key={color.value}
+                      className={`w-6 h-6 rounded-full ${color.class} border hover:scale-110 transition-transform`}
+                      onClick={() => changeColor(note.id, color.value)}
+                      title={color.name}
+                    />
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 p-0"
                 onClick={() => togglePin(note.id)}
               >
                 <PinIcon className={`h-4 w-4 ${note.pinned ? 'fill-primary' : ''}`} />
               </Button>
               
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreVertical className="h-4 w-4" />
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 p-0 text-destructive/70 hover:text-destructive">
+                    <Trash className="h-4 w-4" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuSeparator />
-                  
-                  <DropdownMenuItem>
-                    <Palette className="h-4 w-4 mr-2" />
-                    <div className="flex-1">Background</div>
-                    <div className="flex gap-1 ml-2">
-                      {colorOptions.map(color => (
-                        <button
-                          key={color.value}
-                          className={`w-4 h-4 rounded-full ${color.class} border hover:scale-110 transition-transform`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            changeColor(note.id, color.value);
-                          }}
-                          title={color.name}
-                        />
-                      ))}
-                    </div>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuSeparator />
-                  
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <DropdownMenuItem className="text-destructive" onSelect={(e) => e.preventDefault()}>
-                        <Trash className="h-4 w-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Note</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this note? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => deleteNote(note.id)}>
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Note</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete this note? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => deleteNote(note.id)}>
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         ))}

@@ -12,6 +12,7 @@ import Tasks from "./pages/Tasks";
 import Party from "./pages/Party";
 import Stats from "./pages/Stats";
 import Settings from "./pages/Settings";
+import Docs from "./pages/Docs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,8 +33,9 @@ const App = () => {
             
             <main className="pt-20 min-h-screen">
               <Routes>
-                {/* Public route */}
+                {/* Public routes */}
                 <Route path="/" element={<Landing />} />
+                <Route path="/docs" element={<Docs />} />
                 
                 {/* Protected routes */}
                 <Route 

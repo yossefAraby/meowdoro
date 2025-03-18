@@ -19,6 +19,7 @@ interface TimerCircleProps {
   onTimerComplete?: () => void;
   onTimerUpdate?: (seconds: number) => void;
   onModeChange?: (mode: "focus" | "break" | "longBreak") => void;
+  soundUrl?: string;
 }
 
 export const TimerCircle: React.FC<TimerCircleProps> = ({
@@ -30,6 +31,7 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   onTimerComplete,
   onTimerUpdate,
   onModeChange,
+  soundUrl,
 }) => {
   const [timeRemaining, setTimeRemaining] = useState(isCountdown ? initialMinutes * 60 : 0);
   const [initialTime, setInitialTime] = useState(isCountdown ? initialMinutes * 60 : 0);
@@ -39,6 +41,20 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   const [completedSessions, setCompletedSessions] = useState(0);
   
   const intervalRef = useRef<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  // Initialize audio
+  useEffect(() => {
+    // Default completion sound
+    audioRef.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-back-2575.mp3");
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
   
   // Update initial time when mode changes
   useEffect(() => {
@@ -75,6 +91,13 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
               clearInterval(intervalRef.current!);
               setIsActive(false);
               setIsCompleted(true);
+              
+              // Play completion sound
+              if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+                audioRef.current.play().catch(err => console.log("Audio play error:", err));
+              }
               
               // Handle session completion based on current mode
               if (currentMode === "focus") {
@@ -117,6 +140,19 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
       }
     };
   }, [isActive, isCountdown, currentMode, completedSessions, onTimerComplete, onTimerUpdate]);
+  
+  useEffect(() => {
+    // Update sound URL if provided
+    if (soundUrl && soundUrl.trim() !== "") {
+      // If it's a YouTube URL, we'll handle it in the parent component
+      if (!soundUrl.includes("youtube.com") && !soundUrl.includes("youtu.be")) {
+        audioRef.current = new Audio(soundUrl);
+      }
+    } else {
+      // Default completion sound
+      audioRef.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-back-2575.mp3");
+    }
+  }, [soundUrl]);
   
   const toggleTimer = () => {
     if (isCompleted) {
@@ -212,12 +248,6 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   
   return (
     <div className="relative w-72 h-72 mx-auto">
-      {/* Mode indicator */}
-      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm font-medium rounded-full px-3 py-1 bg-background/80 backdrop-blur-sm border">
-        {currentMode === "focus" ? "Focus Session" : 
-         currentMode === "break" ? "Short Break" : "Long Break"}
-      </div>
-      
       {/* Progress Circle */}
       <svg className="w-full h-full" viewBox="0 0 200 200">
         {/* Background Circle */}
