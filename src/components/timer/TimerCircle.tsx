@@ -1,29 +1,66 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, Coffee } from "lucide-react";
+import { Play, Pause, RotateCcw, Coffee, FastForward, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 
 interface TimerCircleProps {
   initialMinutes?: number;
   isCountdown?: boolean;
+  breakMinutes?: number;
+  longBreakMinutes?: number;
+  sessionsBeforeLongBreak?: number;
   onTimerComplete?: () => void;
   onTimerUpdate?: (seconds: number) => void;
+  onModeChange?: (mode: "focus" | "break" | "longBreak") => void;
 }
 
 export const TimerCircle: React.FC<TimerCircleProps> = ({
   initialMinutes = 25,
   isCountdown = true,
+  breakMinutes = 5,
+  longBreakMinutes = 15,
+  sessionsBeforeLongBreak = 4,
   onTimerComplete,
   onTimerUpdate,
+  onModeChange,
 }) => {
   const [timeRemaining, setTimeRemaining] = useState(isCountdown ? initialMinutes * 60 : 0);
-  const [initialTime] = useState(isCountdown ? initialMinutes * 60 : 0);
+  const [initialTime, setInitialTime] = useState(isCountdown ? initialMinutes * 60 : 0);
   const [isActive, setIsActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [isBreak, setIsBreak] = useState(false);
+  const [currentMode, setCurrentMode] = useState<"focus" | "break" | "longBreak">("focus");
+  const [completedSessions, setCompletedSessions] = useState(0);
   
   const intervalRef = useRef<number | null>(null);
+  
+  // Update initial time when mode changes
+  useEffect(() => {
+    if (currentMode === "focus") {
+      setInitialTime(initialMinutes * 60);
+      setTimeRemaining(initialMinutes * 60);
+    } else if (currentMode === "break") {
+      setInitialTime(breakMinutes * 60);
+      setTimeRemaining(breakMinutes * 60);
+    } else if (currentMode === "longBreak") {
+      setInitialTime(longBreakMinutes * 60);
+      setTimeRemaining(longBreakMinutes * 60);
+    }
+    
+    if (onTimerUpdate) onTimerUpdate(timeRemaining);
+    if (onModeChange) onModeChange(currentMode);
+  }, [currentMode, initialMinutes, breakMinutes, longBreakMinutes]);
+  
+  // Reset timer when countdown mode changes
+  useEffect(() => {
+    resetTimer();
+  }, [isCountdown]);
   
   useEffect(() => {
     if (isActive) {
@@ -38,6 +75,23 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
               clearInterval(intervalRef.current!);
               setIsActive(false);
               setIsCompleted(true);
+              
+              // Handle session completion based on current mode
+              if (currentMode === "focus") {
+                const newCompletedSessions = completedSessions + 1;
+                setCompletedSessions(newCompletedSessions);
+                
+                // Determine if next break should be a long break
+                if (newCompletedSessions % sessionsBeforeLongBreak === 0) {
+                  setCurrentMode("longBreak");
+                } else {
+                  setCurrentMode("break");
+                }
+              } else {
+                // After break or long break, go back to focus mode
+                setCurrentMode("focus");
+              }
+              
               if (onTimerComplete) onTimerComplete();
               return 0;
             }
@@ -62,12 +116,7 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
         clearInterval(intervalRef.current);
       }
     };
-  }, [isActive, isCountdown, onTimerComplete, onTimerUpdate]);
-  
-  // Reset timer when mode changes
-  useEffect(() => {
-    resetTimer();
-  }, [isCountdown, initialMinutes]);
+  }, [isActive, isCountdown, currentMode, completedSessions, onTimerComplete, onTimerUpdate]);
   
   const toggleTimer = () => {
     if (isCompleted) {
@@ -77,21 +126,48 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     }
   };
 
-  const takeBreak = () => {
-    resetTimer();
-    setIsBreak(true);
-    // In a real app, you might change the timer duration here
-    // For now, we'll just show visual feedback
-    setTimeout(() => {
-      setIsBreak(false);
-    }, 300);
+  const skipToBreak = () => {
+    if (currentMode === "focus") {
+      // Skip the current focus session and move to break
+      setIsActive(false);
+      clearInterval(intervalRef.current!);
+      
+      // Determine if we should take a long break
+      const newCompletedSessions = completedSessions + 1;
+      setCompletedSessions(newCompletedSessions);
+      
+      if (newCompletedSessions % sessionsBeforeLongBreak === 0) {
+        setCurrentMode("longBreak");
+      } else {
+        setCurrentMode("break");
+      }
+    } else {
+      // Skip the current break and go back to focus
+      setIsActive(false);
+      clearInterval(intervalRef.current!);
+      setCurrentMode("focus");
+    }
   };
   
   const resetTimer = () => {
     setIsActive(false);
     setIsCompleted(false);
-    setTimeRemaining(isCountdown ? initialMinutes * 60 : 0);
-    if (onTimerUpdate) onTimerUpdate(isCountdown ? initialMinutes * 60 : 0);
+    
+    // Reset time based on current mode
+    if (currentMode === "focus") {
+      setTimeRemaining(isCountdown ? initialMinutes * 60 : 0);
+    } else if (currentMode === "break") {
+      setTimeRemaining(breakMinutes * 60);
+    } else if (currentMode === "longBreak") {
+      setTimeRemaining(longBreakMinutes * 60);
+    }
+    
+    if (onTimerUpdate) {
+      onTimerUpdate(isCountdown ? 
+        (currentMode === "focus" ? initialMinutes * 60 : 
+         currentMode === "break" ? breakMinutes * 60 : 
+         longBreakMinutes * 60) : 0);
+    }
   };
   
   // Format time as MM:SS
@@ -120,8 +196,29 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   
   const arcStyle = calculateArc();
   
+  // Get color based on current mode
+  const getModeColor = () => {
+    switch (currentMode) {
+      case "focus":
+        return "text-primary";
+      case "break":
+        return "text-cyan-500";
+      case "longBreak":
+        return "text-amber-500";
+      default:
+        return "text-primary";
+    }
+  };
+  
   return (
     <div className="relative w-72 h-72 mx-auto">
+      {/* Mode indicator */}
+      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm font-medium rounded-full px-3 py-1 bg-background/80 backdrop-blur-sm border">
+        {currentMode === "focus" ? "Focus Session" : 
+         currentMode === "break" ? "Short Break" : "Long Break"}
+        {isCountdown && <span className="ml-2 text-xs">({completedSessions} completed)</span>}
+      </div>
+      
       {/* Progress Circle */}
       <svg className="w-full h-full" viewBox="0 0 200 200">
         {/* Background Circle */}
@@ -144,7 +241,7 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
           stroke="currentColor"
           strokeWidth="8"
           strokeLinecap="round"
-          className="text-primary transition-all duration-1000 ease-in-out"
+          className={cn("transition-all duration-1000 ease-in-out", getModeColor())}
           style={arcStyle}
           transform="rotate(-90, 100, 100)"
         />
@@ -161,7 +258,8 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
             className={cn(
               "rounded-full w-16 h-16 p-0 flex items-center justify-center transition-all duration-300",
               isCompleted && "bg-green-500 hover:bg-green-600",
-              isBreak && "bg-amber-500 hover:bg-amber-600"
+              currentMode === "break" && "bg-cyan-500 hover:bg-cyan-600",
+              currentMode === "longBreak" && "bg-amber-500 hover:bg-amber-600"
             )}
             onClick={toggleTimer}
           >
@@ -174,17 +272,42 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
             )}
           </Button>
           
-          {/* Take Break Button - Now below the main button */}
-          {isCountdown && !isActive && !isCompleted && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full transition-all duration-300 hover:bg-amber-100 dark:hover:bg-amber-900 flex items-center gap-2"
-              onClick={takeBreak}
-            >
-              <Coffee className="w-4 h-4" />
-              <span>Take a break</span>
-            </Button>
+          {/* Skip/Take Break Button */}
+          {isCountdown && !isActive && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "rounded-full transition-all duration-300 flex items-center gap-2",
+                      currentMode === "focus" ? 
+                        "hover:bg-cyan-100 dark:hover:bg-cyan-900" : 
+                        "hover:bg-primary/10"
+                    )}
+                    onClick={skipToBreak}
+                  >
+                    {currentMode === "focus" ? (
+                      <>
+                        <Coffee className="w-4 h-4" />
+                        <span>Take a break</span>
+                      </>
+                    ) : (
+                      <>
+                        <FastForward className="w-4 h-4" />
+                        <span>Skip to focus</span>
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {currentMode === "focus" ? 
+                    "Skip current focus session and take a break" : 
+                    "Skip break and start focusing"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </div>

@@ -41,8 +41,20 @@ const Timer: React.FC = () => {
   const [catStatus, setCatStatus] = useState<"sleeping" | "idle" | "happy" | "focused">("idle");
   const [timerCompleted, setTimerCompleted] = useState(false);
   const [soundPlaying, setSoundPlaying] = useState<string | null>(null);
+  const [currentMode, setCurrentMode] = useState<"focus" | "break" | "longBreak">("focus");
+  
+  // Pomodoro settings
   const [focusMinutes, setFocusMinutes] = useState(() => {
     return parseInt(localStorage.getItem("meowdoro-focus-time") || "25", 10);
+  });
+  const [breakMinutes, setBreakMinutes] = useState(() => {
+    return parseInt(localStorage.getItem("meowdoro-break-time") || "5", 10);
+  });
+  const [longBreakMinutes, setLongBreakMinutes] = useState(() => {
+    return parseInt(localStorage.getItem("meowdoro-long-break-time") || "15", 10);
+  });
+  const [sessionsBeforeLongBreak, setSessionsBeforeLongBreak] = useState(() => {
+    return parseInt(localStorage.getItem("meowdoro-sessions-before-long-break") || "4", 10);
   });
   const [dailyGoal, setDailyGoal] = useState(() => {
     return parseInt(localStorage.getItem("meowdoro-daily-goal") || "90", 10);
@@ -77,11 +89,12 @@ const Timer: React.FC = () => {
   }, []);
   
   useEffect(() => {
+    // Set cat status based on timer state and mode
     if (timerCompleted) {
       setCatStatus("happy");
-    } else if (!isCountdown) {
+    } else if (currentMode === "break" || currentMode === "longBreak") {
       setCatStatus("idle");
-    } else if (currentSeconds > 0 && isCountdown) {
+    } else if (currentSeconds > 0 && isCountdown && currentMode === "focus") {
       setCatStatus("focused");
     } else {
       setCatStatus("idle");
@@ -90,27 +103,40 @@ const Timer: React.FC = () => {
     if (totalFocusMinutes === 30 || totalFocusMinutes === 60 || totalFocusMinutes === 90) {
       setCatStatus("happy");
       setTimeout(() => {
-        setCatStatus(isCountdown ? "focused" : "idle");
+        setCatStatus(currentMode === "focus" ? "focused" : "idle");
       }, 3000);
     }
-  }, [timerCompleted, isCountdown, currentSeconds, totalFocusMinutes]);
+  }, [timerCompleted, isCountdown, currentSeconds, totalFocusMinutes, currentMode]);
   
   const handleTimerComplete = () => {
     setTimerCompleted(true);
     
-    const newTotal = totalFocusMinutes + focusMinutes;
-    setTotalFocusMinutes(newTotal);
-    localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
-    
-    toast({
-      title: "Focus session completed!",
-      description: `You've focused for ${newTotal} minutes today.`,
-    });
+    // Only increment total focus minutes when a focus session completes
+    if (currentMode === "focus") {
+      const newTotal = totalFocusMinutes + focusMinutes;
+      setTotalFocusMinutes(newTotal);
+      localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
+      
+      toast({
+        title: "Focus session completed!",
+        description: `You've focused for ${newTotal} minutes today.`,
+      });
+    } else if (currentMode === "break") {
+      toast({
+        title: "Break completed!",
+        description: "Time to get back to focusing.",
+      });
+    } else if (currentMode === "longBreak") {
+      toast({
+        title: "Long break completed!",
+        description: "Ready for another productive focus session?",
+      });
+    }
     
     setCatStatus("happy");
     
     setTimeout(() => {
-      setCatStatus("sleeping");
+      setCatStatus(currentMode === "focus" ? "sleeping" : "idle");
     }, 5000);
   };
   
@@ -125,6 +151,10 @@ const Timer: React.FC = () => {
     }
     
     setTimerCompleted(false);
+  };
+  
+  const handleModeChange = (mode: "focus" | "break" | "longBreak") => {
+    setCurrentMode(mode);
   };
   
   const toggleTimerMode = () => {
@@ -161,13 +191,16 @@ const Timer: React.FC = () => {
     }
   };
   
-  const saveFocusSettings = () => {
+  const saveTimerSettings = () => {
     localStorage.setItem("meowdoro-focus-time", focusMinutes.toString());
+    localStorage.setItem("meowdoro-break-time", breakMinutes.toString());
+    localStorage.setItem("meowdoro-long-break-time", longBreakMinutes.toString());
+    localStorage.setItem("meowdoro-sessions-before-long-break", sessionsBeforeLongBreak.toString());
     localStorage.setItem("meowdoro-daily-goal", dailyGoal.toString());
     
     toast({
-      title: "Settings saved",
-      description: `Focus time: ${focusMinutes} minutes, Daily goal: ${dailyGoal} minutes`,
+      title: "Timer settings saved",
+      description: "Your Pomodoro settings have been updated.",
     });
   };
 
@@ -211,9 +244,9 @@ const Timer: React.FC = () => {
             </SettingsTrigger>
             <SettingsContent>
               <SettingsHeader>
-                <SettingsTitle>Timer Settings</SettingsTitle>
+                <SettingsTitle>Pomodoro Settings</SettingsTitle>
                 <SettingsDescription>
-                  Adjust your focus time and daily goals
+                  Customize your focus, break times and goals
                 </SettingsDescription>
               </SettingsHeader>
               <div className="px-4 py-2 space-y-6">
@@ -232,6 +265,47 @@ const Timer: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
+                    <Label htmlFor="break-time">Short Break: {breakMinutes} minutes</Label>
+                  </div>
+                  <Slider
+                    id="break-time"
+                    defaultValue={[breakMinutes]}
+                    max={15}
+                    min={1}
+                    step={1}
+                    onValueChange={(value) => setBreakMinutes(value[0])}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="long-break-time">Long Break: {longBreakMinutes} minutes</Label>
+                  </div>
+                  <Slider
+                    id="long-break-time"
+                    defaultValue={[longBreakMinutes]}
+                    max={30}
+                    min={5}
+                    step={5}
+                    onValueChange={(value) => setLongBreakMinutes(value[0])}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="sessions-before-long-break">
+                      Sessions before long break: {sessionsBeforeLongBreak}
+                    </Label>
+                  </div>
+                  <Slider
+                    id="sessions-before-long-break"
+                    defaultValue={[sessionsBeforeLongBreak]}
+                    max={8}
+                    min={2}
+                    step={1}
+                    onValueChange={(value) => setSessionsBeforeLongBreak(value[0])}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
                     <Label htmlFor="daily-goal">Daily Goal: {dailyGoal} minutes</Label>
                   </div>
                   <Slider
@@ -245,7 +319,7 @@ const Timer: React.FC = () => {
                 </div>
               </div>
               <SettingsFooter>
-                <Button onClick={saveFocusSettings}>Save Settings</Button>
+                <Button onClick={saveTimerSettings}>Save Settings</Button>
                 <SettingsClose asChild>
                   <Button variant="outline">Cancel</Button>
                 </SettingsClose>
@@ -256,9 +330,13 @@ const Timer: React.FC = () => {
         
         <TimerCircle 
           initialMinutes={focusMinutes}
+          breakMinutes={breakMinutes}
+          longBreakMinutes={longBreakMinutes}
+          sessionsBeforeLongBreak={sessionsBeforeLongBreak}
           isCountdown={isCountdown}
           onTimerComplete={handleTimerComplete}
           onTimerUpdate={handleTimerUpdate}
+          onModeChange={handleModeChange}
         />
         
         <div className="mt-12 w-full max-w-lg mx-auto">
