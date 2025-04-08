@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +11,6 @@ import {
   BookOpen,
   ChevronDown,
   X,
-  Sparkles
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
@@ -47,9 +47,6 @@ const Landing: React.FC = () => {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
                 Stay focused with your <span className="text-primary relative inline-block">
                   purr-sonal
-                  <span className="absolute -top-1 -right-1">
-                    <Sparkles className="h-5 w-5 text-yellow-400 animate-pulse" />
-                  </span>
                 </span> productivity companion
               </h1>
               
@@ -91,7 +88,7 @@ const Landing: React.FC = () => {
                   </div>
                 </div>
                 <div className="absolute -bottom-5 -right-5 bg-primary text-white p-3 rounded-full shadow-lg animate-bounce">
-                  <Sparkles className="h-6 w-6" />
+                  <Cat className="h-6 w-6" />
                 </div>
               </div>
             </div>
@@ -171,9 +168,6 @@ const Landing: React.FC = () => {
         <div className="container max-w-3xl mx-auto px-4 text-center relative z-10">
           <div className="inline-block animate-float mb-6 relative">
             <Cat className="h-16 w-16 text-primary" />
-            <span className="absolute -top-2 -right-2 animate-pulse">
-              <Sparkles className="h-6 w-6 text-yellow-400" />
-            </span>
           </div>
           <h2 className="text-3xl font-bold mb-4">Ready to be more productive?</h2>
           <p className="text-muted-foreground mb-8 text-lg">
@@ -190,7 +184,7 @@ const Landing: React.FC = () => {
         </div>
       </section>
       
-      {/* Documentation dialog */}
+      {/* Documentation dialog - Completely rebuilt */}
       <Dialog open={showDocsDialog} onOpenChange={setShowDocsDialog}>
         <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
@@ -203,12 +197,21 @@ const Landing: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <Link to="/docs" className="text-primary hover:underline text-sm">
-            Open full documentation page
-          </Link>
-          
           <div className="space-y-8 my-4 pr-2">
-            {/* Documentation content - Included directly in Dialog to keep it simple */}
+            <div className="flex justify-between items-center">
+              <a 
+                href="https://drive.google.com/file/d/1c9SgZpXhoq9T3qp5Mg4Ab-X3ipe5HjQ_/view?usp=sharing" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-primary hover:underline"
+              >
+                <Button variant="outline" className="gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Project Overview PDF
+                </Button>
+              </a>
+            </div>
+            
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" />
@@ -352,29 +355,20 @@ const Landing: React.FC = () => {
             
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
-                Customization Options
+                <Clock className="h-5 w-5 text-primary" />
+                AI-Powered Cat Companion (Coming Soon)
               </h3>
               <p className="text-muted-foreground mb-4">
-                Personalize your Meowdoro experience to match your preferences and work style.
+                We're working on enhancing your cat companion with AI technology to provide personalized productivity guidance.
               </p>
               
               <div className="space-y-3 ml-1">
-                <h4 className="font-semibold text-base">Appearance:</h4>
+                <h4 className="font-semibold text-base">Upcoming Features:</h4>
                 <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li><strong>Theme Colors:</strong> Multiple accent colors to choose from</li>
-                  <li><strong>Dark/Light Mode:</strong> Switch based on lighting or preference</li>
-                  <li><strong>Transparency Effects:</strong> Optional glass-like UI elements</li>
-                </ul>
-                
-                <h4 className="font-semibold text-base mt-3">Timer Settings:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li>Adjust focus duration (5-90 minutes)</li>
-                  <li>Customize short breaks (1-30 minutes)</li>
-                  <li>Set long break intervals (10-60 minutes)</li>
-                  <li>Define sessions before a long break (1-8)</li>
-                  <li>Custom notification sounds</li>
-                  <li>YouTube audio integration</li>
+                  <li><strong>Personalized Coaching:</strong> Learn from your habits to provide tailored advice</li>
+                  <li><strong>Smart Suggestions:</strong> Recommend optimal work periods based on your patterns</li>
+                  <li><strong>Adaptive Support:</strong> Provide motivational messages based on your current state</li>
+                  <li><strong>Intelligent Reminders:</strong> Help you maintain focus during sessions</li>
                 </ul>
               </div>
             </section>
