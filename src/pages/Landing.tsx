@@ -2,18 +2,20 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { 
-  Clock, 
-  ListTodo, 
-  Users, 
-  BarChart, 
-  Cat, 
+import {
+  Clock,
+  ListTodo,
+  Users,
+  BarChart,
+  Cat,
   BookOpen,
   ChevronDown,
-  X,
+  ArrowRight,
+  CheckCircle2,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { Link } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -28,163 +30,253 @@ const Landing: React.FC = () => {
   };
   
   return (
-    <div className="min-h-[calc(100vh-5rem)] flex flex-col">
-      {/* Hero section with gradient background */}
-      <section className="relative py-20 overflow-hidden bg-gradient-to-br from-primary/10 to-accent/20">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/10 blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-primary/10 blur-3xl"></div>
-        </div>
-        
+    <div className="min-h-screen bg-background text-foreground overflow-hidden">
+      {/* Hero section */}
+      <section className="relative pt-24 pb-16 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 pointer-events-none"></div>
         <div className="container max-w-6xl mx-auto px-4 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full border text-sm mb-4 animate-pulse-soft">
+              <div className="inline-flex items-center gap-2 bg-card/60 backdrop-blur-sm px-4 py-2 rounded-full border text-sm">
                 <Cat className="h-4 w-4 text-primary" />
-                <span>Focus better with your feline companion</span>
+                <span className="text-foreground/80">Focus better with a feline friend</span>
               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-                Stay focused with your <span className="text-primary relative inline-block">
-                  purr-sonal
-                </span> productivity companion
+                Stay focused with <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Meowdoro</span>
               </h1>
               
-              <p className="text-lg text-muted-foreground">
-                Meowdoro helps you stay focused and productive with a fun, cat-themed timer and task management app.
+              <p className="text-lg text-muted-foreground max-w-lg">
+                A delightful cat-themed productivity app that helps you maintain focus and accomplish more.
               </p>
               
               <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                <Button size="lg" className="rounded-full px-8 group relative overflow-hidden" onClick={handleGetStarted}>
-                  <span className="relative z-10">Get Started</span>
-                  <span className="absolute inset-0 bg-primary/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+                <Button 
+                  size="lg" 
+                  className="group rounded-full px-8 relative overflow-hidden"
+                  onClick={handleGetStarted}
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Get Started
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </span>
                 </Button>
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="rounded-full px-8 flex items-center gap-2 group" 
+                  className="rounded-full px-8 flex items-center gap-2 border-primary/20 hover:border-primary/50 transition-colors"
                   onClick={() => setShowDocsDialog(true)}
                 >
-                  <BookOpen className="h-5 w-5 group-hover:scale-110 transition-all" />
+                  <BookOpen className="h-5 w-5" />
                   <span>Documentation</span>
                 </Button>
               </div>
             </div>
             
-            <div className="flex justify-center">
-              <div className="relative">
-                <div className="grid grid-cols-2 gap-6 animate-float">
-                  <div className="bg-card p-6 rounded-lg shadow-md border flex items-center justify-center hover:scale-105 transition-all duration-300 hover:shadow-lg hover:border-primary/50">
-                    <Clock className="h-12 w-12 text-primary" />
+            <div className="relative mx-auto md:ml-auto w-full max-w-md">
+              <div className="relative aspect-square w-full">
+                <div className="absolute top-0 right-0 w-3/4 h-3/4 bg-primary/10 rounded-2xl blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-3/4 h-3/4 bg-primary/10 rounded-2xl blur-3xl"></div>
+                
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
+                    <Card className="bg-card/80 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                      <CardContent className="p-6 flex items-center justify-center">
+                        <Clock className="h-10 w-10 text-primary" />
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-card/80 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                      <CardContent className="p-6 flex items-center justify-center">
+                        <ListTodo className="h-10 w-10 text-primary" />
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-card/80 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                      <CardContent className="p-6 flex items-center justify-center">
+                        <Users className="h-10 w-10 text-primary" />
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-card/80 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                      <CardContent className="p-6 flex items-center justify-center">
+                        <Cat className="h-10 w-10 text-primary" />
+                      </CardContent>
+                    </Card>
                   </div>
-                  <div className="bg-card p-6 rounded-lg shadow-md border flex items-center justify-center hover:scale-105 transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:rotate-3">
-                    <ListTodo className="h-12 w-12 text-primary" />
-                  </div>
-                  <div className="bg-card p-6 rounded-lg shadow-md border flex items-center justify-center hover:scale-105 transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-rotate-3">
-                    <Users className="h-12 w-12 text-primary" />
-                  </div>
-                  <div className="bg-card p-6 rounded-lg shadow-md border flex items-center justify-center hover:scale-105 transition-all duration-300 hover:shadow-lg hover:border-primary/50">
-                    <Cat className="h-12 w-12 text-primary" />
-                  </div>
-                </div>
-                <div className="absolute -bottom-5 -right-5 bg-primary text-white p-3 rounded-full shadow-lg animate-bounce">
-                  <Cat className="h-6 w-6" />
                 </div>
               </div>
             </div>
           </div>
-          
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-bounce">
-            <ChevronDown className="h-6 w-6 text-muted-foreground" />
-          </div>
+        </div>
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-bounce">
+          <ChevronDown className="h-6 w-6 text-muted-foreground" />
         </div>
       </section>
       
       {/* Features section */}
-      <section className="py-20 bg-background relative overflow-hidden">
-        <div className="absolute inset-0 bg-dots opacity-20"></div>
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 bg-grid"></div>
+        </div>
         <div className="container max-w-6xl mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4 relative inline-block">
+            <h2 className="text-3xl font-bold inline-block relative">
               Features
-              <span className="absolute -bottom-2 left-0 right-0 h-1 bg-primary rounded-full transform scale-x-50 group-hover:scale-x-100 transition-transform"></span>
+              <span className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/50 rounded-full"></span>
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Designed to keep you productive, focused, and entertained with our feline assistant
+            <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
+              Tools designed to boost your productivity with a touch of feline charm
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-card hover:bg-card/80 transition-all duration-300 rounded-xl p-6 shadow-sm border flex flex-col items-center text-center hover-scale group">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <Clock className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Pomodoro Timer</h3>
-              <p className="text-muted-foreground">
-                Stay focused with customizable pomodoro sessions and break timers
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Pomodoro Timer</h3>
+                <p className="text-muted-foreground">
+                  Customizable focus sessions with smart breaks to maximize productivity
+                </p>
+              </CardContent>
+            </Card>
             
-            {/* Feature 2 */}
-            <div className="bg-card hover:bg-card/80 transition-all duration-300 rounded-xl p-6 shadow-sm border flex flex-col items-center text-center hover-scale group">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <ListTodo className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Task Management</h3>
-              <p className="text-muted-foreground">
-                Organize your tasks, notes, and to-do lists in one place
-              </p>
-            </div>
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <ListTodo className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Task Management</h3>
+                <p className="text-muted-foreground">
+                  Organize your tasks and notes with our minimalist interface
+                </p>
+              </CardContent>
+            </Card>
             
-            {/* Feature 3 */}
-            <div className="bg-card hover:bg-card/80 transition-all duration-300 rounded-xl p-6 shadow-sm border flex flex-col items-center text-center hover-scale group">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Study Party</h3>
-              <p className="text-muted-foreground">
-                Join study sessions with friends to stay motivated together
-              </p>
-            </div>
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Study Party</h3>
+                <p className="text-muted-foreground">
+                  Join virtual study sessions with friends to stay motivated together
+                </p>
+              </CardContent>
+            </Card>
             
-            {/* Feature 4 */}
-            <div className="bg-card hover:bg-card/80 transition-all duration-300 rounded-xl p-6 shadow-sm border flex flex-col items-center text-center hover-scale group">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <BarChart className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Stats Tracking</h3>
-              <p className="text-muted-foreground">
-                Monitor your productivity and progress with visual statistics
-              </p>
-            </div>
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <BarChart className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Stats Tracking</h3>
+                <p className="text-muted-foreground">
+                  Monitor your progress with visual statistics and insights
+                </p>
+              </CardContent>
+            </Card>
           </div>
+        </div>
+      </section>
+      
+      {/* Testimonials/features carousel */}
+      <section className="py-20 bg-gradient-to-br from-primary/5 to-accent/5">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold inline-block relative">
+              Why Meowdoro Works
+              <span className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/50 rounded-full"></span>
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
+              Science-backed productivity techniques with a playful twist
+            </p>
+          </div>
+          
+          <Carousel className="w-full max-w-4xl mx-auto">
+            <CarouselContent>
+              <CarouselItem>
+                <Card className="bg-card/50 backdrop-blur-sm border-primary/10">
+                  <CardContent className="p-8 md:p-10">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                        <CheckCircle2 className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-semibold">Break Down Large Tasks</h3>
+                      <p className="text-muted-foreground max-w-xl">
+                        The Pomodoro technique helps you divide overwhelming projects into manageable chunks, 
+                        making progress feel achievable and reducing procrastination.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+              
+              <CarouselItem>
+                <Card className="bg-card/50 backdrop-blur-sm border-primary/10">
+                  <CardContent className="p-8 md:p-10">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                        <CheckCircle2 className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-semibold">Reduce Mental Fatigue</h3>
+                      <p className="text-muted-foreground max-w-xl">
+                        Regular breaks prevent burnout and mental exhaustion, helping you maintain 
+                        high levels of focus and creativity throughout your work day.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+              
+              <CarouselItem>
+                <Card className="bg-card/50 backdrop-blur-sm border-primary/10">
+                  <CardContent className="p-8 md:p-10">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                        <CheckCircle2 className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-semibold">AI-Powered Assistance</h3>
+                      <p className="text-muted-foreground max-w-xl">
+                        Our upcoming AI-powered cat companion will provide personalized productivity tips,
+                        learning from your habits to help you work more effectively.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            </CarouselContent>
+          </Carousel>
         </div>
       </section>
       
       {/* Call to action */}
-      <section className="py-20 bg-gradient-to-br from-primary/5 to-accent/10 relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid opacity-10"></div>
-        <div className="container max-w-3xl mx-auto px-4 text-center relative z-10">
-          <div className="inline-block animate-float mb-6 relative">
-            <Cat className="h-16 w-16 text-primary" />
+      <section className="py-20 bg-gradient-to-br from-background to-accent/5 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 bg-dots"></div>
+        </div>
+        <div className="container max-w-4xl mx-auto px-4 text-center relative z-10">
+          <div className="inline-block mb-6 relative">
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl"></div>
+            <Cat className="h-16 w-16 text-primary relative z-10" />
           </div>
-          <h2 className="text-3xl font-bold mb-4">Ready to be more productive?</h2>
-          <p className="text-muted-foreground mb-8 text-lg">
-            Join thousands of users who have improved their focus and productivity with Meowdoro.
+          <h2 className="text-3xl font-bold mb-4">Ready to boost your productivity?</h2>
+          <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">
+            Join thousands of users who have improved their focus and workflow with our playful productivity companion.
           </p>
           <Button 
             size="lg" 
-            className="rounded-full px-8 group relative overflow-hidden" 
+            className="rounded-full px-8 py-6 text-lg group"
             onClick={handleGetStarted}
           >
-            <span className="relative z-10">Get Started for Free</span>
-            <span className="absolute inset-0 bg-primary/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+            <span className="flex items-center gap-2">
+              Get Started for Free
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </span>
           </Button>
         </div>
       </section>
       
-      {/* Documentation dialog - Completely rebuilt */}
+      {/* Documentation dialog */}
       <Dialog open={showDocsDialog} onOpenChange={setShowDocsDialog}>
         <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
