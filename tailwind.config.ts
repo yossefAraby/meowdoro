@@ -58,9 +58,13 @@ export default {
           foreground: "hsl(var(--card-foreground))"
         },
         themes: {
-          cyan: "hsl(var(--primary))",
-          green: "hsl(var(--green-primary))",
-          yellow: "hsl(var(--yellow-primary))"
+          cyan: "hsl(196, 80%, 65%)",
+          green: "hsl(145, 75%, 60%)",
+          yellow: "hsl(45, 75%, 65%)",
+          lavender: "hsl(270, 75%, 75%)",
+          peach: "hsl(25, 75%, 70%)",
+          mint: "hsl(165, 75%, 65%)",
+          rose: "hsl(355, 75%, 70%)"
         }
       },
       borderRadius: {
