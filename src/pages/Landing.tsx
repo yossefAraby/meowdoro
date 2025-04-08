@@ -11,11 +11,12 @@ import {
   BookOpen,
   ChevronDown,
   ArrowRight,
-  CheckCircle2,
+  Heart,
+  Coffee,
+  Sparkles,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ const Landing: React.FC = () => {
               </h1>
               
               <p className="text-lg text-muted-foreground max-w-lg">
-                A delightful cat-themed productivity app that helps you maintain focus and accomplish more.
+                A purr-fectly delightful cat-themed productivity app that helps you maintain focus and accomplish more.
               </p>
               
               <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
@@ -119,7 +120,7 @@ const Landing: React.FC = () => {
         <div className="container max-w-6xl mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold inline-block relative">
-              Features
+              Purr-sonal Productivity Tools
               <span className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/50 rounded-full"></span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
@@ -179,76 +180,6 @@ const Landing: React.FC = () => {
         </div>
       </section>
       
-      {/* Testimonials/features carousel */}
-      <section className="py-20 bg-gradient-to-br from-primary/5 to-accent/5">
-        <div className="container max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold inline-block relative">
-              Why Meowdoro Works
-              <span className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/50 rounded-full"></span>
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
-              Science-backed productivity techniques with a playful twist
-            </p>
-          </div>
-          
-          <Carousel className="w-full max-w-4xl mx-auto">
-            <CarouselContent>
-              <CarouselItem>
-                <Card className="bg-card/50 backdrop-blur-sm border-primary/10">
-                  <CardContent className="p-8 md:p-10">
-                    <div className="flex flex-col items-center text-center space-y-4">
-                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                        <CheckCircle2 className="h-8 w-8 text-primary" />
-                      </div>
-                      <h3 className="text-xl font-semibold">Break Down Large Tasks</h3>
-                      <p className="text-muted-foreground max-w-xl">
-                        The Pomodoro technique helps you divide overwhelming projects into manageable chunks, 
-                        making progress feel achievable and reducing procrastination.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-              
-              <CarouselItem>
-                <Card className="bg-card/50 backdrop-blur-sm border-primary/10">
-                  <CardContent className="p-8 md:p-10">
-                    <div className="flex flex-col items-center text-center space-y-4">
-                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                        <CheckCircle2 className="h-8 w-8 text-primary" />
-                      </div>
-                      <h3 className="text-xl font-semibold">Reduce Mental Fatigue</h3>
-                      <p className="text-muted-foreground max-w-xl">
-                        Regular breaks prevent burnout and mental exhaustion, helping you maintain 
-                        high levels of focus and creativity throughout your work day.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-              
-              <CarouselItem>
-                <Card className="bg-card/50 backdrop-blur-sm border-primary/10">
-                  <CardContent className="p-8 md:p-10">
-                    <div className="flex flex-col items-center text-center space-y-4">
-                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                        <CheckCircle2 className="h-8 w-8 text-primary" />
-                      </div>
-                      <h3 className="text-xl font-semibold">AI-Powered Assistance</h3>
-                      <p className="text-muted-foreground max-w-xl">
-                        Our upcoming AI-powered cat companion will provide personalized productivity tips,
-                        learning from your habits to help you work more effectively.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-            </CarouselContent>
-          </Carousel>
-        </div>
-      </section>
-      
       {/* Call to action */}
       <section className="py-20 bg-gradient-to-br from-background to-accent/5 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
@@ -261,7 +192,7 @@ const Landing: React.FC = () => {
           </div>
           <h2 className="text-3xl font-bold mb-4">Ready to boost your productivity?</h2>
           <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">
-            Join thousands of users who have improved their focus and workflow with our playful productivity companion.
+            Experience focus like never before with your new feline productivity companion.
           </p>
           <Button 
             size="lg" 
@@ -269,7 +200,7 @@ const Landing: React.FC = () => {
             onClick={handleGetStarted}
           >
             <span className="flex items-center gap-2">
-              Get Started for Free
+              Start Your Purr-ductivity Journey
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </span>
           </Button>
@@ -447,27 +378,47 @@ const Landing: React.FC = () => {
             
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                AI-Powered Cat Companion (Coming Soon)
+                <Sparkles className="h-5 w-5 text-primary" />
+                Purr-sonalized Features
               </h3>
               <p className="text-muted-foreground mb-4">
-                We're working on enhancing your cat companion with AI technology to provide personalized productivity guidance.
+                Features designed to make your productivity experience uniquely yours.
               </p>
               
               <div className="space-y-3 ml-1">
-                <h4 className="font-semibold text-base">Upcoming Features:</h4>
+                <h4 className="font-semibold text-base">Customize Your Experience:</h4>
                 <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li><strong>Personalized Coaching:</strong> Learn from your habits to provide tailored advice</li>
-                  <li><strong>Smart Suggestions:</strong> Recommend optimal work periods based on your patterns</li>
-                  <li><strong>Adaptive Support:</strong> Provide motivational messages based on your current state</li>
-                  <li><strong>Intelligent Reminders:</strong> Help you maintain focus during sessions</li>
+                  <li><strong>Cat Personalities:</strong> Choose a cat companion that matches your vibe</li>
+                  <li><strong>Focus Themes:</strong> Select color schemes that help you concentrate</li>
+                  <li><strong>Custom Timer Settings:</strong> Tailor session lengths to your personal workflow</li>
+                  <li><strong>Notification Styles:</strong> Pick sounds that motivate without disrupting</li>
                 </ul>
               </div>
             </section>
             
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
+                <Heart className="h-5 w-5 text-primary" />
+                Self-Care Reminders
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Because productivity is as much about rest as it is about work.
+              </p>
+              
+              <div className="space-y-3 ml-1">
+                <h4 className="font-semibold text-base">Healthy Habits:</h4>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li><strong>Stretching Prompts:</strong> Gentle reminders to move during breaks</li>
+                  <li><strong>Hydration Nudges:</strong> Your cat companion will remind you to drink water</li>
+                  <li><strong>Eye Rest Tips:</strong> Suggestions to reduce eye strain during screen time</li>
+                  <li><strong>Mindfulness Moments:</strong> Brief breathing exercises between sessions</li>
+                </ul>
+              </div>
+            </section>
+            
+            <section>
+              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
+                <Coffee className="h-5 w-5 text-primary" />
                 Getting Started Guide
               </h3>
               <p className="text-muted-foreground mb-4">
