@@ -5,39 +5,39 @@
  
 @layer base {
   :root {
-    /* Light mode - Default theme (Cyan) */
+    /* Light mode - Default theme (Improved contrast for better readability) */
     --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    --foreground: 222 50% 10%; /* Darker foreground text for better contrast */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 222 50% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 196 80% 65%;
+    --popover-foreground: 222 50% 10%;
+    --primary: 196 80% 50%; /* Higher contrast primary color */
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
+    --secondary: 210 40% 94%; /* Slightly darker for better visibility */
+    --secondary-foreground: 222 50% 10%;
+    --muted: 210 40% 94%; 
+    --muted-foreground: 215 25% 40%; /* Higher contrast muted text */
+    --accent: 210 40% 92%; /* Slightly darker accent for visibility */
+    --accent-foreground: 222 50% 10%;
+    --destructive: 0 84% 50%; /* Higher contrast destructive */
     --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 222 47% 11%;
+    --border: 214 32% 85%; /* Slightly darker border for visibility */
+    --input: 214 32% 85%;
+    --ring: 222 50% 10%;
     --radius: 0.75rem;
 
-    /* Theme variants - Light mode */
-    --green-primary: 145 75% 60%;
-    --yellow-primary: 45 75% 65%;
-    --lavender-primary: 270 75% 75%;
-    --peach-primary: 25 75% 70%;
-    --mint-primary: 165 75% 65%;
-    --rose-primary: 355 75% 70%;
+    /* Theme variants - Light mode (slightly more saturated) */
+    --green-primary: 145 80% 45%;
+    --yellow-primary: 45 85% 50%;
+    --lavender-primary: 270 75% 65%;
+    --peach-primary: 25 75% 60%;
+    --mint-primary: 165 75% 45%;
+    --rose-primary: 355 75% 60%;
   }
  
   .dark {
-    /* Dark mode - Default theme (Cyan) */
+    /* Dark mode - Default theme (Cyan) - Keep as is */
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
     --card: 222 47% 11%;
@@ -93,9 +93,23 @@
     @apply bg-background text-foreground;
   }
 
-  /* Hide selection rectangle while typing in a note/task */
+  /* Improved focus styles for accessibility */
+  a:focus, button:focus, input:focus, select:focus, textarea:focus {
+    @apply outline-2 outline-primary outline-offset-2;
+  }
+
+  /* Hide selection rectangle only while typing in a note/task */
   input:focus, textarea:focus {
     outline: none !important;
+  }
+
+  /* Improved text readability */
+  p, span, div, button, a {
+    @apply font-medium; /* Slightly bolder text for better readability */
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
   }
 }
 
@@ -150,4 +164,20 @@
     linear-gradient(to right, currentColor 1px, transparent 1px),
     linear-gradient(to bottom, currentColor 1px, transparent 1px);
   background-size: 25px 25px;
+}
+
+/* Page transitions */
+.page-transition {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

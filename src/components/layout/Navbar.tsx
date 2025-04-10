@@ -5,8 +5,6 @@ import {
   Timer, 
   CheckSquare, 
   Users, 
-  BarChart, 
-  Settings, 
   Sun, 
   Moon, 
   Cat,
@@ -26,11 +24,11 @@ export const Navbar: React.FC = () => {
   // Check if user is authenticated
   const isAuthenticated = localStorage.getItem("meowdoro-user") !== null;
   
+  // Removed Stats and Settings from navItems
   const navItems = [
     { path: "/timer", icon: Timer, label: "Timer" },
     { path: "/tasks", icon: CheckSquare, label: "Tasks" },
     { path: "/party", icon: Users, label: "Party" },
-    { path: "/stats", icon: BarChart, label: "Stats" },
   ];
 
   const toggleMode = () => {
@@ -87,22 +85,14 @@ export const Navbar: React.FC = () => {
             <button 
               onClick={toggleMode} 
               className="p-2 rounded-full hover:bg-accent/50 transition-all duration-150"
+              aria-label={mode === "light" ? "Switch to dark mode" : "Switch to light mode"}
             >
               {mode === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             
             {isAuthenticated ? (
-              <Link 
-                to="/settings" 
-                className={cn(
-                  "p-2 rounded-full transition-all duration-150 hidden sm:inline-flex",
-                  location.pathname === "/settings" 
-                    ? "text-primary bg-accent/50" 
-                    : "text-foreground/60 hover:text-primary hover:bg-accent/30"
-                )}
-              >
-                <Settings className="w-5 h-5" />
-              </Link>
+              // Removed Settings button
+              <></>
             ) : (
               <div className="flex gap-2">
                 <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()}>
@@ -154,18 +144,7 @@ export const Navbar: React.FC = () => {
                           </Link>
                         ))}
                         
-                        <Link
-                          to="/settings"
-                          className={cn(
-                            "flex items-center gap-3 p-3 rounded-lg transition-all",
-                            location.pathname === "/settings" 
-                              ? "bg-accent text-primary" 
-                              : "hover:bg-accent/50"
-                          )}
-                        >
-                          <Settings className="w-5 h-5" />
-                          <span>Settings</span>
-                        </Link>
+                        {/* Removed Settings from mobile menu */}
                       </>
                     ) : (
                       <div className="mt-auto space-y-3">
