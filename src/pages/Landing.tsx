@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -14,20 +14,84 @@ import {
   Heart,
   Coffee,
   Sparkles,
+  Mail,
+  Lock,
+  User,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
   const [showDocsDialog, setShowDocsDialog] = useState(false);
+  const loginSectionRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   
   const handleGetStarted = () => {
+    // Scroll to login section
+    loginSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  
+  const handleContinueAsGuest = () => {
     // Set a dummy user in localStorage to simulate login
-    localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: "User" }));
+    localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: "Guest" }));
     
     // Navigate to the timer page
     navigate("/timer");
+    
+    toast({
+      title: "Welcome, Guest!",
+      description: "You've entered as a guest. Your progress won't be saved between sessions."
+    });
+  };
+  
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Demo login functionality
+    if (email && password) {
+      localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: email.split('@')[0], email }));
+      navigate("/timer");
+      
+      toast({
+        title: "Successfully logged in",
+        description: "Welcome back to Meowdoro!"
+      });
+    } else {
+      toast({
+        title: "Login failed",
+        description: "Please enter your email and password",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handleSignup = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Demo signup functionality
+    if (email && password && name) {
+      localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name, email }));
+      navigate("/timer");
+      
+      toast({
+        title: "Account created",
+        description: "Welcome to Meowdoro!"
+      });
+    } else {
+      toast({
+        title: "Signup failed",
+        description: "Please fill out all fields",
+        variant: "destructive"
+      });
+    }
   };
   
   return (
@@ -44,11 +108,11 @@ const Landing: React.FC = () => {
               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-                Stay focused with <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Meowdoro</span>
+                <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Meowdoro</span>: Where Productivity Purrs
               </h1>
               
               <p className="text-lg text-muted-foreground max-w-lg">
-                A purr-fectly delightful cat-themed productivity app that helps you maintain focus and accomplish more.
+                Unleash your potential with a playful companion that turns work sessions into productive adventures
               </p>
               
               <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
@@ -180,30 +244,119 @@ const Landing: React.FC = () => {
         </div>
       </section>
       
-      {/* Call to action */}
-      <section className="py-20 bg-gradient-to-br from-background to-accent/5 relative overflow-hidden">
+      {/* Login / Signup Section - Replaces the Call to action section */}
+      <section ref={loginSectionRef} className="py-20 bg-gradient-to-br from-background to-accent/5 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-dots"></div>
         </div>
         <div className="container max-w-4xl mx-auto px-4 text-center relative z-10">
           <div className="inline-block mb-6 relative">
-            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl"></div>
-            <Cat className="h-16 w-16 text-primary relative z-10" />
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
+            <Cat className="h-16 w-16 text-primary relative z-10 animate-float" />
           </div>
-          <h2 className="text-3xl font-bold mb-4">Ready to boost your productivity?</h2>
-          <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">
-            Experience focus like never before with your new feline productivity companion.
-          </p>
-          <Button 
-            size="lg" 
-            className="rounded-full px-8 py-6 text-lg group"
-            onClick={handleGetStarted}
-          >
-            <span className="flex items-center gap-2">
-              Start Your Purr-ductivity Journey
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-            </span>
-          </Button>
+          <h2 className="text-3xl font-bold mb-6">Join the Meowdoro Community</h2>
+          
+          <Card className="mx-auto max-w-lg bg-card/80 backdrop-blur-sm border-primary/20">
+            <CardContent className="p-6">
+              <Tabs defaultValue="login" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="login">Login</TabsTrigger>
+                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="login">
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          type="email" 
+                          placeholder="Email" 
+                          className="pl-10" 
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          type="password" 
+                          placeholder="Password" 
+                          className="pl-10" 
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button type="submit" className="w-full">
+                      Login
+                    </Button>
+                  </form>
+                </TabsContent>
+                
+                <TabsContent value="signup">
+                  <form onSubmit={handleSignup} className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          type="text" 
+                          placeholder="Name" 
+                          className="pl-10" 
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          type="email" 
+                          placeholder="Email" 
+                          className="pl-10" 
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          type="password" 
+                          placeholder="Password" 
+                          className="pl-10" 
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button type="submit" className="w-full">
+                      Sign Up
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+              
+              <div className="mt-6 pt-6 border-t">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleContinueAsGuest}
+                >
+                  Continue as Guest
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
       
