@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import FrontEndGuide from "@/components/guide/FrontEndGuide";
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -474,88 +473,6 @@ const Landing: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Front-End Guide */}
-      <FrontEndGuide
-        title="Landing Page"
-        description="Guide for implementing the Meowdoro landing page"
-        colors={[
-          { name: "Primary", value: "hsl(var(--primary))", description: "Used for buttons, links, and highlights" },
-          { name: "Primary Gradient", value: "from-primary to-primary/70", description: "Used for the main heading gradient" },
-          { name: "Background", value: "hsl(var(--background))", description: "Main page background" },
-          { name: "Accent", value: "hsl(var(--accent))", description: "Used for subtle highlights" },
-          { name: "Card", value: "hsl(var(--card))", description: "Card backgrounds" },
-          { name: "Foreground", value: "hsl(var(--foreground))", description: "Main text color" },
-          { name: "Muted", value: "hsl(var(--muted-foreground))", description: "Secondary text color" },
-          { name: "Primary/10", value: "bg-primary/10", description: "Used for icon backgrounds and subtle effects" }
-        ]}
-        fonts={[
-          { 
-            name: "System Default", 
-            family: "system-ui, sans-serif", 
-            weights: ["400", "500", "600", "700"],
-            source: "System fonts"
-          }
-        ]}
-        assets={[
-          { 
-            name: "Lucide Icons", 
-            type: "icon", 
-            source: "lucide-react", 
-            description: "Icons used throughout the interface: Clock, ListTodo, Users, Cat, etc."
-          },
-          {
-            name: "shadcn/ui Components",
-            type: "icon",
-            source: "shadcn/ui",
-            description: "UI components like Button, Card, Dialog, etc."
-          }
-        ]}
-        buildSteps={[
-          "Install required dependencies: npm install lucide-react @radix-ui/react-dialog",
-          "Create the basic page structure with hero, features, and CTA sections",
-          "Set up the responsive grid layout for both desktop and mobile",
-          "Implement the card components for features section",
-          "Add animation effects using Tailwind's transition utilities",
-          "Create gradient backgrounds and decorative elements",
-          "Implement the documentation dialog with detailed sections",
-          "Add user authentication simulation via localStorage",
-          "Style with Tailwind CSS focusing on responsive design",
-          "Add navigation routing with react-router-dom"
-        ]}
-        codeSnippets={[
-          {
-            title: "Hero Section Structure",
-            language: "jsx",
-            code: `<section className="relative pt-24 pb-16 md:py-32 overflow-hidden">
-  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5"></div>
-  <div className="container max-w-6xl mx-auto px-4 relative z-10">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-      <!-- Content goes here -->
-    </div>
-  </div>
-</section>`,
-            description: "Basic structure of the hero section with gradient background"
-          },
-          {
-            title: "Feature Card Component",
-            language: "jsx",
-            code: `<Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-  <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-      <Icon className="h-6 w-6 text-primary" />
-    </div>
-    <h3 className="text-xl font-semibold">Feature Title</h3>
-    <p className="text-muted-foreground">
-      Feature description text goes here
-    </p>
-  </CardContent>
-</Card>`,
-            description: "Template for feature cards with hover effects"
-          }
-        ]}
-        additionalNotes="The landing page uses a modern, clean design with subtle animations to create visual interest. The color scheme is based on the application's theme colors with soft gradients and glassmorphism effects. The layout is fully responsive, reorganizing content for smaller screens. Background patterns (dots and grid) add texture without being distracting."
-      />
     </div>
   );
 };
