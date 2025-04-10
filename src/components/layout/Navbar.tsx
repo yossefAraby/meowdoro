@@ -7,7 +7,6 @@ import {
   Users, 
   Sun, 
   Moon, 
-  Cat,
   Menu,
   BookOpen,
 } from "lucide-react";
@@ -24,7 +23,6 @@ export const Navbar: React.FC = () => {
   // Check if user is authenticated
   const isAuthenticated = localStorage.getItem("meowdoro-user") !== null;
   
-  // Removed Stats and Settings from navItems
   const navItems = [
     { path: "/timer", icon: Timer, label: "Timer" },
     { path: "/tasks", icon: CheckSquare, label: "Tasks" },
@@ -50,17 +48,16 @@ export const Navbar: React.FC = () => {
             className="flex items-center gap-2 cursor-pointer transition-all hover:opacity-80"
             onClick={() => navigate("/")}
           >
-            <div className="text-primary w-8 h-8">
-              <div className="relative">
-                <Timer className="w-8 h-8" />
-                <Cat className="w-4 h-4 absolute -top-1 -right-1" />
-              </div>
-            </div>
+            <img 
+              src="/lovable-uploads/46a2db65-1fbf-46dd-9574-6b4bf1852060.png" 
+              alt="Meowdoro Logo" 
+              className="w-8 h-8 text-primary"
+            />
             <span className="font-bold text-xl">Meowdoro</span>
           </div>
 
-          {/* Navigation Links - Desktop */}
-          <div className="hidden md:flex items-center justify-center space-x-1 sm:space-x-2">
+          {/* Navigation Links - Desktop - Centered */}
+          <div className="hidden md:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2 space-x-1 sm:space-x-2">
             {isAuthenticated && navItems.map((item) => (
               <Link
                 key={item.path}
@@ -91,7 +88,6 @@ export const Navbar: React.FC = () => {
             </button>
             
             {isAuthenticated ? (
-              // Removed Settings button
               <></>
             ) : (
               <div className="flex gap-2">
@@ -143,8 +139,6 @@ export const Navbar: React.FC = () => {
                             <span>{item.label}</span>
                           </Link>
                         ))}
-                        
-                        {/* Removed Settings from mobile menu */}
                       </>
                     ) : (
                       <div className="mt-auto space-y-3">

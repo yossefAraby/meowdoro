@@ -7,7 +7,6 @@ import {
   ListTodo,
   Users,
   BarChart,
-  Cat,
   BookOpen,
   ChevronDown,
   ArrowRight,
@@ -103,16 +102,20 @@ const Landing: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 text-center md:text-left">
               <div className="inline-flex items-center gap-2 bg-card/60 backdrop-blur-sm px-4 py-2 rounded-full border text-sm">
-                <Cat className="h-4 w-4 text-primary" />
+                <img 
+                  src="/lovable-uploads/46a2db65-1fbf-46dd-9574-6b4bf1852060.png" 
+                  alt="Meowdoro Logo" 
+                  className="h-4 w-4 text-primary" 
+                />
                 <span className="text-foreground/80">Focus better with a feline friend</span>
               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-                <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Meowdoro</span>: Where Productivity Purrs
+                <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Meowdoro</span>: Time Management with Whiskers
               </h1>
               
               <p className="text-lg text-muted-foreground max-w-lg">
-                Unleash your potential with a playful companion that turns work sessions into productive adventures
+                The purr-fect companion for your productivity journey, helping you achieve more with playful focus sessions
               </p>
               
               <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
@@ -162,7 +165,11 @@ const Landing: React.FC = () => {
                     </Card>
                     <Card className="bg-card/80 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                       <CardContent className="p-6 flex items-center justify-center">
-                        <Cat className="h-10 w-10 text-primary" />
+                        <img 
+                          src="/lovable-uploads/46a2db65-1fbf-46dd-9574-6b4bf1852060.png" 
+                          alt="Meowdoro Logo" 
+                          className="h-10 w-10 text-primary" 
+                        />
                       </CardContent>
                     </Card>
                   </div>
@@ -244,7 +251,7 @@ const Landing: React.FC = () => {
         </div>
       </section>
       
-      {/* Login / Signup Section - Replaces the Call to action section */}
+      {/* Login / Signup Section */}
       <section ref={loginSectionRef} className="py-20 bg-gradient-to-br from-background to-accent/5 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-dots"></div>
@@ -252,7 +259,11 @@ const Landing: React.FC = () => {
         <div className="container max-w-4xl mx-auto px-4 text-center relative z-10">
           <div className="inline-block mb-6 relative">
             <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
-            <Cat className="h-16 w-16 text-primary relative z-10 animate-float" />
+            <img 
+              src="/lovable-uploads/46a2db65-1fbf-46dd-9574-6b4bf1852060.png" 
+              alt="Meowdoro Logo" 
+              className="h-16 w-16 text-primary relative z-10 animate-float" 
+            />
           </div>
           <h2 className="text-3xl font-bold mb-6">Join the Meowdoro Community</h2>
           
@@ -346,15 +357,13 @@ const Landing: React.FC = () => {
                 </TabsContent>
               </Tabs>
               
-              <div className="mt-6 pt-6 border-t">
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={handleContinueAsGuest}
-                >
-                  Continue as Guest
-                </Button>
-              </div>
+              <Button 
+                variant="outline" 
+                className="w-full mt-6"
+                onClick={handleContinueAsGuest}
+              >
+                Continue as Guest
+              </Button>
             </CardContent>
           </Card>
         </div>
