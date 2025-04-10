@@ -33,6 +33,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
+import FrontEndGuide from "@/components/guide/FrontEndGuide";
 
 // Types
 type Task = {
@@ -512,6 +513,94 @@ const Tasks: React.FC = () => {
           </Button>
         </div>
       )}
+
+      {/* Front-End Guide */}
+      <FrontEndGuide
+        title="Tasks Page"
+        description="Guide for implementing the note-taking and task management page"
+        colors={[
+          { name: "Primary", value: "hsl(var(--primary))", description: "Used for buttons, links, and highlights" },
+          { name: "Background", value: "hsl(var(--background))", description: "Main page background" },
+          { name: "Card", value: "hsl(var(--card))", description: "Note card backgrounds" },
+          { name: "Accent", value: "hsl(var(--accent))", description: "Used for subtle highlights" },
+          { name: "Foreground", value: "hsl(var(--foreground))", description: "Main text color" },
+          { name: "Muted", value: "hsl(var(--muted-foreground))", description: "Secondary text color" },
+          { name: "Red", value: "#fecaca / #7f1d1d40", description: "Red note background (light/dark)" },
+          { name: "Green", value: "#dcfce7 / #14532d40", description: "Green note background (light/dark)" },
+          { name: "Blue", value: "#dbeafe / #1e3a8a40", description: "Blue note background (light/dark)" },
+          { name: "Yellow", value: "#fef9c3 / #713f1240", description: "Yellow note background (light/dark)" },
+          { name: "Purple", value: "#e9d5ff / #581c8740", description: "Purple note background (light/dark)" }
+        ]}
+        fonts={[
+          { 
+            name: "System Default", 
+            family: "system-ui, sans-serif", 
+            weights: ["400", "500", "600", "700"],
+            source: "System fonts"
+          }
+        ]}
+        assets={[
+          { 
+            name: "Lucide Icons", 
+            type: "icon", 
+            source: "lucide-react", 
+            description: "Icons used throughout the interface: Trash, Pin, Edit, Search, etc."
+          },
+          {
+            name: "shadcn/ui Components",
+            type: "icon",
+            source: "shadcn/ui",
+            description: "UI components like Button, Dialog, Input, Checkbox, etc."
+          }
+        ]}
+        buildSteps={[
+          "Install required dependencies: npm install lucide-react @radix-ui/react-dropdown-menu @radix-ui/react-checkbox @radix-ui/react-dialog",
+          "Set up the basic page layout with a container and search input",
+          "Create the note editor component with support for both text notes and checklists",
+          "Implement the note grid display with responsive layouts",
+          "Add local storage persistence to save notes between sessions",
+          "Implement color coding functionality for notes",
+          "Add pin functionality to pin important notes to the top",
+          "Create empty state and search result UI components",
+          "Implement search functionality to filter notes",
+          "Style with Tailwind CSS, focusing on responsive design"
+        ]}
+        codeSnippets={[
+          {
+            title: "Note Type Definitions",
+            language: "typescript",
+            code: `type Task = {
+  id: string;
+  text: string;
+  completed: boolean;
+};
+
+type NoteType = 'note' | 'checklist';
+
+type Note = {
+  id: string;
+  title: string;
+  content: string;
+  type: NoteType;
+  tasks: Task[];
+  color: string;
+  pinned: boolean;
+  createdAt: Date;
+};`,
+            description: "TypeScript definitions for notes and tasks"
+          },
+          {
+            title: "LocalStorage Save Function",
+            language: "javascript",
+            code: `// Save notes to localStorage
+useEffect(() => {
+  localStorage.setItem('notes', JSON.stringify(notes));
+}, [notes]);`,
+            description: "Save notes to browser local storage when they change"
+          }
+        ]}
+        additionalNotes="The Tasks page uses a Google Keep-inspired design with a focus on simplicity and easy note organization. The design prioritizes readability with adequate spacing and clear visual hierarchy. Color coding helps users organize their notes visually, while the search functionality enables quick access to specific content."
+      />
     </div>
   );
 };

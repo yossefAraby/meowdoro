@@ -59,8 +59,8 @@ export const Navbar: React.FC = () => {
             <span className="font-bold text-xl">Meowdoro</span>
           </div>
 
-          {/* Navigation Links - Desktop */}
-          <div className="hidden md:flex items-center justify-center space-x-1 sm:space-x-2">
+          {/* Navigation Links - Desktop - Now left-aligned instead of centered */}
+          <div className="hidden md:flex items-center space-x-1 sm:space-x-2 ml-4">
             {isAuthenticated && navItems.map((item) => (
               <Link
                 key={item.path}

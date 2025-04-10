@@ -7,33 +7,33 @@
   :root {
     /* Light mode - Default theme (Improved contrast for better readability) */
     --background: 210 40% 98%;
-    --foreground: 222 50% 10%; /* Darker foreground text for better contrast */
+    --foreground: 222 47% 11%; /* Darker foreground text for better contrast */
     --card: 0 0% 100%;
-    --card-foreground: 222 50% 10%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 50% 10%;
-    --primary: 196 80% 50%; /* Higher contrast primary color */
+    --popover-foreground: 222 47% 11%;
+    --primary: 196 80% 45%; /* Higher contrast primary color */
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 94%; /* Slightly darker for better visibility */
-    --secondary-foreground: 222 50% 10%;
-    --muted: 210 40% 94%; 
-    --muted-foreground: 215 25% 40%; /* Higher contrast muted text */
-    --accent: 210 40% 92%; /* Slightly darker accent for visibility */
-    --accent-foreground: 222 50% 10%;
+    --secondary: 210 40% 90%; /* Darker for better visibility */
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 90%; 
+    --muted-foreground: 215 25% 35%; /* Higher contrast muted text */
+    --accent: 210 40% 90%; /* Darker accent for visibility */
+    --accent-foreground: 222 47% 11%;
     --destructive: 0 84% 50%; /* Higher contrast destructive */
     --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 85%; /* Slightly darker border for visibility */
-    --input: 214 32% 85%;
-    --ring: 222 50% 10%;
+    --border: 214 32% 80%; /* Darker border for visibility */
+    --input: 214 32% 80%;
+    --ring: 196 80% 45%;
     --radius: 0.75rem;
 
     /* Theme variants - Light mode (slightly more saturated) */
-    --green-primary: 145 80% 45%;
-    --yellow-primary: 45 85% 50%;
-    --lavender-primary: 270 75% 65%;
-    --peach-primary: 25 75% 60%;
-    --mint-primary: 165 75% 45%;
-    --rose-primary: 355 75% 60%;
+    --green-primary: 145 80% 40%;
+    --yellow-primary: 45 85% 45%;
+    --lavender-primary: 270 75% 60%;
+    --peach-primary: 25 75% 55%;
+    --mint-primary: 165 75% 40%;
+    --rose-primary: 355 75% 55%;
   }
  
   .dark {
@@ -109,7 +109,22 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
+    @apply font-bold tracking-tight text-foreground;
+  }
+
+  /* Improved contrast for light mode links */
+  a {
+    @apply text-primary hover:text-primary/80 transition-colors;
+  }
+
+  /* Better form element contrast */
+  input, textarea, select {
+    @apply border-input bg-background text-foreground;
+  }
+
+  /* Improve contrast for card headers */
+  .card-header {
+    @apply bg-accent/30;
   }
 }
 
