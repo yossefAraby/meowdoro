@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import TimerCircle from "@/components/timer/TimerCircle";
-import TimerSettings from "@/components/timer/TimerSettings";
-import ProgressBar from "@/components/timer/ProgressBar";
-import CatCompanion from "@/components/timer/CatCompanion";
-import SoundControls from "@/components/timer/SoundControls";
-import AudioControls from "@/components/timer/AudioControls";
+import { TimerCircle } from "@/components/timer/TimerCircle";
+import { TimerSettings } from "@/components/timer/TimerSettings";
+import { ProgressBar } from "@/components/timer/ProgressBar";
+import { CatCompanion } from "@/components/timer/CatCompanion";
+import { SoundControls } from "@/components/timer/SoundControls";
+import { AudioControls, useBackgroundSounds } from "@/components/timer/AudioControls";
 import {
   Card,
   CardContent,
@@ -32,6 +32,7 @@ const Timer: React.FC = () => {
   const [completedSessions, setCompletedSessions] = useState(0);
   const [showSettingsCard, setShowSettingsCard] = useState(false);
   const { toast } = useToast();
+  const { soundPlaying, playSound } = useBackgroundSounds();
 
   // Timer settings
   const [focusDuration, setFocusDuration] = useState(25);
@@ -160,6 +161,12 @@ const Timer: React.FC = () => {
     return ((totalDuration - timeLeft) / totalDuration) * 100;
   };
 
+  // Toggle between countdown timer and stopwatch
+  const [isCountdown, setIsCountdown] = useState(true);
+  const toggleTimerMode = () => {
+    setIsCountdown(!isCountdown);
+  };
+
   return (
     <div className="container max-w-6xl mx-auto py-8 flex flex-col items-center gap-8 px-4 page-transition">
       <div className="w-full max-w-3xl">
@@ -217,8 +224,8 @@ const Timer: React.FC = () => {
                 </div>
                 
                 <ProgressBar 
-                  progress={calculateProgress()} 
-                  mode={timerMode} 
+                  currentMinutes={focusDuration - Math.floor(timeLeft / 60)}
+                  goalMinutes={90}
                 />
                 
                 <div className="flex items-center justify-center gap-4 my-6">
@@ -243,32 +250,54 @@ const Timer: React.FC = () => {
                   </Button>
                 </div>
                 
-                <CatCompanion isRunning={isRunning} mode={timerMode} />
+                <CatCompanion 
+                  status={isRunning ? "focused" : timerMode === "focus" ? "idle" : "happy"} 
+                />
               </CardContent>
             </Card>
 
             {/* Sound controls */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <SoundControls />
-              <AudioControls />
+              <div className="w-full flex justify-center">
+                <AudioControls 
+                  isCountdown={isCountdown}
+                  toggleTimerMode={toggleTimerMode}
+                  soundPlaying={soundPlaying}
+                  onPlaySound={playSound}
+                />
+              </div>
+              <div className="w-full flex justify-center">
+                <SoundControls 
+                  soundPlaying={soundPlaying}
+                  onPlaySound={playSound}
+                />
+              </div>
             </div>
           </TabsContent>
 
           <TabsContent value="settings">
             {showSettingsCard && (
               <TimerSettings
-                focusDuration={focusDuration}
-                setFocusDuration={setFocusDuration}
-                shortBreakDuration={shortBreakDuration}
-                setShortBreakDuration={setShortBreakDuration}
-                longBreakDuration={longBreakDuration}
-                setLongBreakDuration={setLongBreakDuration}
+                focusMinutes={focusDuration}
+                breakMinutes={shortBreakDuration}
+                longBreakMinutes={longBreakDuration}
                 sessionsBeforeLongBreak={sessionsBeforeLongBreak}
+                dailyGoal={90}
+                completionSound=""
+                customYoutubeUrl=""
+                setFocusMinutes={setFocusDuration}
+                setBreakMinutes={setShortBreakDuration}
+                setLongBreakMinutes={setLongBreakDuration}
                 setSessionsBeforeLongBreak={setSessionsBeforeLongBreak}
-                autoStartBreaks={autoStartBreaks}
-                setAutoStartBreaks={setAutoStartBreaks}
-                autoStartFocus={autoStartFocus}
-                setAutoStartFocus={setAutoStartFocus}
+                setDailyGoal={() => {}}
+                setCompletionSound={() => {}}
+                setCustomYoutubeUrl={() => {}}
+                saveSettings={() => {
+                  toast({
+                    title: "Settings Saved",
+                    description: "Your timer settings have been updated.",
+                  });
+                }}
               />
             )}
           </TabsContent>
