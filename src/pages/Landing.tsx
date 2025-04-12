@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -87,107 +86,91 @@ const Landing: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-hidden">
-      {/* Hero section - Simplified */}
-      <section className="relative pt-24 pb-16 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 pointer-events-none"></div>
-        <div className="container max-w-6xl mx-auto px-4 relative z-10">
-          <div className="flex flex-col items-center justify-center text-center">
-            <div className="mb-8 relative">
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
-              <img 
-                src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
-                alt="Meowdoro Logo" 
-                className="h-32 w-32 text-primary relative z-10 animate-float" 
-              />
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Rebuilt Hero Section */}
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/10 -z-10"></div>
+        <div className="absolute inset-0 bg-dots opacity-10 -z-10"></div>
+        
+        <div className="container max-w-screen-xl mx-auto px-4 md:px-8">
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+            {/* Left content - Text and CTA */}
+            <div className="flex-1 text-center lg:text-left space-y-6">
+              <div className="inline-block animate-float lg:hidden mb-8">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
+                  <img 
+                    src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
+                    alt="Meowdoro Logo" 
+                    className="w-28 h-28 relative z-10" 
+                  />
+                </div>
+              </div>
+              
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                <span className="font-extrabold">Meowdoro</span>: Focus with Your Feline Friend
+              </h1>
+              
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0">
+                Boost your productivity with a playful twist. Work efficiently, take mindful breaks, and let your cat companion guide you.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-8">
+                <Button size="lg" className="rounded-full px-8" onClick={handleContinueAsGuest}>
+                  Get Started
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="rounded-full px-8"
+                  onClick={() => setShowDocsDialog(true)}
+                >
+                  <BookOpen className="mr-2 h-5 w-5" />
+                  Learn More
+                </Button>
+              </div>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              <span className="font-extrabold">Meowdoro</span>: Time Management with Whiskers
-            </h1>
-            
-            <p className="text-lg text-muted-foreground max-w-lg mb-8">
-              The purr-fect companion for your productivity journey, helping you achieve more with playful focus sessions
-            </p>
-            
-            <div className="flex gap-4">
-              <Button 
-                size="lg" 
-                className="rounded-lg"
-                onClick={() => setShowDocsDialog(true)}
-              >
-                <BookOpen className="mr-2 h-5 w-5" />
-                Learn More
-              </Button>
+            {/* Right content - Image and visual elements */}
+            <div className="flex-1 relative hidden lg:block">
+              <div className="relative">
+                {/* Decorative elements */}
+                <div className="absolute -top-16 -left-16 w-32 h-32 bg-primary/10 rounded-full blur-xl"></div>
+                <div className="absolute top-1/2 -right-8 w-24 h-24 bg-primary/20 rounded-full blur-lg"></div>
+                
+                {/* Cat logo with animation */}
+                <div className="relative z-10 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
+                  <img 
+                    src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
+                    alt="Meowdoro Logo" 
+                    className="w-80 h-80 relative z-10 animate-float" 
+                  />
+                </div>
+                
+                {/* Feature highlights floating around */}
+                <div className="absolute top-12 left-0 bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-3 shadow-soft animate-float">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-medium">Focus Timer</span>
+                  </div>
+                </div>
+                
+                <div className="absolute top-1/3 right-8 bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-3 shadow-soft animate-float" style={{ animationDelay: "1.5s" }}>
+                  <div className="flex items-center gap-2">
+                    <Cat className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-medium">Cat Companion</span>
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-20 left-12 bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-3 shadow-soft animate-float" style={{ animationDelay: "2.5s" }}>
+                  <div className="flex items-center gap-2">
+                    <ListTodo className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-medium">Task Tracker</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Features section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0 bg-grid"></div>
-        </div>
-        <div className="container max-w-6xl mx-auto px-4 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold inline-block relative">
-              Purr-sonal Productivity Tools
-              <span className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/50 rounded-full"></span>
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
-              Tools designed to boost your productivity with a touch of feline charm
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">Pomodoro Timer</h3>
-                <p className="text-muted-foreground">
-                  Customizable focus sessions with smart breaks to maximize productivity
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <ListTodo className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">Task Management</h3>
-                <p className="text-muted-foreground">
-                  Organize your tasks and notes with our minimalist interface
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">Study Party</h3>
-                <p className="text-muted-foreground">
-                  Join virtual study sessions with friends to stay motivated together
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <BarChart className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">Stats Tracking</h3>
-                <p className="text-muted-foreground">
-                  Monitor your progress with visual statistics and insights
-                </p>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
@@ -289,6 +272,74 @@ const Landing: React.FC = () => {
               </Button>
             </CardContent>
           </Card>
+        </div>
+      </section>
+      
+      {/* Features section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 bg-grid"></div>
+        </div>
+        <div className="container max-w-6xl mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold inline-block relative">
+              Purr-sonal Productivity Tools
+              <span className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/50 rounded-full"></span>
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
+              Tools designed to boost your productivity with a touch of feline charm
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Pomodoro Timer</h3>
+                <p className="text-muted-foreground">
+                  Customizable focus sessions with smart breaks to maximize productivity
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <ListTodo className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Task Management</h3>
+                <p className="text-muted-foreground">
+                  Organize your tasks and notes with our minimalist interface
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Study Party</h3>
+                <p className="text-muted-foreground">
+                  Join virtual study sessions with friends to stay motivated together
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <BarChart className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Stats Tracking</h3>
+                <p className="text-muted-foreground">
+                  Monitor your progress with visual statistics and insights
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
       
