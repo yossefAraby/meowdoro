@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +30,8 @@ const Landing: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
   
   const handleContinueAsGuest = () => {
     // Set a dummy user in localStorage to simulate login
@@ -86,6 +87,34 @@ const Landing: React.FC = () => {
       });
     }
   };
+
+  // Feature cards for the interactive hero section
+  const featureCards = [
+    {
+      id: "timer",
+      icon: Clock,
+      title: "Timer",
+      description: "Customizable focus sessions with smart breaks"
+    },
+    {
+      id: "tasks",
+      icon: ListTodo,
+      title: "Tasks",
+      description: "Organize your tasks and notes with our minimalist interface"
+    },
+    {
+      id: "party",
+      icon: Users,
+      title: "Study Party",
+      description: "Join virtual study sessions with friends to stay motivated"
+    },
+    {
+      id: "cat",
+      icon: Cat,
+      title: "Companion",
+      description: "Your virtual cat buddy to keep you company during study sessions"
+    }
+  ];
   
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -141,36 +170,56 @@ const Landing: React.FC = () => {
               </div>
             </div>
             
-            {/* Right content - Feature cards with better styling */}
+            {/* Right content - Feature cards with interactive styling */}
             <div className="flex-1">
               <div className="grid grid-cols-2 gap-4 max-w-md mx-auto lg:max-w-none">
-                <div className="group bg-black/20 backdrop-blur-md p-8 rounded-xl border border-gray-800 text-center hover:border-primary/50 hover:bg-black/30 transition-all duration-300 shadow-lg shadow-black/5">
-                  <div className="rounded-full bg-primary/15 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/25 transition-all">
-                    <Clock className="h-7 w-7 text-primary" />
+                {featureCards.map((feature) => (
+                  <div 
+                    key={feature.id}
+                    className={`
+                      group cursor-pointer transition-all duration-300 shadow-lg shadow-black/20
+                      bg-[#0F1726] backdrop-blur-md rounded-xl border border-[#1E293B]
+                      hover:border-primary/50 hover:bg-[#111D35] p-8 text-center
+                      ${activeFeature === feature.id ? 'border-primary/80 scale-105' : ''}
+                    `}
+                    onMouseEnter={() => setActiveFeature(feature.id)}
+                    onMouseLeave={() => setActiveFeature(null)}
+                    onClick={() => {
+                      if (feature.id === 'timer') navigate('/timer');
+                      else if (feature.id === 'tasks') navigate('/tasks');
+                      else if (feature.id === 'party') navigate('/party');
+                      else toast({
+                        title: "Meet your companion",
+                        description: "Your virtual cat buddy will keep you company during study sessions."
+                      });
+                    }}
+                  >
+                    <div className={`
+                      rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4
+                      ${activeFeature === feature.id ? 'bg-primary/25 scale-110' : 'bg-primary/10'}
+                      transition-all duration-300 ease-in-out group-hover:bg-primary/20
+                    `}>
+                      <feature.icon 
+                        className={`
+                          transition-all duration-300
+                          ${activeFeature === feature.id ? 'text-primary scale-110' : 'text-[#5EB4EB]'}
+                          group-hover:text-primary
+                        `} 
+                        size={28}
+                      />
+                    </div>
+                    <h3 className="text-gray-200 font-medium text-lg transition-colors duration-300 group-hover:text-primary">
+                      {feature.title}
+                    </h3>
+                    <p className={`
+                      mt-2 text-sm transition-all duration-300 max-h-0 opacity-0 overflow-hidden
+                      ${activeFeature === feature.id ? 'max-h-20 opacity-100 mt-2' : ''}
+                      text-gray-400 group-hover:max-h-20 group-hover:opacity-100
+                    `}>
+                      {feature.description}
+                    </p>
                   </div>
-                  <h3 className="text-gray-200 font-medium text-lg">Timer</h3>
-                </div>
-                
-                <div className="group bg-black/20 backdrop-blur-md p-8 rounded-xl border border-gray-800 text-center hover:border-primary/50 hover:bg-black/30 transition-all duration-300 shadow-lg shadow-black/5">
-                  <div className="rounded-full bg-primary/15 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/25 transition-all">
-                    <ListTodo className="h-7 w-7 text-primary" />
-                  </div>
-                  <h3 className="text-gray-200 font-medium text-lg">Tasks</h3>
-                </div>
-                
-                <div className="group bg-black/20 backdrop-blur-md p-8 rounded-xl border border-gray-800 text-center hover:border-primary/50 hover:bg-black/30 transition-all duration-300 shadow-lg shadow-black/5">
-                  <div className="rounded-full bg-primary/15 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/25 transition-all">
-                    <Users className="h-7 w-7 text-primary" />
-                  </div>
-                  <h3 className="text-gray-200 font-medium text-lg">Party</h3>
-                </div>
-                
-                <div className="group bg-black/20 backdrop-blur-md p-8 rounded-xl border border-gray-800 text-center hover:border-primary/50 hover:bg-black/30 transition-all duration-300 shadow-lg shadow-black/5">
-                  <div className="rounded-full bg-primary/15 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/25 transition-all">
-                    <Cat className="h-7 w-7 text-primary" />
-                  </div>
-                  <h3 className="text-gray-200 font-medium text-lg">Companion</h3>
-                </div>
+                ))}
               </div>
             </div>
           </div>
