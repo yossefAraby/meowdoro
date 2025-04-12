@@ -9,6 +9,7 @@ import {
   Moon, 
   Menu,
   BookOpen,
+  Cat
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -49,7 +50,7 @@ export const Navbar: React.FC = () => {
             onClick={() => navigate("/")}
           >
             <img 
-              src="/lovable-uploads/46a2db65-1fbf-46dd-9574-6b4bf1852060.png" 
+              src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
               alt="Meowdoro Logo" 
               className="w-8 h-8 text-primary"
             />

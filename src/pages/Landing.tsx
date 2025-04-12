@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,11 +7,6 @@ import {
   Users,
   BarChart,
   BookOpen,
-  ChevronDown,
-  ArrowRight,
-  Heart,
-  Coffee,
-  Sparkles,
   Mail,
   Lock,
   User,
@@ -26,17 +21,11 @@ import { useToast } from "@/hooks/use-toast";
 const Landing: React.FC = () => {
   const navigate = useNavigate();
   const [showDocsDialog, setShowDocsDialog] = useState(false);
-  const loginSectionRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  
-  const handleGetStarted = () => {
-    // Scroll to login section
-    loginSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
   
   const handleContinueAsGuest = () => {
     // Set a dummy user in localStorage to simulate login
@@ -95,91 +84,39 @@ const Landing: React.FC = () => {
   
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
-      {/* Hero section */}
+      {/* Hero section - Simplified */}
       <section className="relative pt-24 pb-16 md:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 pointer-events-none"></div>
         <div className="container max-w-6xl mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 bg-card/60 backdrop-blur-sm px-4 py-2 rounded-full border text-sm">
-                <img 
-                  src="/lovable-uploads/46a2db65-1fbf-46dd-9574-6b4bf1852060.png" 
-                  alt="Meowdoro Logo" 
-                  className="h-4 w-4 text-primary" 
-                />
-                <span className="text-foreground/80">Focus better with a feline friend</span>
-              </div>
-              
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-                <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Meowdoro</span>: Time Management with Whiskers
-              </h1>
-              
-              <p className="text-lg text-muted-foreground max-w-lg">
-                The purr-fect companion for your productivity journey, helping you achieve more with playful focus sessions
-              </p>
-              
-              <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                <Button 
-                  size="lg" 
-                  className="group rounded-full px-8 relative overflow-hidden"
-                  onClick={handleGetStarted}
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    Get Started
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="rounded-full px-8 flex items-center gap-2 border-primary/20 hover:border-primary/50 transition-colors"
-                  onClick={() => setShowDocsDialog(true)}
-                >
-                  <BookOpen className="h-5 w-5" />
-                  <span>Documentation</span>
-                </Button>
-              </div>
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="mb-8 relative">
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
+              <img 
+                src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
+                alt="Meowdoro Logo" 
+                className="h-32 w-32 text-primary relative z-10 animate-float" 
+              />
             </div>
             
-            <div className="relative mx-auto md:ml-auto w-full max-w-md">
-              <div className="relative aspect-square w-full">
-                <div className="absolute top-0 right-0 w-3/4 h-3/4 bg-primary/10 rounded-2xl blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-3/4 h-3/4 bg-primary/10 rounded-2xl blur-3xl"></div>
-                
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
-                    <Card className="bg-card/80 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-                      <CardContent className="p-6 flex items-center justify-center">
-                        <Clock className="h-10 w-10 text-primary" />
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-card/80 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-                      <CardContent className="p-6 flex items-center justify-center">
-                        <ListTodo className="h-10 w-10 text-primary" />
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-card/80 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-                      <CardContent className="p-6 flex items-center justify-center">
-                        <Users className="h-10 w-10 text-primary" />
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-card/80 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-                      <CardContent className="p-6 flex items-center justify-center">
-                        <img 
-                          src="/lovable-uploads/46a2db65-1fbf-46dd-9574-6b4bf1852060.png" 
-                          alt="Meowdoro Logo" 
-                          className="h-10 w-10 text-primary" 
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+              <span className="font-extrabold">Meowdoro</span>: Time Management with Whiskers
+            </h1>
+            
+            <p className="text-lg text-muted-foreground max-w-lg mb-8">
+              The purr-fect companion for your productivity journey, helping you achieve more with playful focus sessions
+            </p>
+            
+            <div className="flex gap-4">
+              <Button 
+                size="lg" 
+                className="rounded-lg"
+                onClick={() => setShowDocsDialog(true)}
+              >
+                <BookOpen className="mr-2 h-5 w-5" />
+                Learn More
+              </Button>
             </div>
           </div>
-        </div>
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-bounce">
-          <ChevronDown className="h-6 w-6 text-muted-foreground" />
         </div>
       </section>
       
@@ -251,23 +188,15 @@ const Landing: React.FC = () => {
         </div>
       </section>
       
-      {/* Login / Signup Section */}
-      <section ref={loginSectionRef} className="py-20 bg-gradient-to-br from-background to-accent/5 relative overflow-hidden">
+      {/* Login / Signup Section - Simplified */}
+      <section className="py-20 bg-gradient-to-br from-background to-accent/5 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-dots"></div>
         </div>
-        <div className="container max-w-4xl mx-auto px-4 text-center relative z-10">
-          <div className="inline-block mb-6 relative">
-            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
-            <img 
-              src="/lovable-uploads/46a2db65-1fbf-46dd-9574-6b4bf1852060.png" 
-              alt="Meowdoro Logo" 
-              className="h-16 w-16 text-primary relative z-10 animate-float" 
-            />
-          </div>
-          <h2 className="text-3xl font-bold mb-6">Join the Meowdoro Community</h2>
+        <div className="container max-w-md mx-auto px-4 text-center relative z-10">
+          <h2 className="text-3xl font-bold mb-6">Get Started</h2>
           
-          <Card className="mx-auto max-w-lg bg-card/80 backdrop-blur-sm border-primary/20">
+          <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
             <CardContent className="p-6">
               <Tabs defaultValue="login" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6">
@@ -277,30 +206,26 @@ const Landing: React.FC = () => {
                 
                 <TabsContent value="login">
                   <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          type="email" 
-                          placeholder="Email" 
-                          className="pl-10" 
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
-                      </div>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        type="email" 
+                        placeholder="Email" 
+                        className="pl-10" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
                     </div>
                     
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          type="password" 
-                          placeholder="Password" 
-                          className="pl-10" 
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                        />
-                      </div>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        type="password" 
+                        placeholder="Password" 
+                        className="pl-10" 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
                     </div>
                     
                     <Button type="submit" className="w-full">
@@ -311,43 +236,37 @@ const Landing: React.FC = () => {
                 
                 <TabsContent value="signup">
                   <form onSubmit={handleSignup} className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          type="text" 
-                          placeholder="Name" 
-                          className="pl-10" 
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                        />
-                      </div>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        type="text" 
+                        placeholder="Name" 
+                        className="pl-10" 
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                      />
                     </div>
                     
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          type="email" 
-                          placeholder="Email" 
-                          className="pl-10" 
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
-                      </div>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        type="email" 
+                        placeholder="Email" 
+                        className="pl-10" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
                     </div>
                     
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          type="password" 
-                          placeholder="Password" 
-                          className="pl-10" 
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                        />
-                      </div>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        type="password" 
+                        placeholder="Password" 
+                        className="pl-10" 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
                     </div>
                     
                     <Button type="submit" className="w-full">
@@ -359,7 +278,7 @@ const Landing: React.FC = () => {
               
               <Button 
                 variant="outline" 
-                className="w-full mt-6"
+                className="w-full mt-4"
                 onClick={handleContinueAsGuest}
               >
                 Continue as Guest
