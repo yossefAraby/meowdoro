@@ -1,345 +1,192 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import {
-  Clock,
-  ListTodo,
-  Users,
-  BarChart,
+import { 
+  Clock, 
+  ListTodo, 
+  Users, 
+  BarChart, 
+  Cat, 
   BookOpen,
-  Mail,
-  Lock,
-  User,
-  Cat,
-  Sparkles,
-  Heart,
-  Coffee
+  ChevronDown,
+  X,
+  Sparkles
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
   const [showDocsDialog, setShowDocsDialog] = useState(false);
-  const { toast } = useToast();
   
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  
-  const handleContinueAsGuest = () => {
+  const handleGetStarted = () => {
     // Set a dummy user in localStorage to simulate login
-    localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: "Guest" }));
+    localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: "User" }));
     
     // Navigate to the timer page
     navigate("/timer");
-    
-    toast({
-      title: "Welcome, Guest!",
-      description: "You've entered as a guest. Your progress won't be saved between sessions."
-    });
-  };
-  
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Demo login functionality
-    if (email && password) {
-      localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: email.split('@')[0], email }));
-      navigate("/timer");
-      
-      toast({
-        title: "Successfully logged in",
-        description: "Welcome back to Meowdoro!"
-      });
-    } else {
-      toast({
-        title: "Login failed",
-        description: "Please enter your email and password",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const handleSignup = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Demo signup functionality
-    if (email && password && name) {
-      localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name, email }));
-      navigate("/timer");
-      
-      toast({
-        title: "Account created",
-        description: "Welcome to Meowdoro!"
-      });
-    } else {
-      toast({
-        title: "Signup failed",
-        description: "Please fill out all fields",
-        variant: "destructive"
-      });
-    }
   };
   
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Rebuilt Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/10 -z-10"></div>
-        <div className="absolute inset-0 bg-dots opacity-10 -z-10"></div>
+    <div className="min-h-[calc(100vh-5rem)] flex flex-col">
+      {/* Hero section with gradient background */}
+      <section className="relative py-20 overflow-hidden bg-gradient-to-br from-primary/10 to-accent/20">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/10 blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-primary/10 blur-3xl"></div>
+        </div>
         
-        <div className="container max-w-screen-xl mx-auto px-4 md:px-8">
-          <div className="flex flex-col lg:flex-row items-center gap-12">
-            {/* Left content - Text and CTA */}
-            <div className="flex-1 text-center lg:text-left space-y-6">
-              <div className="inline-block animate-float lg:hidden mb-8">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
-                  <img 
-                    src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
-                    alt="Meowdoro Logo" 
-                    className="w-28 h-28 relative z-10" 
-                  />
-                </div>
+        <div className="container max-w-6xl mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full border text-sm mb-4 animate-pulse-soft">
+                <Cat className="h-4 w-4 text-primary" />
+                <span>Focus better with your feline companion</span>
               </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                <span className="font-extrabold">Meowdoro</span>: Focus with Your Feline Friend
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+                Stay focused with your <span className="text-primary relative inline-block">
+                  purr-sonal
+                  <span className="absolute -top-1 -right-1">
+                    <Sparkles className="h-5 w-5 text-yellow-400 animate-pulse" />
+                  </span>
+                </span> productivity companion
               </h1>
               
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0">
-                Boost your productivity with a playful twist. Work efficiently, take mindful breaks, and let your cat companion guide you.
+              <p className="text-lg text-muted-foreground">
+                Meowdoro helps you stay focused and productive with a fun, cat-themed timer and task management app.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-8">
-                <Button size="lg" className="rounded-full px-8" onClick={handleContinueAsGuest}>
-                  Get Started
+              <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                <Button size="lg" className="rounded-full px-8 group relative overflow-hidden" onClick={handleGetStarted}>
+                  <span className="relative z-10">Get Started</span>
+                  <span className="absolute inset-0 bg-primary/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                 </Button>
                 <Button 
-                  variant="outline" 
                   size="lg" 
-                  className="rounded-full px-8"
+                  variant="outline" 
+                  className="rounded-full px-8 flex items-center gap-2 group" 
                   onClick={() => setShowDocsDialog(true)}
                 >
-                  <BookOpen className="mr-2 h-5 w-5" />
-                  Learn More
+                  <BookOpen className="h-5 w-5 group-hover:scale-110 transition-all" />
+                  <span>Documentation</span>
                 </Button>
               </div>
             </div>
             
-            {/* Right content - Image and visual elements */}
-            <div className="flex-1 relative hidden lg:block">
+            <div className="flex justify-center">
               <div className="relative">
-                {/* Decorative elements */}
-                <div className="absolute -top-16 -left-16 w-32 h-32 bg-primary/10 rounded-full blur-xl"></div>
-                <div className="absolute top-1/2 -right-8 w-24 h-24 bg-primary/20 rounded-full blur-lg"></div>
-                
-                {/* Cat logo with animation */}
-                <div className="relative z-10 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
-                  <img 
-                    src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
-                    alt="Meowdoro Logo" 
-                    className="w-80 h-80 relative z-10 animate-float" 
-                  />
-                </div>
-                
-                {/* Feature highlights floating around */}
-                <div className="absolute top-12 left-0 bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-3 shadow-soft animate-float">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-primary" />
-                    <span className="text-sm font-medium">Focus Timer</span>
+                <div className="grid grid-cols-2 gap-6 animate-float">
+                  <div className="bg-card p-6 rounded-lg shadow-md border flex items-center justify-center hover:scale-105 transition-all duration-300 hover:shadow-lg hover:border-primary/50">
+                    <Clock className="h-12 w-12 text-primary" />
+                  </div>
+                  <div className="bg-card p-6 rounded-lg shadow-md border flex items-center justify-center hover:scale-105 transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:rotate-3">
+                    <ListTodo className="h-12 w-12 text-primary" />
+                  </div>
+                  <div className="bg-card p-6 rounded-lg shadow-md border flex items-center justify-center hover:scale-105 transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-rotate-3">
+                    <Users className="h-12 w-12 text-primary" />
+                  </div>
+                  <div className="bg-card p-6 rounded-lg shadow-md border flex items-center justify-center hover:scale-105 transition-all duration-300 hover:shadow-lg hover:border-primary/50">
+                    <Cat className="h-12 w-12 text-primary" />
                   </div>
                 </div>
-                
-                <div className="absolute top-1/3 right-8 bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-3 shadow-soft animate-float" style={{ animationDelay: "1.5s" }}>
-                  <div className="flex items-center gap-2">
-                    <Cat className="h-5 w-5 text-primary" />
-                    <span className="text-sm font-medium">Cat Companion</span>
-                  </div>
-                </div>
-                
-                <div className="absolute bottom-20 left-12 bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-3 shadow-soft animate-float" style={{ animationDelay: "2.5s" }}>
-                  <div className="flex items-center gap-2">
-                    <ListTodo className="h-5 w-5 text-primary" />
-                    <span className="text-sm font-medium">Task Tracker</span>
-                  </div>
+                <div className="absolute -bottom-5 -right-5 bg-primary text-white p-3 rounded-full shadow-lg animate-bounce">
+                  <Sparkles className="h-6 w-6" />
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-      
-      {/* Login / Signup Section - Simplified */}
-      <section className="py-20 bg-gradient-to-br from-background to-accent/5 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0 bg-dots"></div>
-        </div>
-        <div className="container max-w-md mx-auto px-4 text-center relative z-10">
-          <h2 className="text-3xl font-bold mb-6">Get Started</h2>
           
-          <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
-            <CardContent className="p-6">
-              <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="login">Login</TabsTrigger>
-                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="login">
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        type="email" 
-                        placeholder="Email" 
-                        className="pl-10" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        type="password" 
-                        placeholder="Password" 
-                        className="pl-10" 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                    
-                    <Button type="submit" className="w-full">
-                      Login
-                    </Button>
-                  </form>
-                </TabsContent>
-                
-                <TabsContent value="signup">
-                  <form onSubmit={handleSignup} className="space-y-4">
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        type="text" 
-                        placeholder="Name" 
-                        className="pl-10" 
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        type="email" 
-                        placeholder="Email" 
-                        className="pl-10" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        type="password" 
-                        placeholder="Password" 
-                        className="pl-10" 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                    
-                    <Button type="submit" className="w-full">
-                      Sign Up
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
-              
-              <Button 
-                variant="outline" 
-                className="w-full mt-4"
-                onClick={handleContinueAsGuest}
-              >
-                Continue as Guest
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-bounce">
+            <ChevronDown className="h-6 w-6 text-muted-foreground" />
+          </div>
         </div>
       </section>
       
       {/* Features section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0 bg-grid"></div>
-        </div>
+      <section className="py-20 bg-background relative overflow-hidden">
+        <div className="absolute inset-0 bg-dots opacity-20"></div>
         <div className="container max-w-6xl mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold inline-block relative">
-              Purr-sonal Productivity Tools
-              <span className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/50 rounded-full"></span>
+            <h2 className="text-3xl font-bold mb-4 relative inline-block">
+              Features
+              <span className="absolute -bottom-2 left-0 right-0 h-1 bg-primary rounded-full transform scale-x-50 group-hover:scale-x-100 transition-transform"></span>
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
-              Tools designed to boost your productivity with a touch of feline charm
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Designed to keep you productive, focused, and entertained with our feline assistant
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">Pomodoro Timer</h3>
-                <p className="text-muted-foreground">
-                  Customizable focus sessions with smart breaks to maximize productivity
-                </p>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Feature 1 */}
+            <div className="bg-card hover:bg-card/80 transition-all duration-300 rounded-xl p-6 shadow-sm border flex flex-col items-center text-center hover-scale group">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <Clock className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Pomodoro Timer</h3>
+              <p className="text-muted-foreground">
+                Stay focused with customizable pomodoro sessions and break timers
+              </p>
+            </div>
             
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <ListTodo className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">Task Management</h3>
-                <p className="text-muted-foreground">
-                  Organize your tasks and notes with our minimalist interface
-                </p>
-              </CardContent>
-            </Card>
+            {/* Feature 2 */}
+            <div className="bg-card hover:bg-card/80 transition-all duration-300 rounded-xl p-6 shadow-sm border flex flex-col items-center text-center hover-scale group">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <ListTodo className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Task Management</h3>
+              <p className="text-muted-foreground">
+                Organize your tasks, notes, and to-do lists in one place
+              </p>
+            </div>
             
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">Study Party</h3>
-                <p className="text-muted-foreground">
-                  Join virtual study sessions with friends to stay motivated together
-                </p>
-              </CardContent>
-            </Card>
+            {/* Feature 3 */}
+            <div className="bg-card hover:bg-card/80 transition-all duration-300 rounded-xl p-6 shadow-sm border flex flex-col items-center text-center hover-scale group">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Study Party</h3>
+              <p className="text-muted-foreground">
+                Join study sessions with friends to stay motivated together
+              </p>
+            </div>
             
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <BarChart className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">Stats Tracking</h3>
-                <p className="text-muted-foreground">
-                  Monitor your progress with visual statistics and insights
-                </p>
-              </CardContent>
-            </Card>
+            {/* Feature 4 */}
+            <div className="bg-card hover:bg-card/80 transition-all duration-300 rounded-xl p-6 shadow-sm border flex flex-col items-center text-center hover-scale group">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <BarChart className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Stats Tracking</h3>
+              <p className="text-muted-foreground">
+                Monitor your productivity and progress with visual statistics
+              </p>
+            </div>
           </div>
+        </div>
+      </section>
+      
+      {/* Call to action */}
+      <section className="py-20 bg-gradient-to-br from-primary/5 to-accent/10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid opacity-10"></div>
+        <div className="container max-w-3xl mx-auto px-4 text-center relative z-10">
+          <div className="inline-block animate-float mb-6 relative">
+            <Cat className="h-16 w-16 text-primary" />
+            <span className="absolute -top-2 -right-2 animate-pulse">
+              <Sparkles className="h-6 w-6 text-yellow-400" />
+            </span>
+          </div>
+          <h2 className="text-3xl font-bold mb-4">Ready to be more productive?</h2>
+          <p className="text-muted-foreground mb-8 text-lg">
+            Join thousands of users who have improved their focus and productivity with Meowdoro.
+          </p>
+          <Button 
+            size="lg" 
+            className="rounded-full px-8 group relative overflow-hidden" 
+            onClick={handleGetStarted}
+          >
+            <span className="relative z-10">Get Started for Free</span>
+            <span className="absolute inset-0 bg-primary/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+          </Button>
         </div>
       </section>
       
@@ -356,21 +203,12 @@ const Landing: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           
+          <Link to="/docs" className="text-primary hover:underline text-sm">
+            Open full documentation page
+          </Link>
+          
           <div className="space-y-8 my-4 pr-2">
-            <div className="flex justify-between items-center">
-              <a 
-                href="https://drive.google.com/file/d/1c9SgZpXhoq9T3qp5Mg4Ab-X3ipe5HjQ_/view?usp=sharing" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-primary hover:underline"
-              >
-                <Button variant="outline" className="gap-2">
-                  <BookOpen className="h-4 w-4" />
-                  Project Overview PDF
-                </Button>
-              </a>
-            </div>
-            
+            {/* Documentation content - Included directly in Dialog to keep it simple */}
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" />
@@ -515,46 +353,35 @@ const Landing: React.FC = () => {
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
-                Purr-sonalized Features
+                Customization Options
               </h3>
               <p className="text-muted-foreground mb-4">
-                Features designed to make your productivity experience uniquely yours.
+                Personalize your Meowdoro experience to match your preferences and work style.
               </p>
               
               <div className="space-y-3 ml-1">
-                <h4 className="font-semibold text-base">Customize Your Experience:</h4>
+                <h4 className="font-semibold text-base">Appearance:</h4>
                 <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li><strong>Cat Personalities:</strong> Choose a cat companion that matches your vibe</li>
-                  <li><strong>Focus Themes:</strong> Select color schemes that help you concentrate</li>
-                  <li><strong>Custom Timer Settings:</strong> Tailor session lengths to your personal workflow</li>
-                  <li><strong>Notification Styles:</strong> Pick sounds that motivate without disrupting</li>
+                  <li><strong>Theme Colors:</strong> Multiple accent colors to choose from</li>
+                  <li><strong>Dark/Light Mode:</strong> Switch based on lighting or preference</li>
+                  <li><strong>Transparency Effects:</strong> Optional glass-like UI elements</li>
+                </ul>
+                
+                <h4 className="font-semibold text-base mt-3">Timer Settings:</h4>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>Adjust focus duration (5-90 minutes)</li>
+                  <li>Customize short breaks (1-30 minutes)</li>
+                  <li>Set long break intervals (10-60 minutes)</li>
+                  <li>Define sessions before a long break (1-8)</li>
+                  <li>Custom notification sounds</li>
+                  <li>YouTube audio integration</li>
                 </ul>
               </div>
             </section>
             
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Heart className="h-5 w-5 text-primary" />
-                Self-Care Reminders
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Because productivity is as much about rest as it is about work.
-              </p>
-              
-              <div className="space-y-3 ml-1">
-                <h4 className="font-semibold text-base">Healthy Habits:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li><strong>Stretching Prompts:</strong> Gentle reminders to move during breaks</li>
-                  <li><strong>Hydration Nudges:</strong> Your cat companion will remind you to drink water</li>
-                  <li><strong>Eye Rest Tips:</strong> Suggestions to reduce eye strain during screen time</li>
-                  <li><strong>Mindfulness Moments:</strong> Brief breathing exercises between sessions</li>
-                </ul>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Coffee className="h-5 w-5 text-primary" />
+                <Clock className="h-5 w-5 text-primary" />
                 Getting Started Guide
               </h3>
               <p className="text-muted-foreground mb-4">

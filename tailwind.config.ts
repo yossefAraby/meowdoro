@@ -58,13 +58,9 @@ export default {
           foreground: "hsl(var(--card-foreground))"
         },
         themes: {
-          cyan: "hsl(196, 80%, 65%)",
-          green: "hsl(145, 75%, 60%)",
-          yellow: "hsl(45, 75%, 65%)",
-          lavender: "hsl(270, 75%, 75%)",
-          peach: "hsl(25, 75%, 70%)",
-          mint: "hsl(165, 75%, 65%)",
-          rose: "hsl(355, 75%, 70%)"
+          cyan: "hsl(var(--primary))",
+          green: "hsl(var(--green-primary))",
+          yellow: "hsl(var(--yellow-primary))"
         }
       },
       borderRadius: {
@@ -81,21 +77,10 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "scale-in": {
-          "0%": { transform: "scale(0.9)", opacity: "0" },
-          "50%": { transform: "scale(1.1)" },
-          "100%": { transform: "scale(1)", opacity: "1" }
-        },
-        "pulse-soft": {
-          "0%, 100%": { transform: "scale(1)" },
-          "50%": { transform: "scale(1.1)" }
-        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "scale-in": "scale-in 0.4s ease-out",
-        "pulse-soft": "pulse-soft 2s infinite ease-in-out"
       },
       boxShadow: {
         'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',

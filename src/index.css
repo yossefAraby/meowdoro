@@ -2,182 +2,271 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-    /* Light mode - Default theme (Improved contrast for better readability) */
-    --background: 210 40% 98%;
-    --foreground: 222 50% 10%; /* Darker foreground text for better contrast */
+    /* Base colors with improved contrast */
+    --background: 195 30% 98%;
+    --foreground: 195 60% 12%;
+
+    /* Card & UI elements */
     --card: 0 0% 100%;
-    --card-foreground: 222 50% 10%;
+    --card-foreground: 195 60% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 50% 10%;
-    --primary: 196 80% 50%; /* Higher contrast primary color */
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 94%; /* Slightly darker for better visibility */
-    --secondary-foreground: 222 50% 10%;
-    --muted: 210 40% 94%; 
-    --muted-foreground: 215 25% 40%; /* Higher contrast muted text */
-    --accent: 210 40% 92%; /* Slightly darker accent for visibility */
-    --accent-foreground: 222 50% 10%;
-    --destructive: 0 84% 50%; /* Higher contrast destructive */
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 85%; /* Slightly darker border for visibility */
-    --input: 214 32% 85%;
-    --ring: 222 50% 10%;
-    --radius: 0.75rem;
+    --popover-foreground: 195 60% 12%;
 
-    /* Theme variants - Light mode (slightly more saturated) */
-    --green-primary: 145 80% 45%;
-    --yellow-primary: 45 85% 50%;
-    --lavender-primary: 270 75% 65%;
-    --peach-primary: 25 75% 60%;
-    --mint-primary: 165 75% 45%;
-    --rose-primary: 355 75% 60%;
-  }
- 
-  .dark {
-    /* Dark mode - Default theme (Cyan) - Keep as is */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 196 80% 65%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 217 32% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 32% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 32% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 32% 17%;
-    --input: 217 32% 17%;
-    --ring: 212 35% 65%;
+    /* Primary - Cyan Theme (Default) with better contrast */
+    --primary: 195 85% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary & Accent */
+    --secondary: 195 35% 92%;
+    --secondary-foreground: 195 60% 20%;
+    --accent: 195 95% 85%;
+    --accent-foreground: 195 60% 12%;
+
+    /* Status colors */
+    --muted: 195 10% 85%;
+    --muted-foreground: 195 30% 35%;
+    --destructive: 0 85% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Border & Input */
+    --border: 195 20% 80%;
+    --input: 195 20% 80%;
+    --ring: 195 75% 35%;
+
+    /* Alternative themes */
+    --green-primary: 145 75% 30%;
+    --yellow-primary: 45 80% 35%;
+    --lavender-primary: 270 75% 40%;
+    --peach-primary: 25 75% 40%;
+    --mint-primary: 165 75% 30%;
+    --rose-primary: 355 75% 40%;
+
+    /* Radius */
+    --radius: 1rem;
   }
 
-  /* Theme variations - Applied via theme provider */
   .theme-green {
-    --primary: var(--green-primary);
+    --primary: 145 75% 30%;
+    --accent: 145 85% 85%;
+    --ring: 145 75% 30%;
   }
 
   .theme-yellow {
-    --primary: var(--yellow-primary);
+    --primary: 45 80% 35%;
+    --accent: 45 85% 85%; 
+    --ring: 45 80% 35%;
   }
-
+  
   .theme-lavender {
-    --primary: var(--lavender-primary);
+    --primary: 270 75% 40%;
+    --accent: 270 85% 90%;
+    --ring: 270 75% 40%;
   }
-
+  
   .theme-peach {
-    --primary: var(--peach-primary);
+    --primary: 25 75% 40%;
+    --accent: 25 85% 85%;
+    --ring: 25 75% 40%;
   }
-
+  
   .theme-mint {
-    --primary: var(--mint-primary);
+    --primary: 165 75% 30%;
+    --accent: 165 85% 85%;
+    --ring: 165 75% 30%;
+  }
+  
+  .theme-rose {
+    --primary: 355 75% 40%;
+    --accent: 355 85% 85%;
+    --ring: 355 75% 40%;
   }
 
-  .theme-rose {
-    --primary: var(--rose-primary);
+  .dark {
+    --background: 195 30% 10%;
+    --foreground: 195 10% 90%;
+
+    --card: 195 30% 15%;
+    --card-foreground: 195 10% 90%;
+    --popover: 195 30% 15%;
+    --popover-foreground: 195 10% 90%;
+
+    --primary: 195 65% 55%;
+    --primary-foreground: 195 10% 98%;
+
+    --secondary: 195 20% 20%;
+    --secondary-foreground: 195 10% 90%;
+    --accent: 195 40% 30%;
+    --accent-foreground: 195 10% 98%;
+
+    --muted: 195 15% 25%;
+    --muted-foreground: 195 10% 60%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 195 20% 25%;
+    --input: 195 20% 25%;
+    --ring: 195 65% 55%;
+  }
+
+  .dark.theme-green {
+    --primary: 145 60% 45%;
+    --accent: 145 40% 25%;
+    --ring: 145 60% 45%;
+  }
+
+  .dark.theme-yellow {
+    --primary: 45 65% 50%;
+    --accent: 45 40% 30%;
+    --ring: 45 65% 50%;
+  }
+  
+  .dark.theme-lavender {
+    --primary: 270 65% 60%;
+    --accent: 270 40% 25%;
+    --ring: 270 65% 60%;
+  }
+  
+  .dark.theme-peach {
+    --primary: 25 60% 55%;
+    --accent: 25 40% 25%;
+    --ring: 25 60% 55%;
+  }
+  
+  .dark.theme-mint {
+    --primary: 165 60% 45%;
+    --accent: 165 40% 25%;
+    --ring: 165 60% 45%;
+  }
+  
+  .dark.theme-rose {
+    --primary: 355 60% 55%;
+    --accent: 355 40% 25%;
+    --ring: 355 60% 55%;
+  }
+  
+  /* Transparency classes */
+  .transparency-enabled {
+    --card-opacity: 90%;
+    --popover-opacity: 90%;
+  }
+  
+  .transparency-enabled .bg-background {
+    backdrop-filter: blur(8px);
+  }
+  
+  .transparency-enabled .bg-card,
+  .transparency-enabled .bg-popover {
+    opacity: var(--card-opacity);
+    backdrop-filter: blur(12px);
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
-  }
-
-  /* Improved focus styles for accessibility */
-  a:focus, button:focus, input:focus, select:focus, textarea:focus {
-    @apply outline-2 outline-primary outline-offset-2;
-  }
-
-  /* Hide selection rectangle only while typing in a note/task */
-  input:focus, textarea:focus {
-    outline: none !important;
-  }
-
-  /* Improved text readability */
-  p, span, div, button, a {
-    @apply font-medium; /* Slightly bolder text for better readability */
+    font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 0.3s ease, background-image 0.3s ease;
   }
   
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
+  /* Transparency styles */
+  .transparency-enabled .card,
+  .transparency-enabled .popover,
+  .transparency-enabled .dialog,
+  .transparency-enabled .hover-card,
+  .transparency-enabled .dropdown-menu {
+    @apply backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90;
+  }
+  
+  .transparency-enabled .glass {
+    @apply backdrop-blur-lg bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10;
   }
 }
 
-/* Animation Utilities */
+/* Animation Keyframes */
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes slide-up {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Animation Classes */
 @layer utilities {
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
+  .animate-pulse-soft {
+    animation: pulse-soft 2s ease-in-out infinite;
   }
   
-  .animate-pulse-soft {
-    animation: pulse-soft 3s ease-in-out infinite;
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+  
+  .animate-rotate {
+    animation: rotate 20s linear infinite;
+  }
+  
+  .glass {
+    @apply bg-white/30 dark:bg-black/30 backdrop-blur-lg border border-white/20 dark:border-white/10;
+  }
+  
+  .transition-all-150 {
+    @apply transition-all duration-150;
+  }
+  
+  .page-transition {
+    @apply animate-slide-up;
   }
   
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
   }
-
-  .glass {
-    @apply backdrop-blur-md bg-background/70 border border-border/40;
+  
+  .focus-ring {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
-}
-
-@keyframes float {
-  0% {
-    transform: translateY(0px);
+  
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-md;
   }
-  50% {
-    transform: translateY(-10px);
+  
+  /* Background patterns */
+  .bg-dots {
+    @apply bg-[radial-gradient(circle,rgba(0,0,0,0.1)_1px,transparent_1px)] bg-[size:20px_20px];
   }
-  100% {
-    transform: translateY(0px);
-  }
-}
-
-@keyframes pulse-soft {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-/* Background patterns */
-.bg-dots {
-  background-image: radial-gradient(currentColor 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-.bg-grid {
-  background-image: 
-    linear-gradient(to right, currentColor 1px, transparent 1px),
-    linear-gradient(to bottom, currentColor 1px, transparent 1px);
-  background-size: 25px 25px;
-}
-
-/* Page transitions */
-.page-transition {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .bg-grid {
+    @apply bg-[linear-gradient(to_right,rgba(0,0,0,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.1)_1px,transparent_1px)] bg-[size:20px_20px];
   }
 }

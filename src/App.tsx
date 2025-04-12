@@ -6,32 +6,30 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./components/layout/ThemeProvider";
 import { Navbar } from "./components/layout/Navbar";
-
-// Pages
 import Landing from "./pages/Landing";
 import Timer from "./pages/Timer";
 import Tasks from "./pages/Tasks";
 import Party from "./pages/Party";
+import Stats from "./pages/Stats";
+import Settings from "./pages/Settings";
 import Docs from "./pages/Docs";
+import BusinessCanvas from "./pages/BusinessCanvas";
 import NotFound from "./pages/NotFound";
 
-// Create a new query client for React Query
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Simple auth check (this would be expanded in a real app)
+  // Check if the user is authenticated (simplified for now)
   const isAuthenticated = localStorage.getItem("meowdoro-user") !== null;
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          {/* Toast notifications */}
           <Toaster />
           <Sonner />
-          
           <BrowserRouter>
-            {/* Navbar is always visible */}
+            {/* Always show Navbar */}
             <Navbar />
             
             <main className="pt-20 min-h-screen">
@@ -39,8 +37,9 @@ const App = () => {
                 {/* Public routes */}
                 <Route path="/" element={<Landing />} />
                 <Route path="/docs" element={<Docs />} />
+                <Route path="/business-canvas" element={<BusinessCanvas />} />
                 
-                {/* Protected routes - redirect to home if not logged in */}
+                {/* Protected routes */}
                 <Route 
                   path="/timer" 
                   element={isAuthenticated ? <Timer /> : <Navigate to="/" replace />} 
@@ -53,18 +52,16 @@ const App = () => {
                   path="/party" 
                   element={isAuthenticated ? <Party /> : <Navigate to="/" replace />} 
                 />
-                
-                {/* Redirect settings and stats to timer */}
                 <Route 
                   path="/stats" 
-                  element={<Navigate to="/timer" replace />} 
+                  element={isAuthenticated ? <Stats /> : <Navigate to="/" replace />} 
                 />
                 <Route 
                   path="/settings" 
-                  element={<Navigate to="/timer" replace />} 
+                  element={isAuthenticated ? <Settings /> : <Navigate to="/" replace />} 
                 />
                 
-                {/* 404 route */}
+                {/* Catch-all route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

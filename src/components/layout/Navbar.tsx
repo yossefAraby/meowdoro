@@ -5,11 +5,14 @@ import {
   Timer, 
   CheckSquare, 
   Users, 
+  BarChart, 
+  Settings, 
   Sun, 
   Moon, 
+  Cat,
   Menu,
   BookOpen,
-  Cat
+  Briefcase
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -28,6 +31,7 @@ export const Navbar: React.FC = () => {
     { path: "/timer", icon: Timer, label: "Timer" },
     { path: "/tasks", icon: CheckSquare, label: "Tasks" },
     { path: "/party", icon: Users, label: "Party" },
+    { path: "/stats", icon: BarChart, label: "Stats" },
   ];
 
   const toggleMode = () => {
@@ -49,16 +53,17 @@ export const Navbar: React.FC = () => {
             className="flex items-center gap-2 cursor-pointer transition-all hover:opacity-80"
             onClick={() => navigate("/")}
           >
-            <img 
-              src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
-              alt="Meowdoro Logo" 
-              className="w-8 h-8 text-primary"
-            />
+            <div className="text-primary w-8 h-8">
+              <div className="relative">
+                <Timer className="w-8 h-8" />
+                <Cat className="w-4 h-4 absolute -top-1 -right-1" />
+              </div>
+            </div>
             <span className="font-bold text-xl">Meowdoro</span>
           </div>
 
-          {/* Navigation Links - Desktop - Centered */}
-          <div className="hidden md:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2 space-x-1 sm:space-x-2">
+          {/* Navigation Links - Desktop */}
+          <div className="hidden md:flex items-center justify-center space-x-1 sm:space-x-2">
             {isAuthenticated && navItems.map((item) => (
               <Link
                 key={item.path}
@@ -76,6 +81,22 @@ export const Navbar: React.FC = () => {
                 </span>
               </Link>
             ))}
+            
+            {/* Business Canvas link - visible to all */}
+            <Link
+              to="/business-canvas"
+              className={cn(
+                "flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-150",
+                location.pathname === "/business-canvas" 
+                  ? "text-primary bg-accent/50" 
+                  : "text-foreground/60 hover:text-primary hover:bg-accent/30"
+              )}
+            >
+              <Briefcase className="w-5 h-5" />
+              <span className="text-xs mt-1">
+                BMC
+              </span>
+            </Link>
           </div>
 
           {/* Right Side - Mode Toggle & Actions */}
@@ -83,13 +104,22 @@ export const Navbar: React.FC = () => {
             <button 
               onClick={toggleMode} 
               className="p-2 rounded-full hover:bg-accent/50 transition-all duration-150"
-              aria-label={mode === "light" ? "Switch to dark mode" : "Switch to light mode"}
             >
               {mode === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             
             {isAuthenticated ? (
-              <></>
+              <Link 
+                to="/settings" 
+                className={cn(
+                  "p-2 rounded-full transition-all duration-150 hidden sm:inline-flex",
+                  location.pathname === "/settings" 
+                    ? "text-primary bg-accent/50" 
+                    : "text-foreground/60 hover:text-primary hover:bg-accent/30"
+                )}
+              >
+                <Settings className="w-5 h-5" />
+              </Link>
             ) : (
               <div className="flex gap-2">
                 <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()}>
@@ -123,6 +153,20 @@ export const Navbar: React.FC = () => {
                   <div className="text-xl font-bold mb-6">Meowdoro</div>
                   
                   <div className="space-y-2">
+                    {/* Business Canvas link - always visible in mobile menu */}
+                    <Link
+                      to="/business-canvas"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-lg transition-all",
+                        location.pathname === "/business-canvas" 
+                          ? "bg-accent text-primary" 
+                          : "hover:bg-accent/50"
+                      )}
+                    >
+                      <Briefcase className="w-5 h-5" />
+                      <span>Business Canvas</span>
+                    </Link>
+                  
                     {isAuthenticated ? (
                       <>
                         {navItems.map((item) => (
@@ -140,6 +184,19 @@ export const Navbar: React.FC = () => {
                             <span>{item.label}</span>
                           </Link>
                         ))}
+                        
+                        <Link
+                          to="/settings"
+                          className={cn(
+                            "flex items-center gap-3 p-3 rounded-lg transition-all",
+                            location.pathname === "/settings" 
+                              ? "bg-accent text-primary" 
+                              : "hover:bg-accent/50"
+                          )}
+                        >
+                          <Settings className="w-5 h-5" />
+                          <span>Settings</span>
+                        </Link>
                       </>
                     ) : (
                       <div className="mt-auto space-y-3">

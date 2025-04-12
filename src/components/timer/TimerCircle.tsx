@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, Coffee, FastForward } from "lucide-react";
+import { Play, Pause, RotateCcw, Coffee, FastForward, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { 
@@ -10,17 +10,16 @@ import {
   TooltipTrigger 
 } from "@/components/ui/tooltip";
 
-// This component handles the circular timer display and controls
 interface TimerCircleProps {
-  initialMinutes?: number;          // Starting minutes for countdown
-  isCountdown?: boolean;            // If true, counts down; if false, counts up
-  breakMinutes?: number;            // Length of short break in minutes
-  longBreakMinutes?: number;        // Length of long break in minutes
-  sessionsBeforeLongBreak?: number; // Number of focus sessions before a long break
-  onTimerComplete?: () => void;     // Function to call when timer completes
-  onTimerUpdate?: (seconds: number) => void; // Function to call on each second
-  onModeChange?: (mode: "focus" | "break" | "longBreak") => void; // Function to call when mode changes
-  soundUrl?: string;                // Custom sound to play when timer completes
+  initialMinutes?: number;
+  isCountdown?: boolean;
+  breakMinutes?: number;
+  longBreakMinutes?: number;
+  sessionsBeforeLongBreak?: number;
+  onTimerComplete?: () => void;
+  onTimerUpdate?: (seconds: number) => void;
+  onModeChange?: (mode: "focus" | "break" | "longBreak") => void;
+  soundUrl?: string;
 }
 
 export const TimerCircle: React.FC<TimerCircleProps> = ({
@@ -34,7 +33,6 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   onModeChange,
   soundUrl,
 }) => {
-  // Timer state
   const [timeRemaining, setTimeRemaining] = useState(isCountdown ? initialMinutes * 60 : 0);
   const [initialTime, setInitialTime] = useState(isCountdown ? initialMinutes * 60 : 0);
   const [isActive, setIsActive] = useState(false);
@@ -42,16 +40,14 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   const [currentMode, setCurrentMode] = useState<"focus" | "break" | "longBreak">("focus");
   const [completedSessions, setCompletedSessions] = useState(0);
   
-  // References
   const intervalRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  // Initialize audio for completion sound
+  // Initialize audio
   useEffect(() => {
     // Default completion sound
     audioRef.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-back-2575.mp3");
     
-    // Cleanup function to stop audio when component unmounts
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -62,7 +58,6 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   
   // Update initial time when mode changes
   useEffect(() => {
-    // Set appropriate time based on current mode
     if (currentMode === "focus") {
       setInitialTime(initialMinutes * 60);
       setTimeRemaining(initialMinutes * 60);
@@ -74,7 +69,6 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
       setTimeRemaining(longBreakMinutes * 60);
     }
     
-    // Notify parent components of updates
     if (onTimerUpdate) onTimerUpdate(timeRemaining);
     if (onModeChange) onModeChange(currentMode);
   }, [currentMode, initialMinutes, breakMinutes, longBreakMinutes]);
@@ -84,10 +78,8 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     resetTimer();
   }, [isCountdown]);
   
-  // Timer logic
   useEffect(() => {
     if (isActive) {
-      // Start interval for timer
       intervalRef.current = window.setInterval(() => {
         setTimeRemaining(prev => {
           // For countdown timer
@@ -123,16 +115,14 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
                 setCurrentMode("focus");
               }
               
-              // Call completion callback if provided
               if (onTimerComplete) onTimerComplete();
               return 0;
             }
             
-            // Update parent component with new time
             if (onTimerUpdate) onTimerUpdate(newTime);
             return newTime;
           } 
-          // For stopwatch (counts up)
+          // For stopwatch
           else {
             const newTime = prev + 1;
             if (onTimerUpdate) onTimerUpdate(newTime);
@@ -140,13 +130,10 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
           }
         });
       }, 1000);
-    } 
-    // Clear interval if timer is paused
-    else if (intervalRef.current) {
+    } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
     
-    // Cleanup function to clear interval when component unmounts or dependencies change
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -154,20 +141,19 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     };
   }, [isActive, isCountdown, currentMode, completedSessions, onTimerComplete, onTimerUpdate]);
   
-  // Update sound URL if provided
   useEffect(() => {
+    // Update sound URL if provided
     if (soundUrl && soundUrl.trim() !== "") {
-      // Skip YouTube URLs (handled elsewhere)
+      // If it's a YouTube URL, we'll handle it in the parent component
       if (!soundUrl.includes("youtube.com") && !soundUrl.includes("youtu.be")) {
         audioRef.current = new Audio(soundUrl);
       }
     } else {
-      // Use default sound if none provided
+      // Default completion sound
       audioRef.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-back-2575.mp3");
     }
   }, [soundUrl]);
   
-  // Start/pause the timer
   const toggleTimer = () => {
     if (isCompleted) {
       resetTimer();
@@ -176,7 +162,6 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     }
   };
 
-  // Skip current session
   const skipToBreak = () => {
     if (currentMode === "focus") {
       // Skip the current focus session and move to break
@@ -200,7 +185,6 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     }
   };
   
-  // Reset the timer to its initial state
   const resetTimer = () => {
     setIsActive(false);
     setIsCompleted(false);
@@ -214,7 +198,6 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
       setTimeRemaining(longBreakMinutes * 60);
     }
     
-    // Update parent component
     if (onTimerUpdate) {
       onTimerUpdate(isCountdown ? 
         (currentMode === "focus" ? initialMinutes * 60 : 
@@ -230,12 +213,12 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
   
-  // Calculate progress percentage for the circle
+  // Calculate progress percentage
   const progress = isCountdown 
     ? ((initialTime - timeRemaining) / initialTime) * 100
     : 0; // For stopwatch, we don't show progress in the circle
   
-  // Calculate the SVG arc path for the progress circle
+  // Calculate the SVG arc path
   const calculateArc = () => {
     const radius = 90; // SVG coordinate system
     const circumference = 2 * Math.PI * radius;
@@ -295,7 +278,6 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
       
       {/* Timer Display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        {/* Time display */}
         <div className="text-4xl font-mono font-bold mb-4">{formatTime(timeRemaining)}</div>
         
         <div className="flex flex-col items-center justify-center space-y-3">
@@ -319,7 +301,7 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
             )}
           </Button>
           
-          {/* Skip/Take Break Button - only shown for countdown timer when not active */}
+          {/* Skip/Take Break Button */}
           {isCountdown && !isActive && (
             <TooltipProvider>
               <Tooltip>
