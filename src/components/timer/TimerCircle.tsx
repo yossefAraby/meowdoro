@@ -1,32 +1,93 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, Coffee } from "lucide-react";
+import { Play, Pause, RotateCcw, Coffee, FastForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 
+// This component handles the circular timer display and controls
 interface TimerCircleProps {
-  initialMinutes?: number;
-  isCountdown?: boolean;
-  onTimerComplete?: () => void;
-  onTimerUpdate?: (seconds: number) => void;
+  initialMinutes?: number;          // Starting minutes for countdown
+  isCountdown?: boolean;            // If true, counts down; if false, counts up
+  breakMinutes?: number;            // Length of short break in minutes
+  longBreakMinutes?: number;        // Length of long break in minutes
+  sessionsBeforeLongBreak?: number; // Number of focus sessions before a long break
+  onTimerComplete?: () => void;     // Function to call when timer completes
+  onTimerUpdate?: (seconds: number) => void; // Function to call on each second
+  onModeChange?: (mode: "focus" | "break" | "longBreak") => void; // Function to call when mode changes
+  soundUrl?: string;                // Custom sound to play when timer completes
 }
 
 export const TimerCircle: React.FC<TimerCircleProps> = ({
   initialMinutes = 25,
   isCountdown = true,
+  breakMinutes = 5,
+  longBreakMinutes = 15,
+  sessionsBeforeLongBreak = 4,
   onTimerComplete,
   onTimerUpdate,
+  onModeChange,
+  soundUrl,
 }) => {
+  // Timer state
   const [timeRemaining, setTimeRemaining] = useState(isCountdown ? initialMinutes * 60 : 0);
-  const [initialTime] = useState(isCountdown ? initialMinutes * 60 : 0);
+  const [initialTime, setInitialTime] = useState(isCountdown ? initialMinutes * 60 : 0);
   const [isActive, setIsActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [isBreak, setIsBreak] = useState(false);
+  const [currentMode, setCurrentMode] = useState<"focus" | "break" | "longBreak">("focus");
+  const [completedSessions, setCompletedSessions] = useState(0);
   
+  // References
   const intervalRef = useRef<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
+  // Initialize audio for completion sound
+  useEffect(() => {
+    // Default completion sound
+    audioRef.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-back-2575.mp3");
+    
+    // Cleanup function to stop audio when component unmounts
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+  
+  // Update initial time when mode changes
+  useEffect(() => {
+    // Set appropriate time based on current mode
+    if (currentMode === "focus") {
+      setInitialTime(initialMinutes * 60);
+      setTimeRemaining(initialMinutes * 60);
+    } else if (currentMode === "break") {
+      setInitialTime(breakMinutes * 60);
+      setTimeRemaining(breakMinutes * 60);
+    } else if (currentMode === "longBreak") {
+      setInitialTime(longBreakMinutes * 60);
+      setTimeRemaining(longBreakMinutes * 60);
+    }
+    
+    // Notify parent components of updates
+    if (onTimerUpdate) onTimerUpdate(timeRemaining);
+    if (onModeChange) onModeChange(currentMode);
+  }, [currentMode, initialMinutes, breakMinutes, longBreakMinutes]);
+  
+  // Reset timer when countdown mode changes
+  useEffect(() => {
+    resetTimer();
+  }, [isCountdown]);
+  
+  // Timer logic
   useEffect(() => {
     if (isActive) {
+      // Start interval for timer
       intervalRef.current = window.setInterval(() => {
         setTimeRemaining(prev => {
           // For countdown timer
@@ -38,14 +99,40 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
               clearInterval(intervalRef.current!);
               setIsActive(false);
               setIsCompleted(true);
+              
+              // Play completion sound
+              if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+                audioRef.current.play().catch(err => console.log("Audio play error:", err));
+              }
+              
+              // Handle session completion based on current mode
+              if (currentMode === "focus") {
+                const newCompletedSessions = completedSessions + 1;
+                setCompletedSessions(newCompletedSessions);
+                
+                // Determine if next break should be a long break
+                if (newCompletedSessions % sessionsBeforeLongBreak === 0) {
+                  setCurrentMode("longBreak");
+                } else {
+                  setCurrentMode("break");
+                }
+              } else {
+                // After break or long break, go back to focus mode
+                setCurrentMode("focus");
+              }
+              
+              // Call completion callback if provided
               if (onTimerComplete) onTimerComplete();
               return 0;
             }
             
+            // Update parent component with new time
             if (onTimerUpdate) onTimerUpdate(newTime);
             return newTime;
           } 
-          // For stopwatch
+          // For stopwatch (counts up)
           else {
             const newTime = prev + 1;
             if (onTimerUpdate) onTimerUpdate(newTime);
@@ -53,22 +140,34 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
           }
         });
       }, 1000);
-    } else if (intervalRef.current) {
+    } 
+    // Clear interval if timer is paused
+    else if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
     
+    // Cleanup function to clear interval when component unmounts or dependencies change
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isActive, isCountdown, onTimerComplete, onTimerUpdate]);
+  }, [isActive, isCountdown, currentMode, completedSessions, onTimerComplete, onTimerUpdate]);
   
-  // Reset timer when mode changes
+  // Update sound URL if provided
   useEffect(() => {
-    resetTimer();
-  }, [isCountdown, initialMinutes]);
+    if (soundUrl && soundUrl.trim() !== "") {
+      // Skip YouTube URLs (handled elsewhere)
+      if (!soundUrl.includes("youtube.com") && !soundUrl.includes("youtu.be")) {
+        audioRef.current = new Audio(soundUrl);
+      }
+    } else {
+      // Use default sound if none provided
+      audioRef.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-back-2575.mp3");
+    }
+  }, [soundUrl]);
   
+  // Start/pause the timer
   const toggleTimer = () => {
     if (isCompleted) {
       resetTimer();
@@ -77,21 +176,51 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     }
   };
 
-  const takeBreak = () => {
-    resetTimer();
-    setIsBreak(true);
-    // In a real app, you might change the timer duration here
-    // For now, we'll just show visual feedback
-    setTimeout(() => {
-      setIsBreak(false);
-    }, 300);
+  // Skip current session
+  const skipToBreak = () => {
+    if (currentMode === "focus") {
+      // Skip the current focus session and move to break
+      setIsActive(false);
+      clearInterval(intervalRef.current!);
+      
+      // Determine if we should take a long break
+      const newCompletedSessions = completedSessions + 1;
+      setCompletedSessions(newCompletedSessions);
+      
+      if (newCompletedSessions % sessionsBeforeLongBreak === 0) {
+        setCurrentMode("longBreak");
+      } else {
+        setCurrentMode("break");
+      }
+    } else {
+      // Skip the current break and go back to focus
+      setIsActive(false);
+      clearInterval(intervalRef.current!);
+      setCurrentMode("focus");
+    }
   };
   
+  // Reset the timer to its initial state
   const resetTimer = () => {
     setIsActive(false);
     setIsCompleted(false);
-    setTimeRemaining(isCountdown ? initialMinutes * 60 : 0);
-    if (onTimerUpdate) onTimerUpdate(isCountdown ? initialMinutes * 60 : 0);
+    
+    // Reset time based on current mode
+    if (currentMode === "focus") {
+      setTimeRemaining(isCountdown ? initialMinutes * 60 : 0);
+    } else if (currentMode === "break") {
+      setTimeRemaining(breakMinutes * 60);
+    } else if (currentMode === "longBreak") {
+      setTimeRemaining(longBreakMinutes * 60);
+    }
+    
+    // Update parent component
+    if (onTimerUpdate) {
+      onTimerUpdate(isCountdown ? 
+        (currentMode === "focus" ? initialMinutes * 60 : 
+         currentMode === "break" ? breakMinutes * 60 : 
+         longBreakMinutes * 60) : 0);
+    }
   };
   
   // Format time as MM:SS
@@ -101,12 +230,12 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
   
-  // Calculate progress percentage
+  // Calculate progress percentage for the circle
   const progress = isCountdown 
     ? ((initialTime - timeRemaining) / initialTime) * 100
     : 0; // For stopwatch, we don't show progress in the circle
   
-  // Calculate the SVG arc path
+  // Calculate the SVG arc path for the progress circle
   const calculateArc = () => {
     const radius = 90; // SVG coordinate system
     const circumference = 2 * Math.PI * radius;
@@ -119,6 +248,20 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   };
   
   const arcStyle = calculateArc();
+  
+  // Get color based on current mode
+  const getModeColor = () => {
+    switch (currentMode) {
+      case "focus":
+        return "text-primary";
+      case "break":
+        return "text-cyan-500";
+      case "longBreak":
+        return "text-amber-500";
+      default:
+        return "text-primary";
+    }
+  };
   
   return (
     <div className="relative w-72 h-72 mx-auto">
@@ -144,7 +287,7 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
           stroke="currentColor"
           strokeWidth="8"
           strokeLinecap="round"
-          className="text-primary transition-all duration-1000 ease-in-out"
+          className={cn("transition-all duration-1000 ease-in-out", getModeColor())}
           style={arcStyle}
           transform="rotate(-90, 100, 100)"
         />
@@ -152,6 +295,7 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
       
       {/* Timer Display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
+        {/* Time display */}
         <div className="text-4xl font-mono font-bold mb-4">{formatTime(timeRemaining)}</div>
         
         <div className="flex flex-col items-center justify-center space-y-3">
@@ -161,7 +305,8 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
             className={cn(
               "rounded-full w-16 h-16 p-0 flex items-center justify-center transition-all duration-300",
               isCompleted && "bg-green-500 hover:bg-green-600",
-              isBreak && "bg-amber-500 hover:bg-amber-600"
+              currentMode === "break" && "bg-cyan-500 hover:bg-cyan-600",
+              currentMode === "longBreak" && "bg-amber-500 hover:bg-amber-600"
             )}
             onClick={toggleTimer}
           >
@@ -174,17 +319,42 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
             )}
           </Button>
           
-          {/* Take Break Button - Now below the main button */}
-          {isCountdown && !isActive && !isCompleted && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full transition-all duration-300 hover:bg-amber-100 dark:hover:bg-amber-900 flex items-center gap-2"
-              onClick={takeBreak}
-            >
-              <Coffee className="w-4 h-4" />
-              <span>Take a break</span>
-            </Button>
+          {/* Skip/Take Break Button - only shown for countdown timer when not active */}
+          {isCountdown && !isActive && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "rounded-full transition-all duration-300 flex items-center gap-2",
+                      currentMode === "focus" ? 
+                        "hover:bg-cyan-100 dark:hover:bg-cyan-900" : 
+                        "hover:bg-primary/10"
+                    )}
+                    onClick={skipToBreak}
+                  >
+                    {currentMode === "focus" ? (
+                      <>
+                        <Coffee className="w-4 h-4" />
+                        <span>Take a break</span>
+                      </>
+                    ) : (
+                      <>
+                        <FastForward className="w-4 h-4" />
+                        <span>Skip to focus</span>
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {currentMode === "focus" ? 
+                    "Skip current focus session and take a break" : 
+                    "Skip break and start focusing"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </div>

@@ -5,12 +5,11 @@ import {
   Timer, 
   CheckSquare, 
   Users, 
-  BarChart, 
-  Settings, 
   Sun, 
   Moon, 
-  Cat,
-  Menu
+  Menu,
+  BookOpen,
+  Cat
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -21,32 +20,14 @@ export const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { mode, setMode } = useTheme();
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   
   // Check if user is authenticated
   const isAuthenticated = localStorage.getItem("meowdoro-user") !== null;
   
   const navItems = [
-    { 
-      path: "/timer", 
-      icon: Timer, 
-      label: "Timer" 
-    },
-    { 
-      path: "/tasks", 
-      icon: CheckSquare, 
-      label: "Tasks" 
-    },
-    { 
-      path: "/party", 
-      icon: Users, 
-      label: "Party" 
-    },
-    { 
-      path: "/stats", 
-      icon: BarChart, 
-      label: "Stats" 
-    },
+    { path: "/timer", icon: Timer, label: "Timer" },
+    { path: "/tasks", icon: CheckSquare, label: "Tasks" },
+    { path: "/party", icon: Users, label: "Party" },
   ];
 
   const toggleMode = () => {
@@ -59,8 +40,6 @@ export const Navbar: React.FC = () => {
     navigate("/timer");
   };
 
-  // Removed logout functionality, as per instructions
-
   return (
     <div className="fixed top-0 left-0 right-0 z-50 glass animate-fade-in">
       <div className="container mx-auto">
@@ -70,17 +49,16 @@ export const Navbar: React.FC = () => {
             className="flex items-center gap-2 cursor-pointer transition-all hover:opacity-80"
             onClick={() => navigate("/")}
           >
-            <div className="text-primary w-8 h-8">
-              <div className="relative">
-                <Timer className="w-8 h-8" />
-                <Cat className="w-4 h-4 absolute -top-1 -right-1" />
-              </div>
-            </div>
+            <img 
+              src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
+              alt="Meowdoro Logo" 
+              className="w-8 h-8 text-primary"
+            />
             <span className="font-bold text-xl">Meowdoro</span>
           </div>
 
-          {/* Navigation Links - Desktop */}
-          <div className="hidden md:flex items-center justify-center space-x-1 sm:space-x-2">
+          {/* Navigation Links - Desktop - Centered */}
+          <div className="hidden md:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2 space-x-1 sm:space-x-2">
             {isAuthenticated && navItems.map((item) => (
               <Link
                 key={item.path}
@@ -102,35 +80,35 @@ export const Navbar: React.FC = () => {
 
           {/* Right Side - Mode Toggle & Actions */}
           <div className="flex items-center space-x-2">
-            {/* Removed page title display as requested */}
-            
             <button 
               onClick={toggleMode} 
               className="p-2 rounded-full hover:bg-accent/50 transition-all duration-150"
+              aria-label={mode === "light" ? "Switch to dark mode" : "Switch to light mode"}
             >
               {mode === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             
             {isAuthenticated ? (
-              <Link 
-                to="/settings" 
-                className={cn(
-                  "p-2 rounded-full transition-all duration-150 hidden sm:inline-flex",
-                  location.pathname === "/settings" 
-                    ? "text-primary bg-accent/50" 
-                    : "text-foreground/60 hover:text-primary hover:bg-accent/30"
-                )}
-              >
-                <Settings className="w-5 h-5" />
-              </Link>
+              <></>
             ) : (
-              <Button 
-                size="sm" 
-                className="hidden sm:inline-flex"
-                onClick={handleLogin}
-              >
-                Get Started
-              </Button>
+              <div className="flex gap-2">
+                <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()}>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="hidden sm:inline-flex items-center gap-1"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Button 
+                  size="sm" 
+                  className="hidden sm:inline-flex"
+                  onClick={handleLogin}
+                >
+                  Get Started
+                </Button>
+              </div>
             )}
             
             {/* Mobile Menu Button */}
@@ -144,9 +122,9 @@ export const Navbar: React.FC = () => {
                 <div className="flex flex-col h-full py-6">
                   <div className="text-xl font-bold mb-6">Meowdoro</div>
                   
-                  {isAuthenticated ? (
-                    <>
-                      <div className="space-y-2">
+                  <div className="space-y-2">
+                    {isAuthenticated ? (
+                      <>
                         {navItems.map((item) => (
                           <Link
                             key={item.path}
@@ -157,40 +135,32 @@ export const Navbar: React.FC = () => {
                                 ? "bg-accent text-primary" 
                                 : "hover:bg-accent/50"
                             )}
-                            onClick={() => setIsMenuOpen(false)}
                           >
                             <item.icon className="w-5 h-5" />
                             <span>{item.label}</span>
                           </Link>
                         ))}
-                        
-                        <Link
-                          to="/settings"
-                          className={cn(
-                            "flex items-center gap-3 p-3 rounded-lg transition-all",
-                            location.pathname === "/settings" 
-                              ? "bg-accent text-primary" 
-                              : "hover:bg-accent/50"
-                          )}
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Settings className="w-5 h-5" />
-                          <span>Settings</span>
+                      </>
+                    ) : (
+                      <div className="mt-auto space-y-3">
+                        <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()} className="block w-full">
+                          <Button 
+                            variant="outline"
+                            className="w-full flex items-center gap-2"
+                          >
+                            <BookOpen className="h-4 w-4" />
+                            <span>Documentation</span>
+                          </Button>
                         </Link>
+                        <Button 
+                          className="w-full"
+                          onClick={handleLogin}
+                        >
+                          Get Started
+                        </Button>
                       </div>
-                      
-                      {/* Removed logout button as requested */}
-                    </>
-                  ) : (
-                    <div className="mt-auto">
-                      <Button 
-                        className="w-full"
-                        onClick={handleLogin}
-                      >
-                        Get Started
-                      </Button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

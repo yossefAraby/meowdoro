@@ -1,31 +1,28 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { 
+  Plus, 
+  Trash, 
+  Edit, 
+  PinIcon,
+  Search, 
+  CheckSquare, 
+  ListPlus,
+  Palette
+} from "lucide-react";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { 
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -34,518 +31,487 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
-import { 
-  Plus, 
-  MoreVertical, 
-  Trash, 
-  Edit, 
-  Copy, 
-  Check, 
-  X, 
-  Search, 
-  StickyNote, 
-  ListChecks 
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
-// Types for our cards
-type TaskItem = {
+// Types
+type Task = {
   id: string;
   text: string;
   completed: boolean;
 };
 
-type CardType = 'note' | 'task';
+type NoteType = 'note' | 'checklist';
 
-type Card = {
+type Note = {
   id: string;
-  type: CardType;
   title: string;
   content: string;
-  tasks?: TaskItem[];
+  type: NoteType;
+  tasks: Task[];
   color: string;
   pinned: boolean;
   createdAt: Date;
-  updatedAt: Date;
 };
 
+// Color options
+const colorOptions = [
+  { name: 'Default', value: 'default', class: 'bg-card' },
+  { name: 'Red', value: 'red', class: 'bg-red-100 dark:bg-red-900/40' },
+  { name: 'Green', value: 'green', class: 'bg-green-100 dark:bg-green-900/40' },
+  { name: 'Blue', value: 'blue', class: 'bg-blue-100 dark:bg-blue-900/40' },
+  { name: 'Yellow', value: 'yellow', class: 'bg-yellow-100 dark:bg-yellow-900/40' },
+  { name: 'Purple', value: 'purple', class: 'bg-purple-100 dark:bg-purple-900/40' }
+];
+
 const Tasks: React.FC = () => {
-  const [cards, setCards] = useState<Card[]>(() => {
-    const savedCards = localStorage.getItem('meowdoro-cards');
-    return savedCards ? JSON.parse(savedCards) : [];
+  // State for notes and search
+  const [notes, setNotes] = useState<Note[]>(() => {
+    const savedNotes = localStorage.getItem('notes');
+    return savedNotes ? JSON.parse(savedNotes) : [];
   });
+  const [searchQuery, setSearchQuery] = useState('');
   
-  const [filter, setFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [editingCard, setEditingCard] = useState<Card | null>(null);
-  const [newTaskText, setNewTaskText] = useState<string>('');
+  // State for creating new notes
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [noteType, setNoteType] = useState<NoteType>('note');
+  const [newTitle, setNewTitle] = useState('');
+  const [newContent, setNewContent] = useState('');
+  const [newTasks, setNewTasks] = useState<Task[]>([]);
+  const [newTaskText, setNewTaskText] = useState('');
+  const [selectedColor, setSelectedColor] = useState('default');
+  const [isPinned, setIsPinned] = useState(false);
   
+  // Refs
+  const editorRef = useRef<HTMLDivElement>(null);
+  const taskInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
-  // Save cards to localStorage whenever they change
+  // Save notes to localStorage
   useEffect(() => {
-    localStorage.setItem('meowdoro-cards', JSON.stringify(cards));
-  }, [cards]);
+    localStorage.setItem('notes', JSON.stringify(notes));
+  }, [notes]);
   
-  // Filter and search cards
-  const filteredCards = cards.filter(card => {
-    // Apply type filter
-    if (filter === 'notes' && card.type !== 'note') return false;
-    if (filter === 'tasks' && card.type !== 'task') return false;
-    if (filter === 'completed' && card.type === 'task') {
-      const allTasksCompleted = card.tasks && card.tasks.length > 0 && card.tasks.every(task => task.completed);
-      if (!allTasksCompleted) return false;
+  // Handle clicking outside the editor
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (editorRef.current && !editorRef.current.contains(event.target as Node)) {
+        if (newTitle || newContent || newTasks.length > 0) {
+          saveNote();
+        } else {
+          setIsEditorOpen(false);
+        }
+      }
     }
     
-    // Apply search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const matchesTitle = card.title.toLowerCase().includes(query);
-      const matchesContent = card.content.toLowerCase().includes(query);
-      const matchesTasks = card.tasks?.some(task => task.text.toLowerCase().includes(query));
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [newTitle, newContent, newTasks]);
+  
+  // Filter and sort notes
+  const filteredNotes = notes
+    .filter(note => {
+      if (!searchQuery) return true;
       
-      return matchesTitle || matchesContent || matchesTasks;
-    }
-    
-    return true;
-  });
-  
-  // Sort cards: pinned first, then by updatedAt date
-  filteredCards.sort((a, b) => {
-    if (a.pinned && !b.pinned) return -1;
-    if (!a.pinned && b.pinned) return 1;
-    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-  });
-  
-  const handleCreateNewCard = (type: CardType) => {
-    const newCard: Card = {
-      id: Date.now().toString(),
-      type,
-      title: '',
-      content: '',
-      tasks: type === 'task' ? [] : undefined,
-      color: 'default',
-      pinned: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    setCards([newCard, ...cards]);
-    setEditingCard(newCard);
-    
-    toast({
-      title: `New ${type} created`,
-      description: "You can now add your content."
+      const query = searchQuery.toLowerCase();
+      const inTitle = note.title.toLowerCase().includes(query);
+      const inContent = note.content.toLowerCase().includes(query);
+      const inTasks = note.tasks.some(task => task.text.toLowerCase().includes(query));
+      
+      return inTitle || inContent || inTasks;
+    })
+    .sort((a, b) => {
+      // Pinned notes first
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      
+      // Then by date (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-  };
-  
-  const handleSaveCard = (card: Card) => {
-    setCards(cards.map(c => c.id === card.id ? {...card, updatedAt: new Date()} : c));
-    setEditingCard(null);
-  };
-  
-  const handleDeleteCard = (id: string) => {
-    setCards(cards.filter(card => card.id !== id));
+
+  // Create a new task
+  const addTask = () => {
+    if (!newTaskText.trim()) return;
     
-    toast({
-      title: "Card deleted",
-      description: "Your card has been deleted."
-    });
-  };
-  
-  const handleDuplicateCard = (card: Card) => {
-    const newCard: Card = {
-      ...card,
+    const newTask: Task = {
       id: Date.now().toString(),
-      title: `${card.title} (Copy)`,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    setCards([newCard, ...cards]);
-    
-    toast({
-      title: "Card duplicated",
-      description: "A copy of your card has been created."
-    });
-  };
-  
-  const handleTogglePin = (id: string) => {
-    setCards(cards.map(card => 
-      card.id === id ? {...card, pinned: !card.pinned, updatedAt: new Date()} : card
-    ));
-  };
-  
-  const handleAddTask = (cardId: string, taskText: string) => {
-    if (!taskText.trim()) return;
-    
-    const newTask: TaskItem = {
-      id: Date.now().toString(),
-      text: taskText,
+      text: newTaskText.trim(),
       completed: false
     };
     
-    setCards(cards.map(card => {
-      if (card.id === cardId && card.tasks) {
-        return {
-          ...card,
-          tasks: [...card.tasks, newTask],
-          updatedAt: new Date()
-        };
-      }
-      return card;
-    }));
-    
+    setNewTasks([...newTasks, newTask]);
     setNewTaskText('');
+    if (taskInputRef.current) taskInputRef.current.focus();
   };
   
-  const handleToggleTask = (cardId: string, taskId: string) => {
-    setCards(cards.map(card => {
-      if (card.id === cardId && card.tasks) {
-        return {
-          ...card,
-          tasks: card.tasks.map(task => 
-            task.id === taskId ? {...task, completed: !task.completed} : task
-          ),
-          updatedAt: new Date()
-        };
-      }
-      return card;
+  // Handle delete task
+  const deleteTask = (id: string) => {
+    setNewTasks(newTasks.filter(task => task.id !== id));
+  };
+  
+  // Save the current note
+  const saveNote = () => {
+    if (!newTitle && !newContent && newTasks.length === 0) {
+      setIsEditorOpen(false);
+      resetEditor();
+      return;
+    }
+    
+    const newNote: Note = {
+      id: Date.now().toString(),
+      title: newTitle,
+      content: noteType === 'note' ? newContent : '',
+      type: noteType,
+      tasks: noteType === 'checklist' ? newTasks : [],
+      color: selectedColor,
+      pinned: isPinned,
+      createdAt: new Date()
+    };
+    
+    setNotes([newNote, ...notes]);
+    resetEditor();
+    
+    toast({
+      title: "Note created",
+      description: "Your note has been saved successfully."
+    });
+  };
+  
+  // Reset editor state
+  const resetEditor = () => {
+    setNewTitle('');
+    setNewContent('');
+    setNewTasks([]);
+    setNewTaskText('');
+    setSelectedColor('default');
+    setIsPinned(false);
+    setIsEditorOpen(false);
+  };
+  
+  // Toggle pin status
+  const togglePin = (id: string) => {
+    setNotes(notes.map(note => 
+      note.id === id ? { ...note, pinned: !note.pinned } : note
+    ));
+  };
+  
+  // Change note color
+  const changeColor = (id: string, color: string) => {
+    setNotes(notes.map(note => 
+      note.id === id ? { ...note, color } : note
+    ));
+  };
+  
+  // Delete note
+  const deleteNote = (id: string) => {
+    setNotes(notes.filter(note => note.id !== id));
+    
+    toast({
+      title: "Note deleted",
+      description: "Your note has been removed."
+    });
+  };
+  
+  // Toggle task completion
+  const toggleTaskCompletion = (noteId: string, taskId: string) => {
+    setNotes(notes.map(note => {
+      if (note.id !== noteId) return note;
+      
+      return {
+        ...note,
+        tasks: note.tasks.map(task => 
+          task.id === taskId ? { ...task, completed: !task.completed } : task
+        )
+      };
     }));
   };
   
-  const handleDeleteTask = (cardId: string, taskId: string) => {
-    setCards(cards.map(card => {
-      if (card.id === cardId && card.tasks) {
-        return {
-          ...card,
-          tasks: card.tasks.filter(task => task.id !== taskId),
-          updatedAt: new Date()
-        };
-      }
-      return card;
-    }));
+  // Get color class
+  const getColorClass = (color: string) => {
+    const option = colorOptions.find(opt => opt.value === color);
+    return option ? option.class : 'bg-card';
   };
   
   return (
-    <div className="container max-w-6xl mx-auto px-4 py-8 page-transition">
-      {/* Header section - removed "My Tasks & Notes" heading */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        {/* Card creation buttons */}
-        <div className="flex flex-wrap gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="gap-2"
-            onClick={() => handleCreateNewCard('note')}
-          >
-            <Plus className="w-4 h-4" />
-            New Note
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="gap-2"
-            onClick={() => handleCreateNewCard('task')}
-          >
-            <Plus className="w-4 h-4" />
-            New Task List
-          </Button>
-        </div>
-        
-        {/* Search and filter */}
-        <div className="flex gap-2">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search notes & tasks..."
-              className="w-full sm:w-[200px] pl-8"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <Select 
-            value={filter} 
-            onValueChange={setFilter}
-          >
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Filter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="notes">Notes only</SelectItem>
-              <SelectItem value="tasks">Tasks only</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="container max-w-6xl mx-auto py-8 px-4 page-transition">
+      {/* Search bar */}
+      <div className="max-w-lg mx-auto mb-6 relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Search notes"
+          className="pl-10"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
       
-      {/* Card Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {/* Existing cards */}
-        {filteredCards.map(card => (
-          <Card 
-            key={card.id} 
-            className={`overflow-hidden transition-all hover:shadow-md ${card.pinned ? 'border-primary' : ''}`}
-          >
-            {editingCard?.id === card.id ? (
-              // Edit mode
-              <div className="p-4 space-y-3">
-                <Input
-                  placeholder="Title"
-                  value={editingCard.title}
-                  onChange={(e) => setEditingCard({...editingCard, title: e.target.value})}
-                  className="font-medium text-lg"
-                />
-                
-                {editingCard.type === 'note' ? (
-                  <Textarea
-                    placeholder="Add your notes here..."
-                    value={editingCard.content}
-                    onChange={(e) => setEditingCard({...editingCard, content: e.target.value})}
-                    className="min-h-[100px]"
-                  />
-                ) : (
-                  <div className="space-y-2">
-                    {editingCard.tasks?.map(task => (
-                      <div key={task.id} className="flex items-center gap-2">
-                        <Checkbox 
-                          checked={task.completed}
-                          onCheckedChange={() => handleToggleTask(card.id, task.id)}
-                        />
-                        <Input 
-                          value={task.text}
-                          onChange={(e) => {
-                            setEditingCard({
-                              ...editingCard,
-                              tasks: editingCard.tasks?.map(t => 
-                                t.id === task.id ? {...t, text: e.target.value} : t
-                              )
-                            });
-                          }}
-                          className="flex-1"
-                        />
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => {
-                            setEditingCard({
-                              ...editingCard,
-                              tasks: editingCard.tasks?.filter(t => t.id !== task.id)
-                            });
-                          }}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Add a task..."
-                        value={newTaskText}
-                        onChange={(e) => setNewTaskText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && newTaskText.trim()) {
-                            const newTask: TaskItem = {
-                              id: Date.now().toString(),
-                              text: newTaskText,
-                              completed: false
-                            };
-                            setEditingCard({
-                              ...editingCard,
-                              tasks: [...(editingCard.tasks || []), newTask]
-                            });
-                            setNewTaskText('');
-                          }
-                        }}
-                      />
-                      <Button 
-                        variant="outline"
-                        onClick={() => {
-                          if (newTaskText.trim()) {
-                            const newTask: TaskItem = {
-                              id: Date.now().toString(),
-                              text: newTaskText,
-                              completed: false
-                            };
-                            setEditingCard({
-                              ...editingCard,
-                              tasks: [...(editingCard.tasks || []), newTask]
-                            });
-                            setNewTaskText('');
-                          }
-                        }}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
+      {/* Note editor */}
+      <div 
+        ref={editorRef}
+        className={`max-w-lg mx-auto mb-8 ${getColorClass(selectedColor)} rounded-lg border shadow transition-all ${isPinned ? 'ring-1 ring-primary' : ''} ${
+          isEditorOpen ? 'p-4' : 'hover:shadow-md cursor-pointer min-h-12'
+        }`}
+        onClick={() => !isEditorOpen && setIsEditorOpen(true)}
+      >
+        {isEditorOpen ? (
+          <>
+            <div className="flex items-center gap-2 mb-2">
+              <Input
+                type="text"
+                placeholder="Title"
+                className="flex-1 border-none px-0 text-lg font-medium focus-visible:ring-0 bg-transparent"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-8 w-8 p-0 ${isPinned ? 'text-primary' : ''}`}
+                onClick={() => setIsPinned(!isPinned)}
+              >
+                <PinIcon className={`h-4 w-4 ${isPinned ? 'fill-primary' : ''}`} />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Palette className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-auto flex p-1 gap-1">
+                  {colorOptions.map(color => (
+                    <button
+                      key={color.value}
+                      className={`w-6 h-6 rounded-full ${color.class} border hover:scale-110 transition-transform ${selectedColor === color.value ? 'ring-2 ring-primary' : ''}`}
+                      onClick={() => setSelectedColor(color.value)}
+                      title={color.name}
+                    />
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            
+            {noteType === 'note' ? (
+              <Textarea
+                placeholder="Take a note..."
+                className="w-full resize-none border-none px-0 focus-visible:ring-0 min-h-[100px] bg-transparent"
+                value={newContent}
+                onChange={(e) => setNewContent(e.target.value)}
+              />
+            ) : (
+              <div className="space-y-2 mb-3">
+                {newTasks.map(task => (
+                  <div key={task.id} className="flex items-center gap-2">
+                    <Checkbox 
+                      checked={task.completed}
+                      onCheckedChange={() => {
+                        setNewTasks(newTasks.map(t => 
+                          t.id === task.id ? { ...t, completed: !t.completed } : t
+                        ));
+                      }}
+                    />
+                    <span className={task.completed ? 'line-through text-muted-foreground flex-1' : 'flex-1'}>
+                      {task.text}
+                    </span>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 opacity-50 hover:opacity-100"
+                      onClick={() => deleteTask(task.id)}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
                   </div>
-                )}
+                ))}
                 
-                <div className="flex justify-end gap-2 pt-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    ref={taskInputRef}
+                    type="text"
+                    placeholder="Add item..."
+                    className="border-none focus-visible:ring-0 px-0 bg-transparent"
+                    value={newTaskText}
+                    onChange={(e) => setNewTaskText(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && addTask()}
+                  />
                   <Button 
                     variant="ghost" 
-                    size="sm"
-                    onClick={() => setEditingCard(null)}
+                    size="icon" 
+                    className="h-8 w-8"
+                    onClick={addTask}
                   >
-                    Cancel
-                  </Button>
-                  <Button 
-                    size="sm"
-                    onClick={() => handleSaveCard(editingCard)}
-                  >
-                    Save
+                    <Plus className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
-            ) : (
-              // View mode
-              <>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        {card.type === 'note' ? (
-                          <StickyNote className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <ListChecks className="h-4 w-4 text-muted-foreground" />
-                        )}
-                        {card.title || (card.type === 'note' ? 'Untitled Note' : 'Untitled Tasks')}
-                      </CardTitle>
-                      <CardDescription>
-                        {new Date(card.updatedAt).toLocaleDateString()}
-                      </CardDescription>
-                    </div>
-                    
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="-mt-1">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setEditingCard(card)}>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleTogglePin(card.id)}>
-                          {card.pinned ? (
-                            <>
-                              <span className="h-4 w-4 mr-2">📌</span>
-                              Unpin
-                            </>
-                          ) : (
-                            <>
-                              <span className="h-4 w-4 mr-2">📌</span>
-                              Pin
-                            </>
-                          )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDuplicateCard(card)}>
-                          <Copy className="h-4 w-4 mr-2" />
-                          Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                              <Trash className="h-4 w-4 mr-2 text-destructive" />
-                              <span className="text-destructive">Delete</span>
-                            </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete this card.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteCard(card.id)}>
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardHeader>
-                
-                <CardContent>
-                  {card.type === 'note' ? (
-                    <div className="whitespace-pre-wrap">
-                      {card.content || <span className="text-muted-foreground italic">No content</span>}
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {card.tasks && card.tasks.length > 0 ? (
-                        card.tasks.map(task => (
-                          <div key={task.id} className="flex items-start gap-2">
-                            <Checkbox 
-                              id={`task-${task.id}`}
-                              checked={task.completed}
-                              onCheckedChange={() => handleToggleTask(card.id, task.id)}
-                              className="mt-0.5"
-                            />
-                            <label 
-                              htmlFor={`task-${task.id}`}
-                              className={`flex-1 ${task.completed ? 'line-through text-muted-foreground' : ''}`}
-                            >
-                              {task.text}
-                            </label>
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => handleDeleteTask(card.id, task.id)}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-muted-foreground italic">No tasks</div>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-                
-                {card.type === 'task' && (
-                  <CardFooter className="pt-0">
-                    <div className="flex w-full gap-2">
-                      <Input
-                        placeholder="Add a task..."
-                        value={newTaskText}
-                        onChange={(e) => setNewTaskText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            handleAddTask(card.id, newTaskText);
-                          }
-                        }}
-                        className="text-sm"
-                      />
-                      <Button 
-                        variant="outline" 
-                        size="icon"
-                        onClick={() => handleAddTask(card.id, newTaskText)}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardFooter>
-                )}
-              </>
             )}
-          </Card>
+            
+            <div className="flex justify-between items-center mt-4 pt-2 border-t">
+              <div className="flex gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={noteType === 'note' ? 'bg-primary/10' : ''}
+                  onClick={() => setNoteType('note')}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Note
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className={noteType === 'checklist' ? 'bg-primary/10' : ''}
+                  onClick={() => setNoteType('checklist')}
+                >
+                  <CheckSquare className="h-4 w-4 mr-2" />
+                  Checklist
+                </Button>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={resetEditor}>
+                  Cancel
+                </Button>
+                <Button variant="default" size="sm" onClick={saveNote}>
+                  Save
+                </Button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="p-4 text-muted-foreground">
+            Click to add a note...
+          </div>
+        )}
+      </div>
+      
+      {/* Notes grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-auto">
+        {filteredNotes.map(note => (
+          <div 
+            key={note.id} 
+            className={`${getColorClass(note.color)} rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow relative p-4 flex flex-col min-h-[100px] h-full`}
+          >
+            {/* Pin indicator */}
+            {note.pinned && (
+              <div className="absolute top-2 right-2">
+                <PinIcon className="h-4 w-4 text-primary fill-primary" />
+              </div>
+            )}
+            
+            <div className="flex-1 mb-2">
+              {note.title && (
+                <h3 className="font-medium text-lg mb-2 pr-6">{note.title}</h3>
+              )}
+              
+              {note.type === 'note' ? (
+                <div className="whitespace-pre-wrap break-words">
+                  {note.content}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {note.tasks.map(task => (
+                    <div key={task.id} className="flex items-start gap-2">
+                      <Checkbox 
+                        checked={task.completed}
+                        id={`task-${task.id}`}
+                        onCheckedChange={() => toggleTaskCompletion(note.id, task.id)}
+                        className="mt-0.5"
+                      />
+                      <label 
+                        htmlFor={`task-${task.id}`}
+                        className={`flex-1 ${task.completed ? 'line-through text-muted-foreground' : ''}`}
+                      >
+                        {task.text}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="flex justify-end mt-auto space-x-1 opacity-0 group-hover:opacity-100 hover:opacity-100 focus-within:opacity-100 transition-opacity">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                    <Palette className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="flex p-1 gap-1">
+                  {colorOptions.map(color => (
+                    <button
+                      key={color.value}
+                      className={`w-6 h-6 rounded-full ${color.class} border hover:scale-110 transition-transform`}
+                      onClick={() => changeColor(note.id, color.value)}
+                      title={color.name}
+                    />
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 p-0"
+                onClick={() => togglePin(note.id)}
+              >
+                <PinIcon className={`h-4 w-4 ${note.pinned ? 'fill-primary' : ''}`} />
+              </Button>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 p-0 text-destructive/70 hover:text-destructive">
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Note</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete this note? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => deleteNote(note.id)}>
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
         ))}
       </div>
+      
+      {/* Empty state */}
+      {notes.length === 0 && (
+        <div className="text-center py-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <ListPlus className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-xl font-medium mb-2">No notes yet</h3>
+          <p className="text-muted-foreground mb-4">
+            Click the input above to create your first note
+          </p>
+        </div>
+      )}
+      
+      {/* No search results */}
+      {notes.length > 0 && filteredNotes.length === 0 && (
+        <div className="text-center py-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <Search className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-xl font-medium mb-2">No matching notes</h3>
+          <p className="text-muted-foreground mb-4">
+            Try a different search term
+          </p>
+          <Button variant="outline" onClick={() => setSearchQuery('')}>
+            Clear Search
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

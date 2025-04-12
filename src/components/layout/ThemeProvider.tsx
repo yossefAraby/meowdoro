@@ -7,15 +7,19 @@ type Mode = "light" | "dark";
 interface ThemeContextType {
   theme: Theme;
   mode: Mode;
+  transparency: boolean;
   setTheme: (theme: Theme) => void;
   setMode: (mode: Mode) => void;
+  setTransparency: (enabled: boolean) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: "cyan",
   mode: "light",
+  transparency: true,
   setTheme: () => {},
   setMode: () => {},
+  setTransparency: () => {},
 });
 
 export const useTheme = () => useContext(ThemeContext);
@@ -35,6 +39,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return "dark";
     }
     return "light";
+  });
+  
+  const [transparency, setTransparency] = useState<boolean>(() => {
+    const saved = localStorage.getItem("meowdoro-transparency");
+    return saved !== null ? saved === "true" : true;
   });
 
   useEffect(() => {
@@ -64,9 +73,21 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.documentElement.classList.remove("dark");
     }
   }, [mode]);
+  
+  useEffect(() => {
+    localStorage.setItem("meowdoro-transparency", transparency.toString());
+    
+    if (transparency) {
+      document.documentElement.classList.add("transparency-enabled");
+      document.documentElement.classList.remove("transparency-disabled");
+    } else {
+      document.documentElement.classList.add("transparency-disabled");
+      document.documentElement.classList.remove("transparency-enabled");
+    }
+  }, [transparency]);
 
   return (
-    <ThemeContext.Provider value={{ theme, mode, setTheme, setMode }}>
+    <ThemeContext.Provider value={{ theme, mode, transparency, setTheme, setMode, setTransparency }}>
       {children}
     </ThemeContext.Provider>
   );
