@@ -5,83 +5,83 @@
 
 @layer base {
   :root {
-    /* Base colors with improved contrast */
-    --background: 195 30% 98%;
-    --foreground: 195 60% 12%;
+    /* Base colors */
+    --background: 195 100% 98%;
+    --foreground: 195 30% 15%;
 
     /* Card & UI elements */
     --card: 0 0% 100%;
-    --card-foreground: 195 60% 12%;
+    --card-foreground: 195 30% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 195 60% 12%;
+    --popover-foreground: 195 30% 15%;
 
-    /* Primary - Cyan Theme (Default) with better contrast */
-    --primary: 195 85% 35%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Cyan Theme (Default) */
+    --primary: 195 75% 65%;
+    --primary-foreground: 195 30% 15%;
 
     /* Secondary & Accent */
-    --secondary: 195 35% 92%;
-    --secondary-foreground: 195 60% 20%;
+    --secondary: 195 35% 95%;
+    --secondary-foreground: 195 30% 25%;
     --accent: 195 95% 85%;
-    --accent-foreground: 195 60% 12%;
+    --accent-foreground: 195 30% 15%;
 
     /* Status colors */
-    --muted: 195 10% 85%;
-    --muted-foreground: 195 30% 35%;
-    --destructive: 0 85% 45%;
+    --muted: 195 10% 90%;
+    --muted-foreground: 195 10% 45%;
+    --destructive: 0 85% 65%;
     --destructive-foreground: 0 0% 100%;
 
     /* Border & Input */
-    --border: 195 20% 80%;
-    --input: 195 20% 80%;
-    --ring: 195 75% 35%;
+    --border: 195 20% 90%;
+    --input: 195 20% 90%;
+    --ring: 195 75% 65%;
 
     /* Alternative themes */
-    --green-primary: 145 75% 30%;
-    --yellow-primary: 45 80% 35%;
-    --lavender-primary: 270 75% 40%;
-    --peach-primary: 25 75% 40%;
-    --mint-primary: 165 75% 30%;
-    --rose-primary: 355 75% 40%;
+    --green-primary: 145 75% 60%;
+    --yellow-primary: 45 75% 65%;
+    --lavender-primary: 270 75% 75%;
+    --peach-primary: 25 75% 70%;
+    --mint-primary: 165 75% 65%;
+    --rose-primary: 355 75% 70%;
 
     /* Radius */
     --radius: 1rem;
   }
 
   .theme-green {
-    --primary: 145 75% 30%;
+    --primary: 145 75% 60%;
     --accent: 145 85% 85%;
-    --ring: 145 75% 30%;
+    --ring: 145 75% 60%;
   }
 
   .theme-yellow {
-    --primary: 45 80% 35%;
+    --primary: 45 75% 65%;
     --accent: 45 85% 85%; 
-    --ring: 45 80% 35%;
+    --ring: 45 75% 65%;
   }
   
   .theme-lavender {
-    --primary: 270 75% 40%;
+    --primary: 270 75% 75%;
     --accent: 270 85% 90%;
-    --ring: 270 75% 40%;
+    --ring: 270 75% 75%;
   }
   
   .theme-peach {
-    --primary: 25 75% 40%;
+    --primary: 25 75% 70%;
     --accent: 25 85% 85%;
-    --ring: 25 75% 40%;
+    --ring: 25 75% 70%;
   }
   
   .theme-mint {
-    --primary: 165 75% 30%;
+    --primary: 165 75% 65%;
     --accent: 165 85% 85%;
-    --ring: 165 75% 30%;
+    --ring: 165 75% 65%;
   }
   
   .theme-rose {
-    --primary: 355 75% 40%;
+    --primary: 355 75% 70%;
     --accent: 355 85% 85%;
-    --ring: 355 75% 40%;
+    --ring: 355 75% 70%;
   }
 
   .dark {
@@ -147,22 +147,6 @@
     --accent: 355 40% 25%;
     --ring: 355 60% 55%;
   }
-  
-  /* Transparency classes */
-  .transparency-enabled {
-    --card-opacity: 90%;
-    --popover-opacity: 90%;
-  }
-  
-  .transparency-enabled .bg-background {
-    backdrop-filter: blur(8px);
-  }
-  
-  .transparency-enabled .bg-card,
-  .transparency-enabled .bg-popover {
-    opacity: var(--card-opacity);
-    backdrop-filter: blur(12px);
-  }
 }
 
 @layer base {
@@ -172,20 +156,6 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    transition: background-color 0.3s ease, background-image 0.3s ease;
-  }
-  
-  /* Transparency styles */
-  .transparency-enabled .card,
-  .transparency-enabled .popover,
-  .transparency-enabled .dialog,
-  .transparency-enabled .hover-card,
-  .transparency-enabled .dropdown-menu {
-    @apply backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90;
-  }
-  
-  .transparency-enabled .glass {
-    @apply backdrop-blur-lg bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10;
   }
 }
 
@@ -197,7 +167,7 @@
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes slide-up {
@@ -259,14 +229,5 @@
   
   .card-hover {
     @apply transition-all duration-200 hover:shadow-md;
-  }
-  
-  /* Background patterns */
-  .bg-dots {
-    @apply bg-[radial-gradient(circle,rgba(0,0,0,0.1)_1px,transparent_1px)] bg-[size:20px_20px];
-  }
-  
-  .bg-grid {
-    @apply bg-[linear-gradient(to_right,rgba(0,0,0,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.1)_1px,transparent_1px)] bg-[size:20px_20px];
   }
 }

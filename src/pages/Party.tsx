@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Cat, Users, Link, Copy, ArrowRight } from "lucide-react";
@@ -159,19 +159,50 @@ const Party: React.FC = () => {
         </Tabs>
       </Card>
       
-      {/* Cat Illustrations using Lucide icons with animation */}
-      <div className="mt-16 flex justify-center items-end gap-12">
-        <div className="relative">
-          <div className="animate-float">
-            <Cat className="h-12 w-12 text-primary" />
-          </div>
+      {/* Cat Illustrations */}
+      <div className="mt-16 relative">
+        <div className="absolute left-0 right-0 -top-8 text-center text-muted-foreground text-sm">
+          <span>They're waiting for you to join their study session</span>
         </div>
         
-        <div className="h-8 border-t-2 border-dashed border-primary/30 w-20"></div>
-        
-        <div className="relative">
-          <div className="animate-float" style={{ animationDelay: "1s" }}>
-            <Cat className="h-12 w-12 text-foreground" />
+        <div className="flex justify-center items-end gap-4">
+          <div className="relative">
+            <svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform -scale-x-100">
+              <ellipse cx="60" cy="60" rx="40" ry="20" fill="currentColor" className="text-primary/20" />
+              <path d="M40 40C40 40 50 25 60 25C70 25 80 40 80 40" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <path d="M45 35C45 35 50 30 60 30C70 30 75 35 75 35" fill="currentColor" />
+              <ellipse cx="45" cy="42" rx="5" ry="5" fill="currentColor" />
+              <ellipse cx="75" cy="42" rx="5" ry="5" fill="currentColor" />
+              <circle cx="45" cy="40" r="2" fill="white" />
+              <circle cx="75" cy="40" r="2" fill="white" />
+              <path d="M55 52 Q60 55 65 52" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            
+            {/* Thinking bubble */}
+            <div className="absolute -top-10 -left-5 bg-white dark:bg-card p-2 rounded-lg shadow-soft w-24 text-center text-xs animate-pulse-soft">
+              <span>Let's study together!</span>
+            </div>
+          </div>
+          
+          <div className="h-8 border-t-2 border-dashed border-primary/30 w-20"></div>
+          
+          <div className="relative">
+            <svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="60" cy="60" rx="40" ry="20" fill="currentColor" className="text-primary/20" />
+              <path d="M40 40C40 40 50 25 60 25C70 25 80 40 80 40" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <path d="M45 35C45 35 50 30 60 30C70 30 75 35 75 35" fill="currentColor" />
+              <ellipse cx="45" cy="42" rx="5" ry="5" fill="currentColor" />
+              <ellipse cx="75" cy="42" rx="5" ry="5" fill="currentColor" />
+              <circle cx="45" cy="40" r="2" fill="white" />
+              <circle cx="75" cy="40" r="2" fill="white" />
+              <path d="M55 55 Q60 65 65 55" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            
+            {/* Books or study materials */}
+            <div className="absolute -top-8 right-2">
+              <div className="w-8 h-10 rounded-sm bg-accent rotate-6 border border-primary/20"></div>
+              <div className="w-8 h-10 rounded-sm bg-primary/20 absolute top-1 right-1 -rotate-3 border border-primary/20"></div>
+            </div>
           </div>
         </div>
       </div>
