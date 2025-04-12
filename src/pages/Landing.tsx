@@ -89,28 +89,34 @@ const Landing: React.FC = () => {
   
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Hero Section - Dark Navy Background */}
-      <section className="relative min-h-[90vh] flex items-center justify-center bg-[#0E1525] overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0E1525] via-[#0E1525] to-[#131b2e] opacity-80"></div>
+      {/* Hero Section - Improved Design */}
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+        {/* Background with gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#101828] via-[#151f38] to-background/80"></div>
+        
+        {/* Decorative elements */}
+        <div className="absolute inset-0 overflow-hidden opacity-30">
+          <div className="absolute top-10 left-10 w-64 h-64 bg-primary/20 rounded-full filter blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-80 h-80 bg-primary/20 rounded-full filter blur-3xl"></div>
+        </div>
         
         <div className="container max-w-screen-xl mx-auto px-4 md:px-8 relative z-10 py-20">
-          <div className="flex flex-col lg:flex-row items-center gap-12">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
             {/* Left content - Text and CTA */}
             <div className="flex-1 text-center lg:text-left space-y-6">
               <div className="inline-block mb-4">
-                <span className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-primary/10 text-primary">
+                <span className="inline-flex items-center px-4 py-1.5 text-sm font-medium rounded-full bg-primary/15 text-primary backdrop-blur-sm border border-primary/20">
                   <Cat className="w-4 h-4 mr-2" />
                   Focus better with a feline friend
                 </span>
               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
-                Stay focused with <br />
-                <span className="text-primary font-extrabold">Meowdoro</span>
+                Stay focused with
+                <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/70 font-extrabold">Meowdoro</span>
               </h1>
               
-              <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto lg:mx-0">
+              <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto lg:mx-0">
                 A purr-fectly delightful cat-themed productivity app that helps you maintain focus and accomplish more.
               </p>
               
@@ -118,7 +124,7 @@ const Landing: React.FC = () => {
                 <Button 
                   onClick={handleContinueAsGuest}
                   size="lg" 
-                  className="rounded-full px-8 bg-primary hover:bg-primary/90"
+                  className="rounded-full px-8 bg-primary hover:bg-primary/90 shadow-md shadow-primary/20"
                 >
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -126,7 +132,7 @@ const Landing: React.FC = () => {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="rounded-full px-8 border-gray-700 text-gray-300 hover:bg-gray-800"
+                  className="rounded-full px-8 border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white backdrop-blur-sm"
                   onClick={() => setShowDocsDialog(true)}
                 >
                   <BookOpen className="mr-2 h-5 w-5" />
@@ -135,34 +141,36 @@ const Landing: React.FC = () => {
               </div>
             </div>
             
-            {/* Right content - Feature icons */}
-            <div className="flex-1 grid grid-cols-2 gap-4 max-w-md mx-auto lg:max-w-none">
-              <div className="bg-gray-900/50 backdrop-blur-sm p-8 rounded-xl border border-gray-800 text-center hover:border-primary/30 transition-all">
-                <div className="rounded-full bg-primary/10 w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                  <Clock className="h-6 w-6 text-primary" />
+            {/* Right content - Feature cards with better styling */}
+            <div className="flex-1">
+              <div className="grid grid-cols-2 gap-4 max-w-md mx-auto lg:max-w-none">
+                <div className="group bg-black/20 backdrop-blur-md p-8 rounded-xl border border-gray-800 text-center hover:border-primary/50 hover:bg-black/30 transition-all duration-300 shadow-lg shadow-black/5">
+                  <div className="rounded-full bg-primary/15 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/25 transition-all">
+                    <Clock className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-gray-200 font-medium text-lg">Timer</h3>
                 </div>
-                <h3 className="text-gray-200 font-medium">Timer</h3>
-              </div>
-              
-              <div className="bg-gray-900/50 backdrop-blur-sm p-8 rounded-xl border border-gray-800 text-center hover:border-primary/30 transition-all">
-                <div className="rounded-full bg-primary/10 w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                  <ListTodo className="h-6 w-6 text-primary" />
+                
+                <div className="group bg-black/20 backdrop-blur-md p-8 rounded-xl border border-gray-800 text-center hover:border-primary/50 hover:bg-black/30 transition-all duration-300 shadow-lg shadow-black/5">
+                  <div className="rounded-full bg-primary/15 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/25 transition-all">
+                    <ListTodo className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-gray-200 font-medium text-lg">Tasks</h3>
                 </div>
-                <h3 className="text-gray-200 font-medium">Tasks</h3>
-              </div>
-              
-              <div className="bg-gray-900/50 backdrop-blur-sm p-8 rounded-xl border border-gray-800 text-center hover:border-primary/30 transition-all">
-                <div className="rounded-full bg-primary/10 w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-6 w-6 text-primary" />
+                
+                <div className="group bg-black/20 backdrop-blur-md p-8 rounded-xl border border-gray-800 text-center hover:border-primary/50 hover:bg-black/30 transition-all duration-300 shadow-lg shadow-black/5">
+                  <div className="rounded-full bg-primary/15 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/25 transition-all">
+                    <Users className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-gray-200 font-medium text-lg">Party</h3>
                 </div>
-                <h3 className="text-gray-200 font-medium">Party</h3>
-              </div>
-              
-              <div className="bg-gray-900/50 backdrop-blur-sm p-8 rounded-xl border border-gray-800 text-center hover:border-primary/30 transition-all">
-                <div className="rounded-full bg-primary/10 w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                  <Cat className="h-6 w-6 text-primary" />
+                
+                <div className="group bg-black/20 backdrop-blur-md p-8 rounded-xl border border-gray-800 text-center hover:border-primary/50 hover:bg-black/30 transition-all duration-300 shadow-lg shadow-black/5">
+                  <div className="rounded-full bg-primary/15 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/25 transition-all">
+                    <Cat className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-gray-200 font-medium text-lg">Companion</h3>
                 </div>
-                <h3 className="text-gray-200 font-medium">Companion</h3>
               </div>
             </div>
           </div>
@@ -244,26 +252,28 @@ const Landing: React.FC = () => {
         </div>
       </section>
       
-      {/* Login / Signup Section with Logo */}
+      {/* Login / Signup Section with Enhanced Logo Animation */}
       <section className="py-20 bg-gradient-to-br from-background to-accent/5 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-dots"></div>
         </div>
         
-        {/* Cat Logo with Animation and Glow */}
+        {/* Cat Logo with Enhanced Animation and Glow */}
         <div className="relative max-w-xs mx-auto mb-12">
           <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
+          <div className="absolute inset-0 bg-primary/10 rounded-full blur-lg animate-pulse-soft" style={{ animationDelay: '0.5s' }}></div>
           <img 
             src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
             alt="Meowdoro Logo" 
             className="w-32 h-32 mx-auto relative z-10 animate-float" 
+            style={{ animation: 'pulse-soft 3s infinite ease-in-out' }}
           />
         </div>
         
         <div className="container max-w-md mx-auto px-4 text-center relative z-10">
           <h2 className="text-3xl font-bold mb-6">Get Started</h2>
           
-          <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
+          <Card className="bg-card/80 backdrop-blur-sm border-primary/20 shadow-xl">
             <CardContent className="p-6">
               <Tabs defaultValue="login" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6">
