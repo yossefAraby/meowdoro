@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -88,15 +89,15 @@ const Landing: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Simplified Hero Section with better light/dark mode support */}
+      {/* Hero Section with better light/dark mode support */}
       <section className="relative min-h-[80vh] flex items-center overflow-hidden">
-        {/* Background that works in both light and dark modes */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-primary/10 to-background dark:from-[#101828] dark:via-[#151f38] dark:to-background/80"></div>
+        {/* Background with better light/dark mode compatibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-background dark:from-primary/5 dark:via-background/80 dark:to-background"></div>
         
-        {/* Simplified decorative elements */}
-        <div className="absolute inset-0 overflow-hidden opacity-30">
-          <div className="absolute top-10 left-10 w-64 h-64 bg-primary/20 rounded-full filter blur-3xl"></div>
-          <div className="absolute bottom-10 right-10 w-80 h-80 bg-primary/20 rounded-full filter blur-3xl"></div>
+        {/* Decorative elements with better visibility in light mode */}
+        <div className="absolute inset-0 overflow-hidden opacity-30 dark:opacity-20">
+          <div className="absolute top-10 left-10 w-64 h-64 bg-primary/30 rounded-full filter blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-80 h-80 bg-primary/30 rounded-full filter blur-3xl"></div>
         </div>
         
         <div className="container max-w-screen-xl mx-auto px-4 relative z-10 py-16">
@@ -104,7 +105,7 @@ const Landing: React.FC = () => {
             {/* Left content - Text and CTA */}
             <div className="flex-1 text-center lg:text-left space-y-6">
               <div className="inline-block mb-4">
-                <span className="inline-flex items-center px-4 py-1.5 text-sm font-medium rounded-full bg-primary/15 text-primary backdrop-blur-sm border border-primary/20">
+                <span className="inline-flex items-center px-4 py-1.5 text-sm font-medium rounded-full bg-primary/20 text-primary border border-primary/20 shadow-sm">
                   <Cat className="w-4 h-4 mr-2" />
                   Focus better with a feline friend
                 </span>
@@ -112,10 +113,10 @@ const Landing: React.FC = () => {
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Stay focused with
-                <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/70 font-extrabold">Meowdoro</span>
+                <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-primary/80 font-extrabold">Meowdoro</span>
               </h1>
               
-              <p className="text-lg md:text-xl max-w-2xl mx-auto lg:mx-0 text-muted-foreground">
+              <p className="text-lg md:text-xl max-w-2xl mx-auto lg:mx-0 text-foreground/90 dark:text-muted-foreground">
                 A purr-fectly delightful cat-themed productivity app that helps you maintain focus and accomplish more.
               </p>
               
@@ -123,7 +124,7 @@ const Landing: React.FC = () => {
                 <Button 
                   onClick={handleJoinUs}
                   size="lg" 
-                  className="rounded-full px-8 bg-primary hover:bg-primary/90 shadow-md shadow-primary/20"
+                  className="rounded-full px-8 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/20"
                 >
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -131,7 +132,7 @@ const Landing: React.FC = () => {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="rounded-full px-8 border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground backdrop-blur-sm"
+                  className="rounded-full px-8 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary backdrop-blur-sm"
                   onClick={() => setShowDocsDialog(true)}
                 >
                   <BookOpen className="mr-2 h-5 w-5" />
@@ -140,25 +141,25 @@ const Landing: React.FC = () => {
               </div>
             </div>
             
-            {/* Right content - Animated Meowdoro Logo */}
+            {/* Right content - Enhanced Meowdoro Logo */}
             <div className="flex-1 flex justify-center items-center">
               <div className="relative group">
-                {/* Multiple glow layers with different animations */}
-                <div className="absolute inset-0 bg-primary/30 rounded-full blur-3xl animate-pulse-soft"></div>
-                <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse-soft" style={{ animationDelay: '0.3s' }}></div>
-                <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl animate-pulse-soft" style={{ animationDelay: '0.6s' }}></div>
+                {/* Multiple glow layers with different animations and better light mode visibility */}
+                <div className="absolute inset-0 bg-primary/40 dark:bg-primary/30 rounded-full blur-3xl animate-pulse-soft"></div>
+                <div className="absolute inset-0 bg-primary/30 dark:bg-primary/20 rounded-full blur-2xl animate-pulse-soft" style={{ animationDelay: '0.3s' }}></div>
+                <div className="absolute inset-0 bg-primary/20 dark:bg-primary/10 rounded-full blur-xl animate-pulse-soft" style={{ animationDelay: '0.6s' }}></div>
                 
                 {/* Logo image with hover animation */}
                 <img 
                   src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
                   alt="Meowdoro Logo" 
                   className="w-56 h-56 md:w-72 md:h-72 relative z-10 transition-all duration-500 
-                  group-hover:scale-110 group-hover:rotate-3 cursor-pointer"
+                  group-hover:scale-110 group-hover:rotate-3 cursor-pointer drop-shadow-lg"
                   onClick={() => navigate('/timer')}
                 />
                 
-                {/* Shimmer effect on hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent 
+                {/* Shimmer effect on hover with better light mode visibility */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 dark:via-primary/20 to-transparent 
                   z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-shimmer" 
                   style={{ backgroundSize: '200% 100%' }}></div>
               </div>
@@ -167,66 +168,66 @@ const Landing: React.FC = () => {
         </div>
       </section>
       
-      {/* Features section with Purr-sonal Productivity Tools */}
+      {/* Features section with improved light mode visibility */}
       <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 opacity-10 dark:opacity-5">
           <div className="absolute inset-0 bg-grid"></div>
         </div>
         <div className="container max-w-6xl mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold inline-block relative">
               Purr-sonal Productivity Tools
-              <span className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/50 rounded-full"></span>
+              <span className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/60 dark:bg-primary/50 rounded-full"></span>
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
+            <p className="text-foreground/80 dark:text-muted-foreground max-w-2xl mx-auto mt-4">
               Tools designed to boost your productivity with a touch of feline charm
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+            <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
                   <Clock className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold">Pomodoro Timer</h3>
-                <p className="text-muted-foreground">
+                <p className="text-foreground/70 dark:text-muted-foreground">
                   Customizable focus sessions with smart breaks to maximize productivity
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+            <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
                   <ListTodo className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold">Task Management</h3>
-                <p className="text-muted-foreground">
+                <p className="text-foreground/70 dark:text-muted-foreground">
                   Organize your tasks and notes with our minimalist interface
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+            <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
                   <Users className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold">Study Party</h3>
-                <p className="text-muted-foreground">
+                <p className="text-foreground/70 dark:text-muted-foreground">
                   Join virtual study sessions with friends to stay motivated together
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+            <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
                   <BarChart className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold">Stats Tracking</h3>
-                <p className="text-muted-foreground">
+                <p className="text-foreground/70 dark:text-muted-foreground">
                   Monitor your progress with visual statistics and insights
                 </p>
               </CardContent>
@@ -235,28 +236,27 @@ const Landing: React.FC = () => {
         </div>
       </section>
       
-      {/* Login / Signup Section with Enhanced Logo Animation */}
-      <section className="py-20 bg-gradient-to-br from-background to-accent/5 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
+      {/* Login / Signup Section with improved light mode support */}
+      <section className="py-20 bg-gradient-to-br from-background to-accent/10 dark:to-accent/5 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 dark:opacity-5">
           <div className="absolute inset-0 bg-dots"></div>
         </div>
         
         {/* Cat Logo with Enhanced Animation and Glow */}
         <div className="relative max-w-xs mx-auto mb-12">
-          <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
-          <div className="absolute inset-0 bg-primary/10 rounded-full blur-lg animate-pulse-soft" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute inset-0 bg-primary/30 dark:bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
+          <div className="absolute inset-0 bg-primary/20 dark:bg-primary/10 rounded-full blur-lg animate-pulse-soft" style={{ animationDelay: '0.5s' }}></div>
           <img 
             src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
             alt="Meowdoro Logo" 
-            className="w-32 h-32 mx-auto relative z-10 animate-float" 
-            style={{ animation: 'pulse-soft 3s infinite ease-in-out' }}
+            className="w-32 h-32 mx-auto relative z-10 animate-float drop-shadow-lg" 
           />
         </div>
         
         <div className="container max-w-md mx-auto px-4 text-center relative z-10">
-          <h2 className="text-3xl font-bold mb-6">Become Part of Our Community</h2>
+          <h2 className="text-3xl font-bold mb-6">Get Started</h2>
           
-          <Card className="bg-card/80 backdrop-blur-sm border-primary/20 shadow-xl">
+          <Card className="bg-card/90 dark:bg-card/80 backdrop-blur-sm border-primary/30 shadow-xl">
             <CardContent className="p-6">
               <Tabs defaultValue="login" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6">
@@ -338,7 +338,7 @@ const Landing: React.FC = () => {
               
               <Button 
                 variant="outline" 
-                className="w-full mt-4 bg-primary/5 hover:bg-primary/10 border-primary/20"
+                className="w-full mt-4 bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary hover:text-primary/90"
                 onClick={handleJoinUs}
               >
                 Join as a guest
@@ -348,7 +348,7 @@ const Landing: React.FC = () => {
         </div>
       </section>
       
-      {/* Documentation dialog */}
+      {/* Documentation dialog with improved accessibility */}
       <Dialog open={showDocsDialog} onOpenChange={setShowDocsDialog}>
         <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>

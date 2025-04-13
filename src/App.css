@@ -42,7 +42,7 @@
   color: #888;
 }
 
-/* New animations */
+/* Enhanced animations with better performance */
 @keyframes pulse-soft {
   0% {
     transform: scale(1);
@@ -89,4 +89,28 @@
 
 .animate-shimmer {
   animation: shimmer 2s infinite linear;
+}
+
+/* Improved scrollbar styling */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Improved focus styles for accessibility */
+.focus-ring {
+  @apply outline-none ring-2 ring-primary/50 ring-offset-2;
+}
+
+/* Improved glass effect for both light and dark modes */
+.glass-light {
+  @apply backdrop-blur-md bg-white/70 border border-white/40 shadow-sm;
+}
+
+.glass-dark {
+  @apply backdrop-blur-md bg-black/30 border border-white/10 shadow-sm;
 }
