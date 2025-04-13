@@ -31,8 +31,6 @@ const Landing: React.FC = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   
-  const [activeFeature, setActiveFeature] = useState<string | null>(null);
-  
   const handleJoinUs = () => {
     // Set a dummy user in localStorage to simulate login
     localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: "Guest" }));
@@ -88,34 +86,6 @@ const Landing: React.FC = () => {
     }
   };
 
-  // Feature cards for the interactive hero section
-  const featureCards = [
-    {
-      id: "timer",
-      icon: Clock,
-      title: "Timer",
-      description: "Customizable focus sessions with smart breaks"
-    },
-    {
-      id: "tasks",
-      icon: ListTodo,
-      title: "Tasks",
-      description: "Organize your tasks and notes with our minimalist interface"
-    },
-    {
-      id: "party",
-      icon: Users,
-      title: "Study Party",
-      description: "Join virtual study sessions with friends to stay motivated"
-    },
-    {
-      id: "cat",
-      icon: Cat,
-      title: "Companion",
-      description: "Your virtual cat buddy to keep you company during study sessions"
-    }
-  ];
-  
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Simplified Hero Section with better light/dark mode support */}
@@ -155,7 +125,7 @@ const Landing: React.FC = () => {
                   size="lg" 
                   className="rounded-full px-8 bg-primary hover:bg-primary/90 shadow-md shadow-primary/20"
                 >
-                  Join Our Community
+                  Get Started
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
                 <Button 
@@ -170,56 +140,27 @@ const Landing: React.FC = () => {
               </div>
             </div>
             
-            {/* Right content - Feature cards with interactive styling */}
-            <div className="flex-1">
-              <div className="grid grid-cols-2 gap-4 max-w-md mx-auto lg:max-w-none">
-                {featureCards.map((feature) => (
-                  <div 
-                    key={feature.id}
-                    className={`
-                      group cursor-pointer transition-all duration-300 shadow-lg
-                      bg-card/30 dark:bg-[#0F1726] backdrop-blur-md rounded-xl border border-border dark:border-[#1E293B]
-                      hover:border-primary/50 hover:bg-card/50 dark:hover:bg-[#111D35] p-8 text-center
-                      ${activeFeature === feature.id ? 'border-primary/80 scale-105' : ''}
-                    `}
-                    onMouseEnter={() => setActiveFeature(feature.id)}
-                    onMouseLeave={() => setActiveFeature(null)}
-                    onClick={() => {
-                      if (feature.id === 'timer') navigate('/timer');
-                      else if (feature.id === 'tasks') navigate('/tasks');
-                      else if (feature.id === 'party') navigate('/party');
-                      else toast({
-                        title: "Meet your companion",
-                        description: "Your virtual cat buddy will keep you company during study sessions."
-                      });
-                    }}
-                  >
-                    <div className={`
-                      rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4
-                      ${activeFeature === feature.id ? 'bg-primary/25 scale-110' : 'bg-primary/10'}
-                      transition-all duration-300 ease-in-out group-hover:bg-primary/20
-                    `}>
-                      <feature.icon 
-                        className={`
-                          transition-all duration-300
-                          ${activeFeature === feature.id ? 'text-primary scale-110' : 'text-primary/80'}
-                          group-hover:text-primary
-                        `} 
-                        size={28}
-                      />
-                    </div>
-                    <h3 className="font-medium text-lg transition-colors duration-300 group-hover:text-primary">
-                      {feature.title}
-                    </h3>
-                    <p className={`
-                      mt-2 text-sm transition-all duration-300 max-h-0 opacity-0 overflow-hidden
-                      ${activeFeature === feature.id ? 'max-h-20 opacity-100 mt-2' : ''}
-                      text-muted-foreground group-hover:max-h-20 group-hover:opacity-100
-                    `}>
-                      {feature.description}
-                    </p>
-                  </div>
-                ))}
+            {/* Right content - Animated Meowdoro Logo */}
+            <div className="flex-1 flex justify-center items-center">
+              <div className="relative group">
+                {/* Multiple glow layers with different animations */}
+                <div className="absolute inset-0 bg-primary/30 rounded-full blur-3xl animate-pulse-soft"></div>
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse-soft" style={{ animationDelay: '0.3s' }}></div>
+                <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl animate-pulse-soft" style={{ animationDelay: '0.6s' }}></div>
+                
+                {/* Logo image with hover animation */}
+                <img 
+                  src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
+                  alt="Meowdoro Logo" 
+                  className="w-56 h-56 md:w-72 md:h-72 relative z-10 transition-all duration-500 
+                  group-hover:scale-110 group-hover:rotate-3 cursor-pointer"
+                  onClick={() => navigate('/timer')}
+                />
+                
+                {/* Shimmer effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent 
+                  z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-shimmer" 
+                  style={{ backgroundSize: '200% 100%' }}></div>
               </div>
             </div>
           </div>
@@ -400,7 +341,7 @@ const Landing: React.FC = () => {
                 className="w-full mt-4 bg-primary/5 hover:bg-primary/10 border-primary/20"
                 onClick={handleJoinUs}
               >
-                Join Us & Explore
+                Join as a guest
               </Button>
             </CardContent>
           </Card>

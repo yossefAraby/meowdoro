@@ -109,7 +109,7 @@ export const Navbar: React.FC = () => {
                   onClick={handleJoinNow}
                 >
                   <Cat className="h-4 w-4" />
-                  Join Now
+                  Get Started
                 </Button>
               </div>
             )}
@@ -160,7 +160,7 @@ export const Navbar: React.FC = () => {
                           onClick={handleJoinNow}
                         >
                           <Cat className="h-4 w-4" />
-                          <span>Join Our Community</span>
+                          <span>Get Started</span>
                         </Button>
                       </div>
                     )}
