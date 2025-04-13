@@ -22,7 +22,31 @@ export const Navbar: React.FC = () => {
   const { mode, setMode } = useTheme();
   
   // Check if user is authenticated
-  const isAuthenticated = localStorage.getItem("meowdoro-user") !== null;
+  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(
+    localStorage.getItem("meowdoro-user") !== null
+  );
+  
+  // Effect to check authentication status on mount and when localStorage changes
+  React.useEffect(() => {
+    const checkAuth = () => {
+      const user = localStorage.getItem("meowdoro-user");
+      setIsAuthenticated(user !== null);
+    };
+    
+    // Check initially
+    checkAuth();
+    
+    // Setup event listener for storage changes
+    window.addEventListener('storage', checkAuth);
+    
+    // Custom event for auth changes within the same window
+    window.addEventListener('auth-change', checkAuth);
+    
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('auth-change', checkAuth);
+    };
+  }, []);
   
   const navItems = [
     { path: "/timer", icon: Timer, label: "Timer" },
@@ -35,7 +59,13 @@ export const Navbar: React.FC = () => {
   };
 
   const handleJoinNow = () => {
+    // Save user data to localStorage
     localStorage.setItem("meowdoro-user", JSON.stringify({ email: "demo@meowdoro.app" }));
+    
+    // Notify about authentication change
+    window.dispatchEvent(new Event('auth-change'));
+    
+    // Navigate to timer page
     navigate("/timer");
   };
 

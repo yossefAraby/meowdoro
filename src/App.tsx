@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./components/layout/ThemeProvider";
 import { Navbar } from "./components/layout/Navbar";
+import { useState, useEffect } from "react";
 
 // Pages
 import Landing from "./pages/Landing";
@@ -19,8 +20,32 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Simple auth check (this would be expanded in a real app)
-  const isAuthenticated = localStorage.getItem("meowdoro-user") !== null;
+  // Use state to track authentication status
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    localStorage.getItem("meowdoro-user") !== null
+  );
+  
+  // Effect to update auth state when localStorage changes
+  useEffect(() => {
+    const checkAuth = () => {
+      const user = localStorage.getItem("meowdoro-user");
+      setIsAuthenticated(user !== null);
+    };
+    
+    // Check initially
+    checkAuth();
+    
+    // Setup event listeners for storage changes across tabs
+    window.addEventListener('storage', checkAuth);
+    
+    // Custom event for auth changes within the same window
+    window.addEventListener('auth-change', checkAuth);
+    
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('auth-change', checkAuth);
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

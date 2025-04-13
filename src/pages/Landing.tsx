@@ -36,6 +36,9 @@ const Landing: React.FC = () => {
     // Set a dummy user in localStorage to simulate login
     localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: "Guest" }));
     
+    // Dispatch custom event to notify about auth change
+    window.dispatchEvent(new Event('auth-change'));
+    
     // Navigate to the timer page
     navigate("/timer");
     
@@ -51,6 +54,10 @@ const Landing: React.FC = () => {
     // Demo login functionality
     if (email && password) {
       localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: email.split('@')[0], email }));
+      
+      // Dispatch custom event to notify about auth change
+      window.dispatchEvent(new Event('auth-change'));
+      
       navigate("/timer");
       
       toast({
@@ -72,6 +79,10 @@ const Landing: React.FC = () => {
     // Demo signup functionality
     if (email && password && name) {
       localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name, email }));
+      
+      // Dispatch custom event to notify about auth change
+      window.dispatchEvent(new Event('auth-change'));
+      
       navigate("/timer");
       
       toast({
