@@ -33,7 +33,7 @@ const Landing: React.FC = () => {
   
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
   
-  const handleContinueAsGuest = () => {
+  const handleJoinUs = () => {
     // Set a dummy user in localStorage to simulate login
     localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: "Guest" }));
     
@@ -41,8 +41,8 @@ const Landing: React.FC = () => {
     navigate("/timer");
     
     toast({
-      title: "Welcome, Guest!",
-      description: "You've entered as a guest. Your progress won't be saved between sessions."
+      title: "Welcome to Meowdoro!",
+      description: "You've joined as a guest. Your progress won't be saved between sessions."
     });
   };
   
@@ -118,19 +118,19 @@ const Landing: React.FC = () => {
   
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Hero Section - Improved Design */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Background with gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#101828] via-[#151f38] to-background/80"></div>
+      {/* Simplified Hero Section with better light/dark mode support */}
+      <section className="relative min-h-[80vh] flex items-center overflow-hidden">
+        {/* Background that works in both light and dark modes */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-primary/10 to-background dark:from-[#101828] dark:via-[#151f38] dark:to-background/80"></div>
         
-        {/* Decorative elements */}
+        {/* Simplified decorative elements */}
         <div className="absolute inset-0 overflow-hidden opacity-30">
           <div className="absolute top-10 left-10 w-64 h-64 bg-primary/20 rounded-full filter blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-80 h-80 bg-primary/20 rounded-full filter blur-3xl"></div>
         </div>
         
-        <div className="container max-w-screen-xl mx-auto px-4 md:px-8 relative z-10 py-20">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
+        <div className="container max-w-screen-xl mx-auto px-4 relative z-10 py-16">
+          <div className="flex flex-col lg:flex-row items-center gap-10">
             {/* Left content - Text and CTA */}
             <div className="flex-1 text-center lg:text-left space-y-6">
               <div className="inline-block mb-4">
@@ -140,28 +140,28 @@ const Landing: React.FC = () => {
                 </span>
               </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Stay focused with
                 <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/70 font-extrabold">Meowdoro</span>
               </h1>
               
-              <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto lg:mx-0">
+              <p className="text-lg md:text-xl max-w-2xl mx-auto lg:mx-0 text-muted-foreground">
                 A purr-fectly delightful cat-themed productivity app that helps you maintain focus and accomplish more.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-8">
                 <Button 
-                  onClick={handleContinueAsGuest}
+                  onClick={handleJoinUs}
                   size="lg" 
                   className="rounded-full px-8 bg-primary hover:bg-primary/90 shadow-md shadow-primary/20"
                 >
-                  Get Started
+                  Join Our Community
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="rounded-full px-8 border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white backdrop-blur-sm"
+                  className="rounded-full px-8 border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground backdrop-blur-sm"
                   onClick={() => setShowDocsDialog(true)}
                 >
                   <BookOpen className="mr-2 h-5 w-5" />
@@ -177,9 +177,9 @@ const Landing: React.FC = () => {
                   <div 
                     key={feature.id}
                     className={`
-                      group cursor-pointer transition-all duration-300 shadow-lg shadow-black/20
-                      bg-[#0F1726] backdrop-blur-md rounded-xl border border-[#1E293B]
-                      hover:border-primary/50 hover:bg-[#111D35] p-8 text-center
+                      group cursor-pointer transition-all duration-300 shadow-lg
+                      bg-card/30 dark:bg-[#0F1726] backdrop-blur-md rounded-xl border border-border dark:border-[#1E293B]
+                      hover:border-primary/50 hover:bg-card/50 dark:hover:bg-[#111D35] p-8 text-center
                       ${activeFeature === feature.id ? 'border-primary/80 scale-105' : ''}
                     `}
                     onMouseEnter={() => setActiveFeature(feature.id)}
@@ -202,19 +202,19 @@ const Landing: React.FC = () => {
                       <feature.icon 
                         className={`
                           transition-all duration-300
-                          ${activeFeature === feature.id ? 'text-primary scale-110' : 'text-[#5EB4EB]'}
+                          ${activeFeature === feature.id ? 'text-primary scale-110' : 'text-primary/80'}
                           group-hover:text-primary
                         `} 
                         size={28}
                       />
                     </div>
-                    <h3 className="text-gray-200 font-medium text-lg transition-colors duration-300 group-hover:text-primary">
+                    <h3 className="font-medium text-lg transition-colors duration-300 group-hover:text-primary">
                       {feature.title}
                     </h3>
                     <p className={`
                       mt-2 text-sm transition-all duration-300 max-h-0 opacity-0 overflow-hidden
                       ${activeFeature === feature.id ? 'max-h-20 opacity-100 mt-2' : ''}
-                      text-gray-400 group-hover:max-h-20 group-hover:opacity-100
+                      text-muted-foreground group-hover:max-h-20 group-hover:opacity-100
                     `}>
                       {feature.description}
                     </p>
@@ -223,13 +223,6 @@ const Landing: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
         </div>
       </section>
       
@@ -320,7 +313,7 @@ const Landing: React.FC = () => {
         </div>
         
         <div className="container max-w-md mx-auto px-4 text-center relative z-10">
-          <h2 className="text-3xl font-bold mb-6">Get Started</h2>
+          <h2 className="text-3xl font-bold mb-6">Become Part of Our Community</h2>
           
           <Card className="bg-card/80 backdrop-blur-sm border-primary/20 shadow-xl">
             <CardContent className="p-6">
@@ -404,10 +397,10 @@ const Landing: React.FC = () => {
               
               <Button 
                 variant="outline" 
-                className="w-full mt-4"
-                onClick={handleContinueAsGuest}
+                className="w-full mt-4 bg-primary/5 hover:bg-primary/10 border-primary/20"
+                onClick={handleJoinUs}
               >
-                Continue as Guest
+                Join Us & Explore
               </Button>
             </CardContent>
           </Card>

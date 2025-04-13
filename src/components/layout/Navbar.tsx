@@ -34,8 +34,7 @@ export const Navbar: React.FC = () => {
     setMode(mode === "light" ? "dark" : "light");
   };
 
-  const handleLogin = () => {
-    // Set a demo user to enable navigation to protected routes
+  const handleJoinNow = () => {
     localStorage.setItem("meowdoro-user", JSON.stringify({ email: "demo@meowdoro.app" }));
     navigate("/timer");
   };
@@ -106,10 +105,11 @@ export const Navbar: React.FC = () => {
                 </Link>
                 <Button 
                   size="sm" 
-                  className="hidden sm:inline-flex"
-                  onClick={handleLogin}
+                  className="hidden sm:inline-flex items-center gap-1"
+                  onClick={handleJoinNow}
                 >
-                  Get Started
+                  <Cat className="h-4 w-4" />
+                  Join Now
                 </Button>
               </div>
             )}
@@ -156,10 +156,11 @@ export const Navbar: React.FC = () => {
                           </Button>
                         </Link>
                         <Button 
-                          className="w-full"
-                          onClick={handleLogin}
+                          className="w-full flex items-center gap-2"
+                          onClick={handleJoinNow}
                         >
-                          Get Started
+                          <Cat className="h-4 w-4" />
+                          <span>Join Our Community</span>
                         </Button>
                       </div>
                     )}
