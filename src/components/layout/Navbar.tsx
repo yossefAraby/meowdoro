@@ -6,8 +6,9 @@ import {
   CheckSquare, 
   Users, 
   Sun, 
-  Moon,
+  Moon, 
   Menu,
+  BookOpen,
   Cat
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
@@ -33,71 +34,87 @@ export const Navbar: React.FC = () => {
     setMode(mode === "light" ? "dark" : "light");
   };
 
-  const handleGetStarted = () => {
+  const handleJoinNow = () => {
     localStorage.setItem("meowdoro-user", JSON.stringify({ email: "demo@meowdoro.app" }));
     navigate("/timer");
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
+    <div className="fixed top-0 left-0 right-0 z-50 glass animate-fade-in">
       <div className="container mx-auto">
-        <nav className="flex justify-between items-center h-16">
+        <nav className="flex justify-between items-center py-4">
           {/* Logo and App Name */}
           <div 
             className="flex items-center gap-2 cursor-pointer transition-all hover:opacity-80"
             onClick={() => navigate("/")}
           >
-            <img 
-              src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
-              alt="Meowdoro Logo" 
-              className="w-8 h-8"
-            />
-            <span className="font-bold text-xl text-primary">Meowdoro</span>
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-[6px]"></div>
+              <img 
+                src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
+                alt="Meowdoro Logo" 
+                className="w-8 h-8 relative z-10"
+              />
+            </div>
+            <span className="font-bold text-xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Meowdoro</span>
           </div>
 
-          {/* Main Navigation - Desktop */}
-          <div className="hidden md:flex items-center space-x-1">
+          {/* Navigation Links - Desktop - Centered */}
+          <div className="hidden md:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2 space-x-1 sm:space-x-2">
             {isAuthenticated && navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-md transition-colors",
+                  "flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-150",
                   location.pathname === item.path 
-                    ? "bg-primary/10 text-primary" 
-                    : "text-foreground/70 hover:text-primary hover:bg-primary/5"
+                    ? "text-primary bg-accent/50" 
+                    : "text-foreground/60 hover:text-primary hover:bg-accent/30"
                 )}
               >
-                <item.icon className="w-4 h-4" />
-                <span>{item.label}</span>
+                <item.icon className="w-5 h-5" />
+                <span className="text-xs mt-1">
+                  {item.label}
+                </span>
               </Link>
             ))}
           </div>
 
-          {/* Right Side Actions */}
+          {/* Right Side - Mode Toggle & Actions */}
           <div className="flex items-center space-x-2">
-            {/* Theme Toggle */}
             <button 
               onClick={toggleMode} 
-              className="p-2 rounded-md hover:bg-accent/50 transition-all"
+              className="p-2 rounded-full hover:bg-accent/50 transition-all duration-150"
               aria-label={mode === "light" ? "Switch to dark mode" : "Switch to light mode"}
             >
               {mode === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             
-            {/* Auth Button */}
-            {!isAuthenticated && (
-              <Button 
-                size="sm" 
-                onClick={handleGetStarted}
-                className="hidden sm:flex items-center gap-1"
-              >
-                <Cat className="h-4 w-4" />
-                Get Started
-              </Button>
+            {isAuthenticated ? (
+              <></>
+            ) : (
+              <div className="flex gap-2">
+                <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()}>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="hidden sm:inline-flex items-center gap-1"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Button 
+                  size="sm" 
+                  className="hidden sm:inline-flex items-center gap-1"
+                  onClick={handleJoinNow}
+                >
+                  <Cat className="h-4 w-4" />
+                  Get Started
+                </Button>
+              </div>
             )}
             
-            {/* Mobile Menu */}
+            {/* Mobile Menu Button */}
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="md:hidden">
@@ -110,29 +127,42 @@ export const Navbar: React.FC = () => {
                   
                   <div className="space-y-2">
                     {isAuthenticated ? (
-                      navItems.map((item) => (
-                        <Link
-                          key={item.path}
-                          to={item.path}
-                          className={cn(
-                            "flex items-center gap-3 p-3 rounded-lg transition-all",
-                            location.pathname === item.path 
-                              ? "bg-primary/10 text-primary" 
-                              : "hover:bg-primary/5"
-                          )}
-                        >
-                          <item.icon className="w-5 h-5" />
-                          <span>{item.label}</span>
-                        </Link>
-                      ))
+                      <>
+                        {navItems.map((item) => (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            className={cn(
+                              "flex items-center gap-3 p-3 rounded-lg transition-all",
+                              location.pathname === item.path 
+                                ? "bg-accent text-primary" 
+                                : "hover:bg-accent/50"
+                            )}
+                          >
+                            <item.icon className="w-5 h-5" />
+                            <span>{item.label}</span>
+                          </Link>
+                        ))}
+                      </>
                     ) : (
-                      <Button 
-                        className="w-full mt-4 flex items-center gap-2 justify-center"
-                        onClick={handleGetStarted}
-                      >
-                        <Cat className="h-4 w-4" />
-                        <span>Get Started</span>
-                      </Button>
+                      <div className="mt-auto space-y-3">
+                        <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()} className="block w-full">
+                          <Button 
+                            variant="outline"
+                            className="w-full flex items-center gap-2"
+                          >
+                            <BookOpen className="h-4 w-4" />
+                            <span>Documentation</span>
+                          </Button>
+                        </Link>
+                        <Button 
+                          className="w-full flex items-center gap-2"
+                          onClick={handleJoinNow}
+                        >
+                          <Cat className="h-4 w-4" />
+                          <span>Get Started</span>
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
