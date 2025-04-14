@@ -131,6 +131,7 @@ export const Navbar: React.FC = () => {
                     className="hidden sm:inline-flex items-center gap-1"
                   >
                     <BookOpen className="h-4 w-4" />
+                    <span className="hidden md:inline">Learn More</span>
                   </Button>
                 </Link>
                 <Button 
@@ -182,7 +183,7 @@ export const Navbar: React.FC = () => {
                             className="w-full flex items-center gap-2"
                           >
                             <BookOpen className="h-4 w-4" />
-                            <span>Documentation</span>
+                            <span>Learn More</span>
                           </Button>
                         </Link>
                         <Button 

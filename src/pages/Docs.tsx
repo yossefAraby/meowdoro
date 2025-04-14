@@ -11,7 +11,6 @@ import {
   Volume2,
   PinIcon,
   Palette,
-  BarChart,
   BookOpen,
   Coffee,
   ArrowLeft,
@@ -50,9 +49,9 @@ const Docs: React.FC = () => {
             <Cat className="w-10 h-10 absolute -top-2 -right-2" />
           </div>
         </div>
-        <h1 className="text-4xl font-bold mb-3">Meowdoro Documentation</h1>
+        <h1 className="text-4xl font-bold mb-3">Learn More</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-          Your complete guide to becoming more productive with your feline companion
+          Your quick guide to becoming more productive with Meowdoro
         </p>
       </div>
       
@@ -63,7 +62,7 @@ const Docs: React.FC = () => {
             <h3 className="font-bold text-lg mb-3">Contents</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#introduction" className="hover:text-primary transition-colors">Introduction</a>
+                <a href="#getting-started" className="hover:text-primary transition-colors">Getting Started</a>
               </li>
               <li>
                 <a href="#timer" className="hover:text-primary transition-colors">Timer</a>
@@ -75,16 +74,10 @@ const Docs: React.FC = () => {
                 <a href="#study-party" className="hover:text-primary transition-colors">Study Party</a>
               </li>
               <li>
-                <a href="#statistics" className="hover:text-primary transition-colors">Statistics</a>
-              </li>
-              <li>
                 <a href="#cat-companion" className="hover:text-primary transition-colors">Cat Companion</a>
               </li>
               <li>
                 <a href="#customization" className="hover:text-primary transition-colors">Customization</a>
-              </li>
-              <li>
-                <a href="#getting-started" className="hover:text-primary transition-colors">Getting Started</a>
               </li>
               <li>
                 <a href="#productivity-tips" className="hover:text-primary transition-colors">Productivity Tips</a>
@@ -97,24 +90,49 @@ const Docs: React.FC = () => {
         </div>
       
         {/* Main Content */}
-        <div className="md:col-span-3 space-y-12">
-          <section id="introduction">
+        <div className="md:col-span-3 space-y-10">
+          <section id="getting-started" className="scroll-mt-24">
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-primary" />
-              Introduction to Meowdoro
+              Getting Started
             </h2>
             <div className="space-y-4">
               <p>
-                Meowdoro is a productivity application that combines the proven effectiveness of the Pomodoro technique with a delightful cat theme. Designed to make focusing on tasks more enjoyable, Meowdoro helps you structure your work sessions, take appropriate breaks, and track your productivity.
+                Meowdoro combines the Pomodoro technique with a cat theme to make focusing on tasks more enjoyable. Here's how to get started:
               </p>
-              <p>
-                The application features a customizable timer, task management system, study party mode for group productivity, comprehensive statistics, and a virtual cat companion that provides motivation and study tips throughout your sessions.
-              </p>
-              <div className="bg-accent/30 p-4 rounded-lg">
-                <h4 className="font-medium mb-2">What is the Pomodoro Technique?</h4>
-                <p className="text-sm">
-                  The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s. It breaks work into intervals, traditionally 25 minutes in length, separated by short breaks. After a set number of work intervals, a longer break is taken. This method aims to improve focus and reduce mental fatigue.
-                </p>
+              
+              <div className="bg-card p-4 rounded-lg border space-y-4">
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">1</div>
+                  <div>
+                    <h4 className="font-medium">Create an Account or Join as Guest</h4>
+                    <p className="text-sm text-muted-foreground">Sign up or use the "Join as guest" option on the homepage to get started immediately.</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">2</div>
+                  <div>
+                    <h4 className="font-medium">Start Your Timer</h4>
+                    <p className="text-sm text-muted-foreground">Head to the Timer page and press play to begin your first focus session.</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">3</div>
+                  <div>
+                    <h4 className="font-medium">Create Tasks</h4>
+                    <p className="text-sm text-muted-foreground">Visit the Tasks page to keep track of what you need to work on during your focus sessions.</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">4</div>
+                  <div>
+                    <h4 className="font-medium">Study with Friends</h4>
+                    <p className="text-sm text-muted-foreground">Use the Party page to join virtual study sessions for added motivation.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -126,82 +144,37 @@ const Docs: React.FC = () => {
             </h2>
             <div className="space-y-4">
               <p>
-                The core of Meowdoro is the Pomodoro timer, which helps you maintain focus through structured work sessions followed by refreshing breaks.
+                The Pomodoro technique helps you maintain focus through structured work sessions followed by refreshing breaks.
               </p>
               
-              <h3 className="text-lg font-semibold mt-4">Timer Modes</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-card p-4 rounded-lg border">
                   <h4 className="font-medium mb-2">Focus Mode</h4>
                   <p className="text-sm text-muted-foreground">
-                    Default 25-minute sessions dedicated to concentrated work on a single task. Your cat companion shows a focused expression during these sessions.
+                    25-minute sessions (default) for concentrated work on a single task
                   </p>
                 </div>
                 <div className="bg-card p-4 rounded-lg border">
                   <h4 className="font-medium mb-2">Short Break</h4>
                   <p className="text-sm text-muted-foreground">
-                    Default 5-minute rests between focus sessions to give your mind a brief rest. Your cat companion appears happy during breaks.
+                    5-minute rests (default) between focus sessions
                   </p>
                 </div>
                 <div className="bg-card p-4 rounded-lg border">
                   <h4 className="font-medium mb-2">Long Break</h4>
                   <p className="text-sm text-muted-foreground">
-                    Default 15-minute extended breaks taken after completing a set number of focus sessions (typically 4).
+                    15-minute breaks (default) after completing several focus sessions
                   </p>
                 </div>
               </div>
               
-              <h3 className="text-lg font-semibold mt-6">Timer Controls</h3>
-              <div className="space-y-2">
-                <div className="flex items-start gap-3">
-                  <div className="bg-primary/10 p-2 rounded-full">
-                    <div className="w-3 h-3 bg-primary rounded-full"></div>
-                  </div>
-                  <div>
-                    <p className="font-medium">Play/Pause</p>
-                    <p className="text-sm text-muted-foreground">Start or pause the current timer session</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="bg-primary/10 p-2 rounded-full">
-                    <div className="w-3 h-3 border-2 border-primary rounded-full"></div>
-                  </div>
-                  <div>
-                    <p className="font-medium">Skip</p>
-                    <p className="text-sm text-muted-foreground">Move to the next timer mode (focus → break or break → focus)</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="bg-primary/10 p-2 rounded-full">
-                    <Bell className="w-3 h-3 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Sound Settings</p>
-                    <p className="text-sm text-muted-foreground">Customize notification sounds and background audio</p>
-                  </div>
-                </div>
-              </div>
-              
-              <h3 className="text-lg font-semibold mt-6">Sound Features</h3>
-              <div className="space-y-2">
-                <p>Meowdoro includes several sound options to enhance your focus sessions:</p>
-                <ul className="list-disc list-inside ml-2 space-y-1">
-                  <li>Timer completion notifications</li>
-                  <li>Ambient background sounds (rain, cafe, birds)</li>
-                  <li>Volume control for all audio</li>
-                  <li>Custom YouTube audio integration</li>
-                </ul>
-              </div>
-              
-              <div className="bg-primary/5 p-4 rounded-lg mt-6 border border-primary/20">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Pro Tip
-                </h4>
-                <p className="text-sm">
-                  Customize your timer durations in Settings to match your personal attention span. Some users prefer shorter 15-minute focus sessions with 3-minute breaks, while others may work better with longer 50-minute sessions and 10-minute breaks.
-                </p>
-              </div>
+              <h3 className="text-lg font-semibold mt-4">Quick Tips:</h3>
+              <ul className="list-disc list-inside space-y-1 ml-2">
+                <li><span className="font-medium">Play/Pause Button:</span> Start or pause your current session</li>
+                <li><span className="font-medium">Skip Button:</span> Move to the next session type</li>
+                <li><span className="font-medium">Sound Controls:</span> Customize notifications and background sounds</li>
+                <li><span className="font-medium">Cat Companion:</span> Click for study tips and motivation</li>
+              </ul>
             </div>
           </section>
           
@@ -212,54 +185,17 @@ const Docs: React.FC = () => {
             </h2>
             <div className="space-y-4">
               <p>
-                The Tasks page provides a clean, minimal interface for keeping track of your notes and to-do items, inspired by Google Keep.
+                The Tasks page gives you a clean interface for keeping track of your notes and to-do items.
               </p>
               
-              <h3 className="text-lg font-semibold mt-4">Creating Notes</h3>
-              <div className="space-y-2">
-                <p>The note creation interface allows you to:</p>
-                <ul className="list-disc list-inside ml-2 space-y-1">
-                  <li>Create text notes with titles and content</li>
-                  <li>Adjust the color of notes for visual organization</li>
-                  <li>Pin important notes to keep them at the top</li>
+              <div className="bg-card p-4 rounded-lg border space-y-4">
+                <h3 className="text-lg font-semibold">Quick Tips:</h3>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li><span className="font-medium">Create Notes:</span> Click the "+" button to add a new note</li>
+                  <li><span className="font-medium">Pin Important Notes:</span> Keep critical items at the top</li>
+                  <li><span className="font-medium">Color Code:</span> Use colors to categorize by project or priority</li>
+                  <li><span className="font-medium">Search:</span> Use the search bar to find specific notes</li>
                 </ul>
-              </div>
-              
-              <h3 className="text-lg font-semibold mt-6">Note Organization</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-card p-4 rounded-lg border">
-                  <div className="flex items-center gap-2 mb-2">
-                    <PinIcon className="h-4 w-4 text-primary" />
-                    <h4 className="font-medium">Pinning</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Pin your most important notes to keep them at the top of your list for quick access, regardless of when they were created.
-                  </p>
-                </div>
-                <div className="bg-card p-4 rounded-lg border">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Palette className="h-4 w-4 text-primary" />
-                    <h4 className="font-medium">Color Coding</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Assign different colors to your notes to visually categorize them by project, priority, or any system that works for you.
-                  </p>
-                </div>
-              </div>
-              
-              <h3 className="text-lg font-semibold mt-6">Search & Filter</h3>
-              <p>
-                Quickly find specific notes using the search function, which scans through both titles and content to help you locate exactly what you need.
-              </p>
-              
-              <div className="bg-primary/5 p-4 rounded-lg mt-6 border border-primary/20">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Pro Tip
-                </h4>
-                <p className="text-sm">
-                  Consider creating a daily task note at the start of each day, listing the specific tasks you want to accomplish during your focus sessions. Pin this note to keep it accessible throughout the day.
-                </p>
               </div>
             </div>
           </section>
@@ -271,111 +207,17 @@ const Docs: React.FC = () => {
             </h2>
             <div className="space-y-4">
               <p>
-                Study Party is a social productivity feature that allows you to work alongside friends virtually, providing motivation through shared accountability.
+                Study Party allows you to work alongside friends virtually, providing motivation through shared accountability.
               </p>
               
-              <h3 className="text-lg font-semibold mt-4">How It Works</h3>
-              <div className="space-y-2">
-                <p>To use Study Party:</p>
-                <ol className="list-decimal list-inside ml-2 space-y-2">
-                  <li>Create a study room or join an existing one with a room code</li>
-                  <li>Each participant appears with their cat avatar in the virtual room</li>
-                  <li>Everyone's status (focusing, on break, or idle) is visible to the group</li>
-                  <li>Optional chat functionality for brief coordination</li>
-                </ol>
-              </div>
-              
-              <h3 className="text-lg font-semibold mt-6">Benefits of Group Study</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-card p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Accountability</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Knowing that others can see your status creates positive pressure to maintain focus during work sessions.
-                  </p>
-                </div>
-                <div className="bg-card p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Motivation</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Seeing others working diligently can inspire you to stay on task and resist distractions.
-                  </p>
-                </div>
-                <div className="bg-card p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Community</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Creates a sense of belonging and shared purpose, even when studying or working remotely.
-                  </p>
-                </div>
-                <div className="bg-card p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Coordination</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Synchronize break times with friends to chat briefly before returning to focused work.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="bg-primary/5 p-4 rounded-lg mt-6 border border-primary/20">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Pro Tip
-                </h4>
-                <p className="text-sm">
-                  For maximum productivity, consider establishing ground rules with your study group, such as limiting chat to break times only and setting shared goals for the number of focus sessions to complete.
-                </p>
-              </div>
-            </div>
-          </section>
-          
-          <section id="statistics" className="scroll-mt-24">
-            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-              <BarChart className="h-5 w-5 text-primary" />
-              Statistics
-            </h2>
-            <div className="space-y-4">
-              <p>
-                The Statistics page offers insights into your productivity patterns, helping you track progress and identify areas for improvement.
-              </p>
-              
-              <h3 className="text-lg font-semibold mt-4">Available Metrics</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-card p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Daily Focus Time</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Track the total minutes you've spent in focus mode each day, with progress toward your daily goal.
-                  </p>
-                </div>
-                <div className="bg-card p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Weekly Overview</h4>
-                  <p className="text-sm text-muted-foreground">
-                    View your productivity across the week to identify patterns and trends in your focus habits.
-                  </p>
-                </div>
-                <div className="bg-card p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Focus Sessions</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Count of completed focus sessions per day and historical averages.
-                  </p>
-                </div>
-              </div>
-              
-              <h3 className="text-lg font-semibold mt-6">Using Your Statistics</h3>
-              <div className="space-y-2">
-                <p>Your productivity data can help you:</p>
-                <ul className="list-disc list-inside ml-2 space-y-1">
-                  <li>Identify your most productive days and times</li>
-                  <li>Set realistic goals based on your historical performance</li>
-                  <li>Track improvement over time</li>
-                  <li>Experiment with different timer durations and see the impact</li>
+              <div className="bg-card p-4 rounded-lg border space-y-4">
+                <h3 className="text-lg font-semibold">Quick Tips:</h3>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li><span className="font-medium">Create a Room:</span> Start a new study space and invite friends</li>
+                  <li><span className="font-medium">Join Existing:</span> Enter a room code to join friends</li>
+                  <li><span className="font-medium">Status Updates:</span> See who's focusing and who's on a break</li>
+                  <li><span className="font-medium">Synchronize Breaks:</span> Coordinate break times with your group</li>
                 </ul>
-              </div>
-              
-              <div className="bg-primary/5 p-4 rounded-lg mt-6 border border-primary/20">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Pro Tip
-                </h4>
-                <p className="text-sm">
-                  Review your statistics at the end of each week to identify patterns. If you notice certain days consistently have lower productivity, consider adjusting your schedule or environment for those days.
-                </p>
               </div>
             </div>
           </section>
@@ -387,59 +229,39 @@ const Docs: React.FC = () => {
             </h2>
             <div className="space-y-4">
               <p>
-                Your virtual cat companion adds a fun, motivational element to the Meowdoro experience, changing expressions to match your work state and offering helpful tips.
+                Your virtual cat companion changes expressions to match your work state and offers helpful tips.
               </p>
               
-              <h3 className="text-lg font-semibold mt-4">Cat Moods</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-card p-4 rounded-lg border text-center">
                   <div className="text-3xl mb-2">🧐</div>
                   <h4 className="font-medium mb-1">Focused</h4>
-                  <p className="text-xs text-muted-foreground">
-                    During focus sessions
-                  </p>
+                  <p className="text-xs text-muted-foreground">During focus sessions</p>
                 </div>
                 <div className="bg-card p-4 rounded-lg border text-center">
                   <div className="text-3xl mb-2">😸</div>
                   <h4 className="font-medium mb-1">Happy</h4>
-                  <p className="text-xs text-muted-foreground">
-                    During breaks
-                  </p>
+                  <p className="text-xs text-muted-foreground">During breaks</p>
                 </div>
                 <div className="bg-card p-4 rounded-lg border text-center">
                   <div className="text-3xl mb-2">😴</div>
                   <h4 className="font-medium mb-1">Sleeping</h4>
-                  <p className="text-xs text-muted-foreground">
-                    When timer is paused
-                  </p>
+                  <p className="text-xs text-muted-foreground">When timer is paused</p>
                 </div>
                 <div className="bg-card p-4 rounded-lg border text-center">
                   <div className="text-3xl mb-2">😺</div>
                   <h4 className="font-medium mb-1">Idle</h4>
-                  <p className="text-xs text-muted-foreground">
-                    Default state
-                  </p>
+                  <p className="text-xs text-muted-foreground">Default state</p>
                 </div>
               </div>
               
-              <h3 className="text-lg font-semibold mt-6">Study Tips</h3>
-              <p>
-                Your cat companion provides access to over 100 curated study and productivity tips. Simply click on the cat to see a new tip, which can help you:
-              </p>
-              <ul className="list-disc list-inside ml-2 space-y-1">
-                <li>Learn new productivity techniques</li>
-                <li>Find ways to improve focus</li>
-                <li>Discover memory and learning strategies</li>
-                <li>Get ideas for effective break activities</li>
-              </ul>
-              
-              <div className="bg-primary/5 p-4 rounded-lg mt-6 border border-primary/20">
+              <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
                 <h4 className="font-medium mb-2 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
                   Pro Tip
                 </h4>
                 <p className="text-sm">
-                  Try implementing one new study tip each day to gradually build a collection of effective productivity techniques that work for your personal learning style.
+                  Click on your cat companion at any time to receive study tips and productivity advice!
                 </p>
               </div>
             </div>
@@ -452,146 +274,52 @@ const Docs: React.FC = () => {
             </h2>
             <div className="space-y-4">
               <p>
-                Meowdoro offers extensive customization options to personalize your productivity experience.
+                Meowdoro offers several ways to customize your productivity experience.
               </p>
               
-              <h3 className="text-lg font-semibold mt-4">Timer Settings</h3>
-              <div className="space-y-2">
-                <p>Customize your timer durations to match your work style:</p>
-                <ul className="list-disc list-inside ml-2 space-y-1">
-                  <li>Focus session length (5-90 minutes)</li>
-                  <li>Short break duration (1-30 minutes)</li>
-                  <li>Long break duration (10-60 minutes)</li>
-                  <li>Number of sessions before a long break (1-8)</li>
-                </ul>
-              </div>
-              
-              <h3 className="text-lg font-semibold mt-6">Sound Settings</h3>
-              <div className="space-y-2">
-                <p>Personalize your audio experience:</p>
-                <ul className="list-disc list-inside ml-2 space-y-1">
-                  <li>Enable/disable notification sounds</li>
-                  <li>Choose from various notification tones</li>
-                  <li>Select background ambient sounds</li>
-                  <li>Add custom YouTube audio links</li>
-                  <li>Adjust volume levels</li>
-                </ul>
-              </div>
-              
-              <h3 className="text-lg font-semibold mt-6">Appearance</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-card p-4 rounded-lg border">
                   <div className="flex items-center gap-2 mb-2">
-                    <Moon className="h-4 w-4 text-primary" />
-                    <h4 className="font-medium">Theme Mode</h4>
+                    <Timer className="h-4 w-4 text-primary" />
+                    <h4 className="font-medium">Timer Settings</h4>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Switch between light and dark themes based on your preference or environment.
-                  </p>
+                  <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                    <li>Adjust focus session length</li>
+                    <li>Customize break durations</li>
+                    <li>Set sessions before long break</li>
+                  </ul>
                 </div>
                 <div className="bg-card p-4 rounded-lg border">
                   <div className="flex items-center gap-2 mb-2">
-                    <Palette className="h-4 w-4 text-primary" />
-                    <h4 className="font-medium">Color Themes</h4>
+                    <Volume2 className="h-4 w-4 text-primary" />
+                    <h4 className="font-medium">Sound Settings</h4>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Choose from various accent colors: cyan (default), green, yellow, lavender, peach, mint, and rose.
-                  </p>
+                  <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                    <li>Enable/disable notifications</li>
+                    <li>Choose ambient background sounds</li>
+                    <li>Adjust volume levels</li>
+                  </ul>
                 </div>
-              </div>
-              
-              <div className="bg-primary/5 p-4 rounded-lg mt-6 border border-primary/20">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Pro Tip
-                </h4>
-                <p className="text-sm">
-                  Experiment with different timer durations to find what works best for you. Some tasks may benefit from shorter, more frequent focus sessions, while others might require longer, deeper concentration periods.
-                </p>
-              </div>
-            </div>
-          </section>
-          
-          <section id="getting-started" className="scroll-mt-24">
-            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-              <Timer className="h-5 w-5 text-primary" />
-              Getting Started Guide
-            </h2>
-            <div className="space-y-4">
-              <p>
-                Follow these steps to begin your productive journey with Meowdoro:
-              </p>
-              
-              <div className="space-y-6 mt-4">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    1
+                <div className="bg-card p-4 rounded-lg border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Moon className="h-4 w-4 text-primary" />
+                    <h4 className="font-medium">Appearance</h4>
                   </div>
-                  <div>
-                    <h4 className="font-medium mb-1">Create Your Account</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Sign up to save your settings, statistics, and notes across devices. This also enables features like Study Party.
-                    </p>
-                  </div>
+                  <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                    <li>Switch between light and dark themes</li>
+                    <li>Toggle between different theme colors</li>
+                  </ul>
                 </div>
-                
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    2
+                <div className="bg-card p-4 rounded-lg border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Bell className="h-4 w-4 text-primary" />
+                    <h4 className="font-medium">Notifications</h4>
                   </div>
-                  <div>
-                    <h4 className="font-medium mb-1">Customize Your Timer</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Visit Settings to adjust focus and break durations to match your preferences. The default 25-5 pattern works well for most users, but feel free to experiment.
-                    </p>
-                  </div>
+                  <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                    <li>Session start/end alerts</li>
+                    <li>Reminder notifications</li>
+                  </ul>
                 </div>
-                
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    3
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">Set Up Your Tasks</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Create notes or task lists for the items you want to work on during your focus sessions. Having a clear plan helps maintain focus.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    4
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">Choose Your Sounds</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Select notification sounds that work for you, and decide whether you want background ambient noise during your focus sessions.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    5
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">Start Your First Session</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Press the play button on the timer page to begin your first focus session. Remember to work on just one task during this time.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-primary/5 p-4 rounded-lg mt-6 border border-primary/20">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Pro Tip
-                </h4>
-                <p className="text-sm">
-                  During your first week, try to complete at least 4 focus sessions per day. This helps establish the habit while allowing you to experience the full cycle of work and breaks.
-                </p>
               </div>
             </div>
           </section>
@@ -603,61 +331,37 @@ const Docs: React.FC = () => {
             </h2>
             <div className="space-y-4">
               <p>
-                Get the most out of Meowdoro with these expert productivity suggestions:
+                Get the most out of Meowdoro with these quick tips:
               </p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-card p-4 rounded-lg border">
                   <h4 className="font-medium mb-2">Single-Tasking</h4>
                   <p className="text-sm text-muted-foreground">
-                    Focus on one specific task during each Pomodoro session. Multitasking reduces effectiveness and makes it harder to maintain concentration.
-                  </p>
-                </div>
-                
-                <div className="bg-card p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Environment Setup</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Create a dedicated workspace with minimal distractions. Consider using ambient sounds to mask background noise if needed.
+                    Focus on one specific task during each session. Multitasking reduces effectiveness.
                   </p>
                 </div>
                 
                 <div className="bg-card p-4 rounded-lg border">
                   <h4 className="font-medium mb-2">Take Real Breaks</h4>
                   <p className="text-sm text-muted-foreground">
-                    During breaks, step away from your screen. Stretch, move around, or do a quick physical activity to refresh your mind.
-                  </p>
-                </div>
-                
-                <div className="bg-card p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Task Batching</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Group similar tasks together and tackle them in consecutive Pomodoro sessions to reduce mental context switching.
-                  </p>
-                </div>
-                
-                <div className="bg-card p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Review Progress</h4>
-                  <p className="text-sm text-muted-foreground">
-                    After completing a set of focus sessions, review what you've accomplished and plan your next tasks.
+                    Step away from your screen during breaks. Stretch or do a quick physical activity.
                   </p>
                 </div>
                 
                 <div className="bg-card p-4 rounded-lg border">
                   <h4 className="font-medium mb-2">Start Small</h4>
                   <p className="text-sm text-muted-foreground">
-                    Begin with 1-2 focus sessions per day and gradually increase as you build the habit. Consistency matters more than quantity.
+                    Begin with 1-2 focus sessions per day and gradually increase as you build the habit.
                   </p>
                 </div>
-              </div>
-              
-              <div className="bg-primary/5 p-4 rounded-lg mt-6 border border-primary/20">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Advanced Tip
-                </h4>
-                <p className="text-sm">
-                  If you find yourself consistently unable to focus for the full 25 minutes, try the "Pomodoro Hierarchy" technique: Start with shorter sessions (10-15 minutes) and gradually increase the duration as your focus muscles strengthen.
-                </p>
+                
+                <div className="bg-card p-4 rounded-lg border">
+                  <h4 className="font-medium mb-2">Track Progress</h4>
+                  <p className="text-sm text-muted-foreground">
+                    After completing focus sessions, review what you've accomplished and plan next.
+                  </p>
+                </div>
               </div>
             </div>
           </section>
@@ -672,7 +376,7 @@ const Docs: React.FC = () => {
                 Power users can navigate Meowdoro more efficiently with these keyboard shortcuts:
               </p>
               
-              <div className="bg-card p-4 rounded-lg border mt-4">
+              <div className="bg-card p-4 rounded-lg border">
                 <h4 className="font-medium mb-3">Timer Controls</h4>
                 <div className="grid grid-cols-2 gap-y-2 text-sm">
                   <div className="font-medium">Space</div>
@@ -689,7 +393,7 @@ const Docs: React.FC = () => {
                 </div>
               </div>
               
-              <div className="bg-card p-4 rounded-lg border mt-4">
+              <div className="bg-card p-4 rounded-lg border">
                 <h4 className="font-medium mb-3">Navigation</h4>
                 <div className="grid grid-cols-2 gap-y-2 text-sm">
                   <div className="font-medium">T</div>
@@ -701,34 +405,14 @@ const Docs: React.FC = () => {
                   <div className="font-medium">P</div>
                   <div>Go to Party page</div>
                   
-                  <div className="font-medium">S</div>
-                  <div>Go to Stats page</div>
-                  
                   <div className="font-medium">Esc</div>
                   <div>Close dialogs/modals</div>
-                </div>
-              </div>
-              
-              <div className="bg-card p-4 rounded-lg border mt-4">
-                <h4 className="font-medium mb-3">Tasks Page</h4>
-                <div className="grid grid-cols-2 gap-y-2 text-sm">
-                  <div className="font-medium">Ctrl/⌘ + N</div>
-                  <div>New note</div>
-                  
-                  <div className="font-medium">Ctrl/⌘ + F</div>
-                  <div>Search notes</div>
-                  
-                  <div className="font-medium">Ctrl/⌘ + P</div>
-                  <div>Pin/unpin selected note</div>
-                  
-                  <div className="font-medium">Delete</div>
-                  <div>Delete selected note</div>
                 </div>
               </div>
             </div>
           </section>
           
-          <div className="pt-16 text-center">
+          <div className="pt-10 text-center">
             <p className="mb-4">Ready to boost your productivity with Meowdoro?</p>
             <Link to="/">
               <Button size="lg" className="rounded-full">

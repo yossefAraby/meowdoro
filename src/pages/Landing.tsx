@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +5,6 @@ import {
   Clock,
   ListTodo,
   Users,
-  BarChart,
   BookOpen,
   Mail,
   Lock,
@@ -25,7 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
-  const [showDocsDialog, setShowDocsDialog] = useState(false);
+  const [showLearnMoreDialog, setShowLearnMoreDialog] = useState(false);
   const { toast } = useToast();
   
   const [email, setEmail] = useState("");
@@ -144,10 +142,10 @@ const Landing: React.FC = () => {
                   variant="outline" 
                   size="lg" 
                   className="rounded-full px-8 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary backdrop-blur-sm"
-                  onClick={() => setShowDocsDialog(true)}
+                  onClick={() => setShowLearnMoreDialog(true)}
                 >
                   <BookOpen className="mr-2 h-5 w-5" />
-                  Documentation
+                  Learn More
                 </Button>
               </div>
             </div>
@@ -195,7 +193,7 @@ const Landing: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
                 <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
@@ -228,18 +226,6 @@ const Landing: React.FC = () => {
                 <h3 className="text-xl font-semibold">Study Party</h3>
                 <p className="text-foreground/70 dark:text-muted-foreground">
                   Join virtual study sessions with friends to stay motivated together
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
-                  <BarChart className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">Stats Tracking</h3>
-                <p className="text-foreground/70 dark:text-muted-foreground">
-                  Monitor your progress with visual statistics and insights
                 </p>
               </CardContent>
             </Card>
@@ -359,20 +345,20 @@ const Landing: React.FC = () => {
         </div>
       </section>
       
-      {/* Documentation dialog with improved accessibility */}
-      <Dialog open={showDocsDialog} onOpenChange={setShowDocsDialog}>
+      {/* Learn More dialog with updated content */}
+      <Dialog open={showLearnMoreDialog} onOpenChange={setShowLearnMoreDialog}>
         <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-primary" />
-              Meowdoro Documentation
+              Learn More
             </DialogTitle>
             <DialogDescription>
-              Comprehensive guide to getting the most out of your Meowdoro experience
+              Quick guide to getting the most out of Meowdoro
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-8 my-4 pr-2">
+          <div className="space-y-6 my-4 pr-2">
             <div className="flex justify-between items-center">
               <a 
                 href="https://drive.google.com/file/d/1c9SgZpXhoq9T3qp5Mg4Ab-X3ipe5HjQ_/view?usp=sharing" 
@@ -390,29 +376,35 @@ const Landing: React.FC = () => {
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" />
-                Pomodoro Timer
+                Getting Started
               </h3>
               <p className="text-muted-foreground mb-4">
-                The core of Meowdoro is its Pomodoro timer - a technique designed to enhance focus and productivity through structured work sessions and breaks.
+                Meowdoro helps you focus using the Pomodoro technique - alternating between focused work sessions and refreshing breaks.
               </p>
               
-              <div className="space-y-3 ml-1">
-                <h4 className="font-semibold text-base">How it works:</h4>
+              <div className="space-y-3 bg-card p-4 rounded-lg">
+                <h4 className="font-semibold text-base">Quick Start Guide:</h4>
                 <ol className="list-decimal list-inside space-y-2 ml-2">
-                  <li><strong>Focus Session:</strong> Default 25 minutes of concentrated work</li>
-                  <li><strong>Short Break:</strong> Default 5 minutes to rest briefly</li>
-                  <li><strong>Long Break:</strong> Default 15 minutes after completing several focus sessions</li>
-                  <li><strong>Cycle Repetition:</strong> Continue the pattern to maintain productivity</li>
+                  <li><strong>Create an account</strong> or join as a guest to get started</li>
+                  <li><strong>Timer Page:</strong> Use the focus timer with customizable durations</li>
+                  <li><strong>Tasks Page:</strong> Create and organize notes for your work</li>
+                  <li><strong>Party Page:</strong> Study with friends in virtual sessions</li>
                 </ol>
-                
-                <h4 className="font-semibold text-base mt-3">Timer Features:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li>Fully customizable session durations</li>
-                  <li>Visual progress tracking</li>
-                  <li>Audio notifications for session completion</li>
-                  <li>Custom sounds including YouTube audio integration</li>
-                  <li>Interactive cat companion providing study tips</li>
-                  <li>Skip option to move between sessions</li>
+              </div>
+            </section>
+            
+            <section>
+              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
+                <Clock className="h-5 w-5 text-primary" />
+                Using the Timer
+              </h3>
+              <div className="space-y-3 bg-card p-4 rounded-lg">
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li><strong>Focus Session:</strong> Default 25 minutes of concentrated work</li>
+                  <li><strong>Short Break:</strong> Default 5 minutes to rest</li>
+                  <li><strong>Long Break:</strong> Default 15 minutes after completing several focus sessions</li>
+                  <li><strong>Controls:</strong> Play/pause, skip to next session, and adjust settings</li>
+                  <li><strong>Cat Companion:</strong> Click on the cat for study tips and motivation</li>
                 </ul>
               </div>
             </section>
@@ -422,24 +414,12 @@ const Landing: React.FC = () => {
                 <ListTodo className="h-5 w-5 text-primary" />
                 Task Management
               </h3>
-              <p className="text-muted-foreground mb-4">
-                Keep track of your tasks and notes using our minimalist Google Keep-inspired interface.
-              </p>
-              
-              <div className="space-y-3 ml-1">
-                <h4 className="font-semibold text-base">Features:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li><strong>Simple Note Creation:</strong> Quick and distraction-free input</li>
-                  <li><strong>Organization:</strong> Color coding and pinning options</li>
-                  <li><strong>Responsive Layout:</strong> Works on all device sizes</li>
-                  <li><strong>Persistent Storage:</strong> Notes saved to browser storage</li>
-                  <li><strong>Search:</strong> Find notes quickly</li>
-                </ul>
-                
-                <h4 className="font-semibold text-base mt-3">Task Types:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li>Text notes for quick thoughts and ideas</li>
-                  <li>Checklists for actionable tasks</li>
+              <div className="space-y-3 bg-card p-4 rounded-lg">
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li><strong>Create Notes:</strong> Add titles and content for your tasks</li>
+                  <li><strong>Organization:</strong> Pin important notes to the top</li>
+                  <li><strong>Color Coding:</strong> Use different colors to categorize your notes</li>
+                  <li><strong>Search:</strong> Quickly find notes with the search function</li>
                 </ul>
               </div>
             </section>
@@ -449,54 +429,28 @@ const Landing: React.FC = () => {
                 <Users className="h-5 w-5 text-primary" />
                 Study Party
               </h3>
-              <p className="text-muted-foreground mb-4">
-                Study together virtually with friends to increase accountability and motivation.
-              </p>
-              
-              <div className="space-y-3 ml-1">
-                <h4 className="font-semibold text-base">How it works:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li><strong>Create or Join:</strong> Host or enter existing study rooms</li>
-                  <li><strong>Live Status:</strong> See who's focusing and who's on a break</li>
-                  <li><strong>Cat Avatars:</strong> Unique virtual representations for each participant</li>
-                  <li><strong>Shared Goals:</strong> Set group study targets</li>
-                </ul>
-                
-                <h4 className="font-semibold text-base mt-3">Benefits:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li>Increased accountability</li>
-                  <li>Reduced procrastination</li>
-                  <li>Social motivation without distraction</li>
-                  <li>Friendly competition to improve focus time</li>
+              <div className="space-y-3 bg-card p-4 rounded-lg">
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li><strong>Join Together:</strong> Create or join virtual study rooms</li>
+                  <li><strong>Stay Motivated:</strong> See when friends are focusing or taking breaks</li>
+                  <li><strong>Accountability:</strong> Increase productivity through group study</li>
+                  <li><strong>Cat Avatars:</strong> Each user gets a unique cat representation</li>
                 </ul>
               </div>
             </section>
             
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <BarChart className="h-5 w-5 text-primary" />
-                Statistics & Analytics
+                <Coffee className="h-5 w-5 text-primary" />
+                Productivity Tips
               </h3>
-              <p className="text-muted-foreground mb-4">
-                Track your productivity metrics over time to identify patterns and improve your work habits.
-              </p>
-              
-              <div className="space-y-3 ml-1">
-                <h4 className="font-semibold text-base">Available Stats:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li><strong>Daily Focus Time:</strong> Total minutes spent focusing</li>
-                  <li><strong>Weekly Overview:</strong> Visual representation of productivity patterns</li>
-                  <li><strong>Session Counts:</strong> Number of completed focus sessions</li>
-                  <li><strong>Streak Tracking:</strong> Consecutive days of meeting goals</li>
-                  <li><strong>Comparison Tools:</strong> Measure against previous performance</li>
-                </ul>
-                
-                <h4 className="font-semibold text-base mt-3">Using Analytics:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li>Identify your most productive hours</li>
-                  <li>Recognize patterns in focus session quality</li>
-                  <li>Set improvement goals based on data</li>
-                  <li>Celebrate productivity streaks</li>
+              <div className="space-y-3 bg-card p-4 rounded-lg">
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li><strong>One Task at a Time:</strong> Focus on a single task during each session</li>
+                  <li><strong>Take Real Breaks:</strong> Step away from the screen during break time</li>
+                  <li><strong>Set Daily Goals:</strong> Aim for 4-8 completed focus sessions per day</li>
+                  <li><strong>Minimize Distractions:</strong> Close unnecessary tabs and silence notifications</li>
+                  <li><strong>Hydrate:</strong> Keep water nearby during your study sessions</li>
                 </ul>
               </div>
             </section>
@@ -506,108 +460,11 @@ const Landing: React.FC = () => {
                 <Cat className="h-5 w-5 text-primary" />
                 Cat Companion
               </h3>
-              <p className="text-muted-foreground mb-4">
-                Your virtual study buddy changes moods to match your work state and offers study tips.
-              </p>
-              
-              <div className="space-y-3 ml-1">
-                <h4 className="font-semibold text-base">Cat States:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li><strong>Focused:</strong> When you're in a focus session</li>
-                  <li><strong>Happy:</strong> During a well-deserved break</li>
-                  <li><strong>Sleeping:</strong> When the timer is paused</li>
-                  <li><strong>Idle:</strong> Default state when not in a session</li>
-                </ul>
-                
-                <h4 className="font-semibold text-base mt-3">Study Tips:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li>Access over 100 curated productivity and study tips</li>
-                  <li>Click the cat to get random advice</li>
-                  <li>Tips based on proven learning and productivity techniques</li>
-                </ul>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
-                Purr-sonalized Features
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Features designed to make your productivity experience uniquely yours.
-              </p>
-              
-              <div className="space-y-3 ml-1">
-                <h4 className="font-semibold text-base">Customize Your Experience:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li><strong>Cat Personalities:</strong> Choose a cat companion that matches your vibe</li>
-                  <li><strong>Focus Themes:</strong> Select color schemes that help you concentrate</li>
-                  <li><strong>Custom Timer Settings:</strong> Tailor session lengths to your personal workflow</li>
-                  <li><strong>Notification Styles:</strong> Pick sounds that motivate without disrupting</li>
-                </ul>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Heart className="h-5 w-5 text-primary" />
-                Self-Care Reminders
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Because productivity is as much about rest as it is about work.
-              </p>
-              
-              <div className="space-y-3 ml-1">
-                <h4 className="font-semibold text-base">Healthy Habits:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li><strong>Stretching Prompts:</strong> Gentle reminders to move during breaks</li>
-                  <li><strong>Hydration Nudges:</strong> Your cat companion will remind you to drink water</li>
-                  <li><strong>Eye Rest Tips:</strong> Suggestions to reduce eye strain during screen time</li>
-                  <li><strong>Mindfulness Moments:</strong> Brief breathing exercises between sessions</li>
-                </ul>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Coffee className="h-5 w-5 text-primary" />
-                Getting Started Guide
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Follow these steps to begin your productive journey with Meowdoro:
-              </p>
-              
-              <div className="space-y-3 ml-1">
-                <ol className="list-decimal list-inside space-y-3 ml-2">
-                  <li>
-                    <strong>Create an account</strong> 
-                    <p className="text-sm text-muted-foreground ml-6 mt-1">This allows you to save your settings and statistics across devices.</p>
-                  </li>
-                  <li>
-                    <strong>Set up your timer preferences</strong>
-                    <p className="text-sm text-muted-foreground ml-6 mt-1">Adjust focus and break durations to match your work style.</p>
-                  </li>
-                  <li>
-                    <strong>Create a task list</strong>
-                    <p className="text-sm text-muted-foreground ml-6 mt-1">Plan what you'll work on during your focus sessions.</p>
-                  </li>
-                  <li>
-                    <strong>Choose your notification sounds</strong>
-                    <p className="text-sm text-muted-foreground ml-6 mt-1">Select audio that works best for your environment.</p>
-                  </li>
-                  <li>
-                    <strong>Start your first focus session</strong>
-                    <p className="text-sm text-muted-foreground ml-6 mt-1">Press the play button and begin focusing on your task.</p>
-                  </li>
-                </ol>
-                
-                <h4 className="font-semibold text-base mt-4">Productivity Tips:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li>Start with one task per focus session for maximum effectiveness</li>
-                  <li>Take your breaks seriously - step away from your screen</li>
-                  <li>Review your statistics weekly to identify improvement areas</li>
-                  <li>Use the cat companion's tips for fresh productivity ideas</li>
-                  <li>Consider joining a study party for accountability</li>
+              <div className="space-y-3 bg-card p-4 rounded-lg">
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li><strong>Interactive Friend:</strong> Your virtual cat changes mood based on timer state</li>
+                  <li><strong>Study Tips:</strong> Click on the cat for helpful productivity advice</li>
+                  <li><strong>Mood States:</strong> The cat appears focused during work, happy during breaks, and sleepy when paused</li>
                 </ul>
               </div>
             </section>
