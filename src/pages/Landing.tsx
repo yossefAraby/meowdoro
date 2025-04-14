@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -10,10 +11,9 @@ import {
   Lock,
   User,
   Cat,
-  Sparkles,
+  ArrowRight,
   Heart,
-  Coffee,
-  ArrowRight
+  Coffee
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
@@ -143,6 +143,7 @@ const Landing: React.FC = () => {
                   size="lg" 
                   className="rounded-full px-8 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary backdrop-blur-sm"
                   onClick={() => setShowLearnMoreDialog(true)}
+                  data-docs-trigger
                 >
                   <BookOpen className="mr-2 h-5 w-5" />
                   Learn More
@@ -165,6 +166,7 @@ const Landing: React.FC = () => {
                   className="w-56 h-56 md:w-72 md:h-72 relative z-10 transition-all duration-500 
                   group-hover:scale-110 group-hover:rotate-3 cursor-pointer drop-shadow-lg"
                   onClick={() => navigate('/timer')}
+                  loading="eager"
                 />
                 
                 {/* Shimmer effect on hover with better light mode visibility */}
@@ -193,7 +195,7 @@ const Landing: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
                 <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
@@ -217,18 +219,6 @@ const Landing: React.FC = () => {
                 </p>
               </CardContent>
             </Card>
-            
-            <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">Study Party</h3>
-                <p className="text-foreground/70 dark:text-muted-foreground">
-                  Join virtual study sessions with friends to stay motivated together
-                </p>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
@@ -247,6 +237,7 @@ const Landing: React.FC = () => {
             src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
             alt="Meowdoro Logo" 
             className="w-32 h-32 mx-auto relative z-10 animate-float drop-shadow-lg" 
+            loading="lazy"
           />
         </div>
         
@@ -354,7 +345,7 @@ const Landing: React.FC = () => {
               Learn More
             </DialogTitle>
             <DialogDescription>
-              Quick guide to getting the most out of Meowdoro
+              Quick tips to help you get started with Meowdoro
             </DialogDescription>
           </DialogHeader>
           
@@ -376,65 +367,29 @@ const Landing: React.FC = () => {
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" />
-                Getting Started
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Meowdoro helps you focus using the Pomodoro technique - alternating between focused work sessions and refreshing breaks.
-              </p>
-              
-              <div className="space-y-3 bg-card p-4 rounded-lg">
-                <h4 className="font-semibold text-base">Quick Start Guide:</h4>
-                <ol className="list-decimal list-inside space-y-2 ml-2">
-                  <li><strong>Create an account</strong> or join as a guest to get started</li>
-                  <li><strong>Timer Page:</strong> Use the focus timer with customizable durations</li>
-                  <li><strong>Tasks Page:</strong> Create and organize notes for your work</li>
-                  <li><strong>Party Page:</strong> Study with friends in virtual sessions</li>
-                </ol>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                Using the Timer
+                Quick Start
               </h3>
               <div className="space-y-3 bg-card p-4 rounded-lg">
                 <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong>Focus Session:</strong> Default 25 minutes of concentrated work</li>
-                  <li><strong>Short Break:</strong> Default 5 minutes to rest</li>
-                  <li><strong>Long Break:</strong> Default 15 minutes after completing several focus sessions</li>
-                  <li><strong>Controls:</strong> Play/pause, skip to next session, and adjust settings</li>
-                  <li><strong>Cat Companion:</strong> Click on the cat for study tips and motivation</li>
+                  <li><strong>Timer:</strong> 25-minute focus sessions with 5-minute breaks</li>
+                  <li><strong>Tasks:</strong> Create and organize notes for your projects</li>
+                  <li><strong>Party:</strong> Study with friends to stay motivated</li>
                 </ul>
               </div>
             </section>
             
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <ListTodo className="h-5 w-5 text-primary" />
-                Task Management
+                <Heart className="h-5 w-5 text-primary" />
+                Tips for Success
               </h3>
               <div className="space-y-3 bg-card p-4 rounded-lg">
                 <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong>Create Notes:</strong> Add titles and content for your tasks</li>
-                  <li><strong>Organization:</strong> Pin important notes to the top</li>
-                  <li><strong>Color Coding:</strong> Use different colors to categorize your notes</li>
-                  <li><strong>Search:</strong> Quickly find notes with the search function</li>
-                </ul>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
-                Study Party
-              </h3>
-              <div className="space-y-3 bg-card p-4 rounded-lg">
-                <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong>Join Together:</strong> Create or join virtual study rooms</li>
-                  <li><strong>Stay Motivated:</strong> See when friends are focusing or taking breaks</li>
-                  <li><strong>Accountability:</strong> Increase productivity through group study</li>
-                  <li><strong>Cat Avatars:</strong> Each user gets a unique cat representation</li>
+                  <li>Focus on one task at a time during each session</li>
+                  <li>Take actual breaks away from the screen</li>
+                  <li>Stay hydrated throughout your study sessions</li>
+                  <li>Click the cat companion for motivation and tips</li>
+                  <li>Customize timer settings to match your workflow</li>
                 </ul>
               </div>
             </section>
@@ -442,29 +397,14 @@ const Landing: React.FC = () => {
             <section>
               <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
                 <Coffee className="h-5 w-5 text-primary" />
-                Productivity Tips
+                Getting Help
               </h3>
               <div className="space-y-3 bg-card p-4 rounded-lg">
+                <p>If you need help or have questions, you can:</p>
                 <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong>One Task at a Time:</strong> Focus on a single task during each session</li>
-                  <li><strong>Take Real Breaks:</strong> Step away from the screen during break time</li>
-                  <li><strong>Set Daily Goals:</strong> Aim for 4-8 completed focus sessions per day</li>
-                  <li><strong>Minimize Distractions:</strong> Close unnecessary tabs and silence notifications</li>
-                  <li><strong>Hydrate:</strong> Keep water nearby during your study sessions</li>
-                </ul>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Cat className="h-5 w-5 text-primary" />
-                Cat Companion
-              </h3>
-              <div className="space-y-3 bg-card p-4 rounded-lg">
-                <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong>Interactive Friend:</strong> Your virtual cat changes mood based on timer state</li>
-                  <li><strong>Study Tips:</strong> Click on the cat for helpful productivity advice</li>
-                  <li><strong>Mood States:</strong> The cat appears focused during work, happy during breaks, and sleepy when paused</li>
+                  <li>Look for tooltips throughout the interface</li>
+                  <li>Check the settings panel for customization options</li>
+                  <li>Try clicking the cat for contextual assistance</li>
                 </ul>
               </div>
             </section>
