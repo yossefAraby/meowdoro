@@ -6,29 +6,24 @@ import {
   ListTodo,
   Users,
   BookOpen,
-  Mail,
-  Lock,
-  User,
   Cat,
   Sparkles,
   Heart,
   Coffee,
-  ArrowRight
+  ArrowRight,
+  Download,
+  Smartphone,
+  Laptop,
+  ExternalLink
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
   const [showLearnMoreDialog, setShowLearnMoreDialog] = useState(false);
   const { toast } = useToast();
-  
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   
   const handleJoinUs = () => {
     // Set a dummy user in localStorage to simulate login
@@ -46,54 +41,20 @@ const Landing: React.FC = () => {
     });
   };
   
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDownloadApk = () => {
+    toast({
+      title: "Download Started",
+      description: "Your Meowdoro APK download will begin shortly."
+    });
     
-    // Demo login functionality
-    if (email && password) {
-      localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: email.split('@')[0], email }));
-      
-      // Dispatch custom event to notify about auth change
-      window.dispatchEvent(new Event('auth-change'));
-      
-      navigate("/timer");
-      
+    // Simulate download (in a real app, this would link to an actual file)
+    setTimeout(() => {
       toast({
-        title: "Successfully logged in",
-        description: "Welcome back to Meowdoro!"
+        title: "Demo Mode",
+        description: "This is a demo. In a real app, the APK would download now.",
+        variant: "default"
       });
-    } else {
-      toast({
-        title: "Login failed",
-        description: "Please enter your email and password",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const handleSignup = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Demo signup functionality
-    if (email && password && name) {
-      localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name, email }));
-      
-      // Dispatch custom event to notify about auth change
-      window.dispatchEvent(new Event('auth-change'));
-      
-      navigate("/timer");
-      
-      toast({
-        title: "Account created",
-        description: "Welcome to Meowdoro!"
-      });
-    } else {
-      toast({
-        title: "Signup failed",
-        description: "Please fill out all fields",
-        variant: "destructive"
-      });
-    }
+    }, 2000);
   };
 
   return (
@@ -233,7 +194,7 @@ const Landing: React.FC = () => {
         </div>
       </section>
       
-      {/* Login / Signup Section with improved light mode support */}
+      {/* Download Options Section - replacing login/signup section */}
       <section className="py-20 bg-gradient-to-br from-background to-accent/10 dark:to-accent/5 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 dark:opacity-5">
           <div className="absolute inset-0 bg-dots"></div>
@@ -250,98 +211,54 @@ const Landing: React.FC = () => {
           />
         </div>
         
-        <div className="container max-w-md mx-auto px-4 text-center relative z-10">
-          <h2 className="text-3xl font-bold mb-6">Get Started</h2>
+        <div className="container max-w-4xl mx-auto px-4 text-center relative z-10">
+          <h2 className="text-3xl font-bold mb-6">Access Meowdoro Anywhere</h2>
+          <p className="text-foreground/80 dark:text-muted-foreground max-w-2xl mx-auto mb-10">
+            Choose how you want to use Meowdoro - download our Android app or use the online version on any device
+          </p>
           
-          <Card className="bg-card/90 dark:bg-card/80 backdrop-blur-sm border-primary/30 shadow-xl">
-            <CardContent className="p-6">
-              <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="login">Login</TabsTrigger>
-                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="login">
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        type="email" 
-                        placeholder="Email" 
-                        className="pl-10" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        type="password" 
-                        placeholder="Password" 
-                        className="pl-10" 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                    
-                    <Button type="submit" className="w-full">
-                      Login
-                    </Button>
-                  </form>
-                </TabsContent>
-                
-                <TabsContent value="signup">
-                  <form onSubmit={handleSignup} className="space-y-4">
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        type="text" 
-                        placeholder="Name" 
-                        className="pl-10" 
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        type="email" 
-                        placeholder="Email" 
-                        className="pl-10" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        type="password" 
-                        placeholder="Password" 
-                        className="pl-10" 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                    
-                    <Button type="submit" className="w-full">
-                      Sign Up
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
-              
-              <Button 
-                variant="outline" 
-                className="w-full mt-4 bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary hover:text-primary/90"
-                onClick={handleJoinUs}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Android App Option */}
+            <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border border-primary/20 rounded-lg p-6 transition-all hover:shadow-lg hover:-translate-y-1">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center">
+                  <Smartphone className="h-8 w-8 text-primary" />
+                </div>
+              </div>
+              <h3 className="text-xl font-bold mb-3">Android App</h3>
+              <p className="text-foreground/70 dark:text-muted-foreground mb-6">
+                Download the APK file directly to your Android device for the best mobile experience with offline support
+              </p>
+              <Button
+                onClick={handleDownloadApk}
+                className="w-full flex items-center justify-center gap-2"
               >
-                Join as a guest
+                <Download className="h-5 w-5" />
+                Download APK
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+            
+            {/* Online App Option */}
+            <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border border-primary/20 rounded-lg p-6 transition-all hover:shadow-lg hover:-translate-y-1">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center">
+                  <Laptop className="h-8 w-8 text-primary" />
+                </div>
+              </div>
+              <h3 className="text-xl font-bold mb-3">Web App</h3>
+              <p className="text-foreground/70 dark:text-muted-foreground mb-6">
+                Use Meowdoro directly in your browser on any device without installation, perfect for desktop and quick access
+              </p>
+              <Button
+                onClick={handleJoinUs}
+                className="w-full flex items-center justify-center gap-2"
+                variant="outline"
+              >
+                <ExternalLink className="h-5 w-5" />
+                Use Online
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
       

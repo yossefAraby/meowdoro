@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   Timer, 
@@ -9,22 +9,35 @@ import {
   Moon, 
   Menu,
   BookOpen,
-  Cat
+  Cat,
+  LogIn,
+  UserPlus,
+  Smartphone,
+  Globe
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { mode, setMode } = useTheme();
+  const { toast } = useToast();
   
-  // Check if user is authenticated
+  // Authentication state and form fields
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(
     localStorage.getItem("meowdoro-user") !== null
   );
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   
   // Effect to check authentication status on mount and when localStorage changes
   React.useEffect(() => {
@@ -67,6 +80,70 @@ export const Navbar: React.FC = () => {
     
     // Navigate to timer page
     navigate("/timer");
+    
+    // Close the dialog if it's open
+    setShowAuthDialog(false);
+    
+    toast({
+      title: "Welcome to Meowdoro!",
+      description: "You've joined as a guest. Your progress won't be saved between sessions."
+    });
+  };
+  
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Demo login functionality
+    if (email && password) {
+      localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name: email.split('@')[0], email }));
+      
+      // Dispatch custom event to notify about auth change
+      window.dispatchEvent(new Event('auth-change'));
+      
+      // Close the dialog
+      setShowAuthDialog(false);
+      
+      navigate("/timer");
+      
+      toast({
+        title: "Successfully logged in",
+        description: "Welcome back to Meowdoro!"
+      });
+    } else {
+      toast({
+        title: "Login failed",
+        description: "Please enter your email and password",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handleSignup = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Demo signup functionality
+    if (email && password && name) {
+      localStorage.setItem("meowdoro-user", JSON.stringify({ id: "user-1", name, email }));
+      
+      // Dispatch custom event to notify about auth change
+      window.dispatchEvent(new Event('auth-change'));
+      
+      // Close the dialog
+      setShowAuthDialog(false);
+      
+      navigate("/timer");
+      
+      toast({
+        title: "Account created",
+        description: "Welcome to Meowdoro!"
+      });
+    } else {
+      toast({
+        title: "Signup failed",
+        description: "Please fill out all fields",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -134,6 +211,98 @@ export const Navbar: React.FC = () => {
                     <span className="hidden md:inline">Learn More</span>
                   </Button>
                 </Link>
+                
+                {/* Auth Dialog Trigger */}
+                <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="hidden sm:inline-flex items-center gap-1"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      Sign In
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <Tabs defaultValue="login" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2 mb-6">
+                        <TabsTrigger value="login">Login</TabsTrigger>
+                        <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="login">
+                        <form onSubmit={handleLogin} className="space-y-4">
+                          <div className="relative">
+                            <Input 
+                              type="email" 
+                              placeholder="Email" 
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                            />
+                          </div>
+                          
+                          <div className="relative">
+                            <Input 
+                              type="password" 
+                              placeholder="Password" 
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                            />
+                          </div>
+                          
+                          <Button type="submit" className="w-full">
+                            Login
+                          </Button>
+                        </form>
+                      </TabsContent>
+                      
+                      <TabsContent value="signup">
+                        <form onSubmit={handleSignup} className="space-y-4">
+                          <div className="relative">
+                            <Input 
+                              type="text" 
+                              placeholder="Name" 
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                            />
+                          </div>
+                          
+                          <div className="relative">
+                            <Input 
+                              type="email" 
+                              placeholder="Email" 
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                            />
+                          </div>
+                          
+                          <div className="relative">
+                            <Input 
+                              type="password" 
+                              placeholder="Password" 
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                            />
+                          </div>
+                          
+                          <Button type="submit" className="w-full">
+                            Sign Up
+                          </Button>
+                        </form>
+                      </TabsContent>
+                    </Tabs>
+                    
+                    <Button 
+                      variant="outline" 
+                      className="w-full mt-4 bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary hover:text-primary/90"
+                      onClick={handleJoinNow}
+                    >
+                      Join as a guest
+                    </Button>
+                  </DialogContent>
+                </Dialog>
+                
                 <Button 
                   size="sm" 
                   className="hidden sm:inline-flex items-center gap-1"
@@ -186,6 +355,19 @@ export const Navbar: React.FC = () => {
                             <span>Learn More</span>
                           </Button>
                         </Link>
+                        
+                        <Button 
+                          variant="outline"
+                          className="w-full flex items-center gap-2"
+                          onClick={() => {
+                            setShowAuthDialog(true);
+                            document.querySelector<HTMLButtonElement>('.nj-modal-close')?.click();
+                          }}
+                        >
+                          <LogIn className="h-4 w-4" />
+                          <span>Sign In</span>
+                        </Button>
+                        
                         <Button 
                           className="w-full flex items-center gap-2"
                           onClick={handleJoinNow}
