@@ -1,65 +1,66 @@
 
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
-export const GuestDialog = ({ onClose }: { onClose?: () => void }) => {
+export const GuestDialog = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const handleContinueAsGuest = () => {
-    // Set a dummy user in localStorage to simulate login
-    localStorage.setItem("meowdoro-user", JSON.stringify({ id: "guest", name: "Guest" }));
-    
-    // Dispatch custom event to notify about auth change
-    window.dispatchEvent(new Event('auth-change'));
-    
-    // Navigate to the timer page
-    navigate("/timer");
-    
     toast({
-      title: "Welcome to Meowdoro!",
-      description: "You've joined as a guest. Your progress won't be saved between sessions."
+      title: "Continuing as guest",
+      description: "You can create an account later to save your progress.",
     });
-    
-    if (onClose) onClose();
+    navigate("/timer");
+    setIsOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          Continue as Guest
-        </Button>
+        <Button variant="outline" size="sm">Continue as Guest</Button>
       </DialogTrigger>
-      
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Continue as Guest?</DialogTitle>
+          <DialogTitle>Continue as Guest</DialogTitle>
+          <DialogDescription>
+            You can use Meowdoro without creating an account, but your progress won't be saved.
+          </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <p className="text-sm text-muted-foreground">
-            As a guest, you can use most features but your progress won't be saved between sessions.
-            Consider creating an account to:
+        <div className="py-4">
+          <p className="text-sm text-muted-foreground mb-2">
+            As a guest, you'll have access to:
           </p>
-          
-          <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-            <li>Save your timer preferences</li>
-            <li>Keep track of your tasks</li>
-            <li>Join study parties with friends</li>
-            <li>Sync across devices</li>
+          <ul className="text-sm space-y-1 list-disc pl-5">
+            <li>Pomodoro timer</li>
+            <li>Local task management</li>
+            <li>Background sounds</li>
           </ul>
+          <p className="text-sm text-muted-foreground mt-4">
+            Create an account to unlock all features including syncing across devices, 
+            study parties, and more!
+          </p>
         </div>
-        
-        <div className="flex justify-end gap-3">
-          <DialogTrigger asChild>
-            <Button variant="ghost">Cancel</Button>
-          </DialogTrigger>
-          <Button onClick={handleContinueAsGuest}>Continue as Guest</Button>
-        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleContinueAsGuest}>
+            Continue as Guest
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
