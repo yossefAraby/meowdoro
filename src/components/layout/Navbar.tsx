@@ -1,6 +1,6 @@
 
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Sun, Moon, Menu, LogOut } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -10,9 +10,8 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { NavbarLogo } from "./NavbarLogo";
-import { NavbarMenu } from "./NavbarMenu";
+import { NavbarMenu, navItems } from "./NavbarMenu";
 import { cn } from "@/lib/utils";
-import { navItems } from "./NavbarMenu";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();

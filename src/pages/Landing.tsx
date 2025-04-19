@@ -59,7 +59,10 @@ const Landing: React.FC = () => {
 
   const handleGetStarted = () => {
     // This will trigger the auth dialog to open
-    document.querySelector('[data-auth-trigger="true"]')?.click();
+    const authTrigger = document.querySelector('[data-auth-trigger="true"]');
+    if (authTrigger instanceof HTMLElement) {
+      authTrigger.click();
+    }
   };
 
   return (
