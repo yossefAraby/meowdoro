@@ -1,12 +1,11 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Users, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Plus, Trash } from "lucide-react";
+import { EmptyPartyState } from "./EmptyPartyState";
+import { TaskInput } from "./TaskInput";
+import { TaskItem } from "./TaskItem";
 
 interface PartyTask {
   id: string;
@@ -71,7 +70,6 @@ export const PartyTasks = () => {
     if (!activeParty) return;
     
     try {
-      // Using string literal for table name with type assertion to handle the TypeScript errors
       const { data, error } = await supabase
         .from('party_tasks' as any)
         .select('*')
@@ -80,7 +78,6 @@ export const PartyTasks = () => {
       
       if (error) throw error;
       
-      // First convert to unknown, then to PartyTask[] to properly handle the type conversion
       setPartyTasks(((data || []) as unknown) as PartyTask[]);
     } catch (error: any) {
       console.error("Error fetching party tasks:", error);
@@ -105,7 +102,6 @@ export const PartyTasks = () => {
         created_by: user.id
       };
       
-      // Using string literal with type assertion to handle TypeScript errors
       const { data, error } = await supabase
         .from('party_tasks' as any)
         .insert(newTask as any)
@@ -114,7 +110,6 @@ export const PartyTasks = () => {
       if (error) throw error;
       
       if (data) {
-        // First convert to unknown, then to PartyTask to properly handle the type conversion
         setPartyTasks([...partyTasks, ((data[0]) as unknown) as PartyTask]);
       }
       setNewTaskText("");
@@ -135,7 +130,6 @@ export const PartyTasks = () => {
 
   const toggleTaskCompletion = async (taskId: string, currentStatus: boolean) => {
     try {
-      // Using string literal with type assertion to handle TypeScript errors
       const { error } = await supabase
         .from('party_tasks' as any)
         .update({ completed: !currentStatus } as any)
@@ -158,7 +152,6 @@ export const PartyTasks = () => {
 
   const deleteTask = async (taskId: string) => {
     try {
-      // Using string literal with type assertion to handle TypeScript errors
       const { error } = await supabase
         .from('party_tasks' as any)
         .delete()
@@ -187,17 +180,7 @@ export const PartyTasks = () => {
   }
 
   if (!activeParty) {
-    return (
-      <div className="py-8 text-center">
-        <div className="mb-4">
-          <Users className="h-16 w-16 mx-auto text-muted-foreground mb-2" />
-          <h3 className="text-xl font-semibold mb-2">No Active Party</h3>
-          <p className="text-muted-foreground mb-4">
-            Join a study party to access shared tasks.
-          </p>
-        </div>
-      </div>
-    );
+    return <EmptyPartyState />;
   }
 
   return (
@@ -213,18 +196,11 @@ export const PartyTasks = () => {
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center space-x-2">
-          <Input
-            placeholder="Add a task for the party..."
-            value={newTaskText}
-            onChange={(e) => setNewTaskText(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addTask()}
-            className="flex-1"
-          />
-          <Button onClick={addTask} size="icon">
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
+        <TaskInput 
+          newTaskText={newTaskText}
+          onTextChange={setNewTaskText}
+          onAddTask={addTask}
+        />
 
         <div className="space-y-2 mt-4">
           {partyTasks.length === 0 ? (
@@ -233,32 +209,12 @@ export const PartyTasks = () => {
             </p>
           ) : (
             partyTasks.map((task) => (
-              <div
+              <TaskItem
                 key={task.id}
-                className="flex items-center space-x-2 p-2 hover:bg-accent/50 rounded-md"
-              >
-                <Checkbox
-                  checked={task.completed}
-                  onCheckedChange={() => toggleTaskCompletion(task.id, task.completed)}
-                  id={`party-task-${task.id}`}
-                />
-                <label
-                  htmlFor={`party-task-${task.id}`}
-                  className={`flex-1 cursor-pointer ${
-                    task.completed ? "line-through text-muted-foreground" : ""
-                  }`}
-                >
-                  {task.text}
-                </label>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  onClick={() => deleteTask(task.id)}
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </div>
+                task={task}
+                onToggleComplete={toggleTaskCompletion}
+                onDelete={deleteTask}
+              />
             ))
           )}
         </div>
