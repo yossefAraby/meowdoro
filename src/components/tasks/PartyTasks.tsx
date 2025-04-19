@@ -71,9 +71,9 @@ export const PartyTasks = () => {
     if (!activeParty) return;
     
     try {
-      // Here we need to use a string literal for the table name since it's not in the types yet
+      // Using string literal for table name with type assertion to handle the TypeScript errors
       const { data, error } = await supabase
-        .from('party_tasks')
+        .from('party_tasks' as any)
         .select('*')
         .eq('party_id', activeParty.id)
         .order('created_at', { ascending: true });
@@ -104,10 +104,10 @@ export const PartyTasks = () => {
         created_by: user.id
       };
       
-      // Here we need to use a string literal for the table name
+      // Using string literal with type assertion to handle TypeScript errors
       const { data, error } = await supabase
-        .from('party_tasks')
-        .insert(newTask)
+        .from('party_tasks' as any)
+        .insert(newTask as any)
         .select();
       
       if (error) throw error;
@@ -133,10 +133,10 @@ export const PartyTasks = () => {
 
   const toggleTaskCompletion = async (taskId: string, currentStatus: boolean) => {
     try {
-      // Here we need to use a string literal for the table name
+      // Using string literal with type assertion to handle TypeScript errors
       const { error } = await supabase
-        .from('party_tasks')
-        .update({ completed: !currentStatus })
+        .from('party_tasks' as any)
+        .update({ completed: !currentStatus } as any)
         .eq('id', taskId);
       
       if (error) throw error;
@@ -156,9 +156,9 @@ export const PartyTasks = () => {
 
   const deleteTask = async (taskId: string) => {
     try {
-      // Here we need to use a string literal for the table name
+      // Using string literal with type assertion to handle TypeScript errors
       const { error } = await supabase
-        .from('party_tasks')
+        .from('party_tasks' as any)
         .delete()
         .eq('id', taskId);
       
