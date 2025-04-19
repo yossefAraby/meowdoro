@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,14 @@ import { ThemeProvider } from "./components/layout/ThemeProvider";
 import { Navbar } from "./components/layout/Navbar";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "./contexts/AuthContext";
+
+// Import page components
+import Landing from "./pages/Landing";
+import Docs from "./pages/Docs";
+import Timer from "./pages/Timer";
+import Tasks from "./pages/Tasks";
+import Party from "./pages/Party";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
