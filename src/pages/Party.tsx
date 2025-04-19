@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,8 +5,11 @@ import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Cat, Users, Link, Copy, ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Party: React.FC = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("create");
   const [partyName, setPartyName] = useState("");
   const [partyCode, setPartyCode] = useState("");
@@ -15,7 +17,7 @@ const Party: React.FC = () => {
   
   const { toast } = useToast();
   
-  const generatePartyCode = () => {
+  const generatePartyCode = async () => {
     if (!partyName.trim()) {
       toast({
         title: "Party name required",
@@ -25,17 +27,34 @@ const Party: React.FC = () => {
       return;
     }
     
-    // Generate a random alphanumeric code
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    setGeneratedCode(code);
-    
-    toast({
-      title: "Party created!",
-      description: `Your study party "${partyName}" is ready to share.`
-    });
+    try {
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      
+      const { error } = await supabase
+        .from('study_parties')
+        .insert({
+          name: partyName,
+          code,
+          created_by: user?.id
+        });
+      
+      if (error) throw error;
+      
+      setGeneratedCode(code);
+      toast({
+        title: "Party created!",
+        description: `Your study party "${partyName}" is ready to share.`
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error creating party",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
   
-  const joinParty = () => {
+  const joinParty = async () => {
     if (!partyCode.trim()) {
       toast({
         title: "Party code required",
@@ -45,11 +64,41 @@ const Party: React.FC = () => {
       return;
     }
     
-    // In a real app, this would verify the code and join the room
-    toast({
-      title: "Joining party...",
-      description: "This feature is coming soon!"
-    });
+    try {
+      // First find the party
+      const { data: party, error: findError } = await supabase
+        .from('study_parties')
+        .select('id')
+        .eq('code', partyCode)
+        .single();
+      
+      if (findError) throw findError;
+      
+      // Then join it
+      const { error: joinError } = await supabase
+        .from('party_members')
+        .insert({
+          party_id: party.id,
+          user_id: user?.id
+        });
+      
+      if (joinError) throw joinError;
+      
+      toast({
+        title: "Joined successfully!",
+        description: "You have joined the study party."
+      });
+      
+      // Reset the form
+      setPartyCode("");
+      setActiveTab("create");
+    } catch (error: any) {
+      toast({
+        title: "Error joining party",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
   
   const copyToClipboard = (text: string) => {

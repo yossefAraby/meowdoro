@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
@@ -13,7 +12,8 @@ import {
   LogIn,
   UserPlus,
   Smartphone,
-  Globe
+  Globe,
+  LogOut
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { AuthDialog } from "@/components/auth/AuthDialog";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
@@ -38,7 +41,17 @@ export const Navbar: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const { user, isLoading } = useAuth();
   
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+    toast({
+      title: "Signed out",
+      description: "You've been successfully signed out.",
+    });
+  };
+
   // Effect to check authentication status on mount and when localStorage changes
   React.useEffect(() => {
     const checkAuth = () => {
@@ -197,121 +210,44 @@ export const Navbar: React.FC = () => {
               {mode === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             
-            {isAuthenticated ? (
-              <></>
-            ) : (
-              <div className="flex gap-2">
-                <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()}>
+            {!isLoading && (
+              user ? (
+                <div className="flex items-center gap-2">
                   <Button 
-                    variant="outline"
-                    size="sm"
-                    className="hidden sm:inline-flex items-center gap-1"
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleSignOut}
+                    className="gap-2"
                   >
-                    <BookOpen className="h-4 w-4" />
-                    <span className="hidden md:inline">Learn More</span>
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
                   </Button>
-                </Link>
-                
-                {/* Auth Dialog Trigger */}
-                <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-                  <DialogTrigger asChild>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-docs-trigger]')?.click()}>
                     <Button 
-                      size="sm" 
                       variant="outline"
+                      size="sm"
                       className="hidden sm:inline-flex items-center gap-1"
                     >
-                      <LogIn className="h-4 w-4" />
-                      Sign In
+                      <BookOpen className="h-4 w-4" />
+                      <span className="hidden md:inline">Learn More</span>
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <Tabs defaultValue="login" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2 mb-6">
-                        <TabsTrigger value="login">Login</TabsTrigger>
-                        <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="login">
-                        <form onSubmit={handleLogin} className="space-y-4">
-                          <div className="relative">
-                            <Input 
-                              type="email" 
-                              placeholder="Email" 
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                            />
-                          </div>
-                          
-                          <div className="relative">
-                            <Input 
-                              type="password" 
-                              placeholder="Password" 
-                              value={password}
-                              onChange={(e) => setPassword(e.target.value)}
-                            />
-                          </div>
-                          
-                          <Button type="submit" className="w-full">
-                            Login
-                          </Button>
-                        </form>
-                      </TabsContent>
-                      
-                      <TabsContent value="signup">
-                        <form onSubmit={handleSignup} className="space-y-4">
-                          <div className="relative">
-                            <Input 
-                              type="text" 
-                              placeholder="Name" 
-                              value={name}
-                              onChange={(e) => setName(e.target.value)}
-                            />
-                          </div>
-                          
-                          <div className="relative">
-                            <Input 
-                              type="email" 
-                              placeholder="Email" 
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                            />
-                          </div>
-                          
-                          <div className="relative">
-                            <Input 
-                              type="password" 
-                              placeholder="Password" 
-                              value={password}
-                              onChange={(e) => setPassword(e.target.value)}
-                            />
-                          </div>
-                          
-                          <Button type="submit" className="w-full">
-                            Sign Up
-                          </Button>
-                        </form>
-                      </TabsContent>
-                    </Tabs>
-                    
-                    <Button 
-                      variant="outline" 
-                      className="w-full mt-4 bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary hover:text-primary/90"
-                      onClick={handleJoinNow}
-                    >
-                      Join as a guest
-                    </Button>
-                  </DialogContent>
-                </Dialog>
-                
-                <Button 
-                  size="sm" 
-                  className="hidden sm:inline-flex items-center gap-1"
-                  onClick={handleJoinNow}
-                >
-                  <Cat className="h-4 w-4" />
-                  Get Started
-                </Button>
-              </div>
+                  </Link>
+                  
+                  <AuthDialog />
+                  
+                  <Button 
+                    size="sm" 
+                    className="hidden sm:inline-flex items-center gap-1"
+                    onClick={() => document.querySelector<HTMLButtonElement>('[data-auth-trigger]')?.click()}
+                  >
+                    <Cat className="h-4 w-4" />
+                    Get Started
+                  </Button>
+                </div>
+              )
             )}
             
             {/* Mobile Menu Button */}
