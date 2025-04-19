@@ -80,7 +80,8 @@ export const PartyTasks = () => {
       
       if (error) throw error;
       
-      setPartyTasks(data as PartyTask[] || []);
+      // Add explicit type assertion to ensure compatibility with PartyTask[]
+      setPartyTasks((data || []) as PartyTask[]);
     } catch (error: any) {
       console.error("Error fetching party tasks:", error);
       toast({
@@ -113,7 +114,8 @@ export const PartyTasks = () => {
       if (error) throw error;
       
       if (data) {
-        setPartyTasks([...partyTasks, data[0] as PartyTask]);
+        // Add explicit type assertion for the returned data
+        setPartyTasks([...partyTasks, (data[0] as unknown) as PartyTask]);
       }
       setNewTaskText("");
       
