@@ -57,6 +57,11 @@ const Landing: React.FC = () => {
     }, 2000);
   };
 
+  const handleGetStarted = () => {
+    // This will trigger the auth dialog to open
+    document.querySelector('[data-auth-trigger="true"]')?.click();
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero Section with better light/dark mode support */}
@@ -92,7 +97,7 @@ const Landing: React.FC = () => {
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-8">
                 <Button 
-                  onClick={handleJoinUs}
+                  onClick={handleGetStarted}
                   size="lg" 
                   className="rounded-full px-8 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/20"
                 >
@@ -250,7 +255,7 @@ const Landing: React.FC = () => {
                 Use Meowdoro directly in your browser on any device without installation, perfect for desktop and quick access
               </p>
               <Button
-                onClick={handleJoinUs}
+                onClick={handleGetStarted}
                 className="w-full flex items-center justify-center gap-2"
                 variant="outline"
               >

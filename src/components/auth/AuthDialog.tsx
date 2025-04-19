@@ -60,7 +60,7 @@ export const AuthDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button data-auth-trigger="true" variant="outline" size="sm" className="gap-2">
           <LogIn className="h-4 w-4" />
           Sign In
         </Button>
@@ -95,6 +95,11 @@ export const AuthDialog = () => {
                   {tab === "signup" ? "Sign Up" : "Sign In"}
                 </Button>
               </div>
+
+              <div className="flex items-center gap-2 justify-center">
+                <span className="text-sm text-muted-foreground">or</span>
+                <GuestDialog onClose={() => setIsOpen(false)} />
+              </div>
               
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -102,7 +107,7 @@ export const AuthDialog = () => {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
+                    Continue with
                   </span>
                 </div>
               </div>

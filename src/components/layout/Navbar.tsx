@@ -1,24 +1,18 @@
 
-import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { 
-  Timer, 
-  CheckSquare, 
-  Users, 
-  Sun, 
-  Moon,
-  Menu,
-  Cat,
-  LogOut
-} from "lucide-react";
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Sun, Moon, Menu, LogOut } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
-import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { NavbarLogo } from "./NavbarLogo";
+import { NavbarMenu } from "./NavbarMenu";
+import { cn } from "@/lib/utils";
+import { navItems } from "./NavbarMenu";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
@@ -27,12 +21,6 @@ export const Navbar: React.FC = () => {
   const { toast } = useToast();
   const { user, isLoading } = useAuth();
   
-  const navItems = [
-    { path: "/timer", icon: Timer, label: "Timer" },
-    { path: "/tasks", icon: CheckSquare, label: "Tasks" },
-    { path: "/party", icon: Users, label: "Party" },
-  ];
-
   const toggleMode = () => {
     setMode(mode === "light" ? "dark" : "light");
   };
@@ -50,43 +38,10 @@ export const Navbar: React.FC = () => {
     <div className="fixed top-0 left-0 right-0 z-50 glass animate-fade-in">
       <div className="container mx-auto">
         <nav className="flex justify-between items-center py-4">
-          {/* Logo and App Name */}
-          <div 
-            className="flex items-center gap-2 cursor-pointer transition-all hover:opacity-80"
-            onClick={() => navigate("/")}
-          >
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-[6px]"></div>
-              <img 
-                src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
-                alt="Meowdoro Logo" 
-                className="w-8 h-8 relative z-10"
-              />
-            </div>
-            <span className="font-bold text-xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              Meowdoro
-            </span>
-          </div>
-
-          {/* Navigation Links - Desktop */}
-          <div className="hidden md:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2 space-x-1">
-            {user && navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-150",
-                  location.pathname === item.path 
-                    ? "text-primary bg-accent/50" 
-                    : "text-foreground/60 hover:text-primary hover:bg-accent/30"
-                )}
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="text-xs mt-1">{item.label}</span>
-              </Link>
-            ))}
-          </div>
-
+          <NavbarLogo />
+          
+          {user && <NavbarMenu />}
+          
           {/* Right Side Actions */}
           <div className="flex items-center space-x-2">
             <button 
