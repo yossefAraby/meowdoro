@@ -13,7 +13,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
-export const GuestDialog = () => {
+interface GuestDialogProps {
+  onClose?: () => void;
+}
+
+export const GuestDialog: React.FC<GuestDialogProps> = ({ onClose }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -25,6 +29,7 @@ export const GuestDialog = () => {
     });
     navigate("/timer");
     setIsOpen(false);
+    if (onClose) onClose();
   };
 
   return (

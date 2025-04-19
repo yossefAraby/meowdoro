@@ -191,60 +191,60 @@ const Timer: React.FC = () => {
             Party Timer
           </TabsTrigger>
         </TabsList>
-      </Tabs>
-      
-      <TabsContent value="personal" className="space-y-6">
-        <div className="flex flex-col items-center">
-          {/* Timer controls */}
-          <AudioControls 
-            isCountdown={isCountdown}
-            toggleTimerMode={toggleTimerMode}
-            soundPlaying={soundPlaying}
-            onPlaySound={playSound}
-          >
-            {/* Settings button */}
-            <TimerSettings
-              focusMinutes={focusMinutes}
+        
+        <TabsContent value="personal" className="space-y-6">
+          <div className="flex flex-col items-center">
+            {/* Timer controls */}
+            <AudioControls 
+              isCountdown={isCountdown}
+              toggleTimerMode={toggleTimerMode}
+              soundPlaying={soundPlaying}
+              onPlaySound={playSound}
+            >
+              {/* Settings button */}
+              <TimerSettings
+                focusMinutes={focusMinutes}
+                breakMinutes={breakMinutes}
+                longBreakMinutes={longBreakMinutes}
+                sessionsBeforeLongBreak={sessionsBeforeLongBreak}
+                dailyGoal={dailyGoal}
+                completionSound={completionSound}
+                customYoutubeUrl={customYoutubeUrl}
+                setFocusMinutes={setFocusMinutes}
+                setBreakMinutes={setBreakMinutes}
+                setLongBreakMinutes={setLongBreakMinutes}
+                setSessionsBeforeLongBreak={setSessionsBeforeLongBreak}
+                setDailyGoal={setDailyGoal}
+                setCompletionSound={setCompletionSound}
+                setCustomYoutubeUrl={setCustomYoutubeUrl}
+                saveSettings={saveTimerSettings}
+              />
+            </AudioControls>
+            
+            {/* Main timer circle */}
+            <TimerCircle 
+              initialMinutes={focusMinutes}
               breakMinutes={breakMinutes}
               longBreakMinutes={longBreakMinutes}
               sessionsBeforeLongBreak={sessionsBeforeLongBreak}
-              dailyGoal={dailyGoal}
-              completionSound={completionSound}
-              customYoutubeUrl={customYoutubeUrl}
-              setFocusMinutes={setFocusMinutes}
-              setBreakMinutes={setBreakMinutes}
-              setLongBreakMinutes={setLongBreakMinutes}
-              setSessionsBeforeLongBreak={setSessionsBeforeLongBreak}
-              setDailyGoal={setDailyGoal}
-              setCompletionSound={setCompletionSound}
-              setCustomYoutubeUrl={setCustomYoutubeUrl}
-              saveSettings={saveTimerSettings}
+              isCountdown={isCountdown}
+              onTimerComplete={handleTimerComplete}
+              onTimerUpdate={handleTimerUpdate}
+              onModeChange={handleModeChange}
+              soundUrl={completionSound}
             />
-          </AudioControls>
-          
-          {/* Main timer circle */}
-          <TimerCircle 
-            initialMinutes={focusMinutes}
-            breakMinutes={breakMinutes}
-            longBreakMinutes={longBreakMinutes}
-            sessionsBeforeLongBreak={sessionsBeforeLongBreak}
-            isCountdown={isCountdown}
-            onTimerComplete={handleTimerComplete}
-            onTimerUpdate={handleTimerUpdate}
-            onModeChange={handleModeChange}
-            soundUrl={completionSound}
-          />
-          
-          {/* Progress bar */}
-          <div className="mt-12 w-full max-w-lg mx-auto">
-            <ProgressBar currentMinutes={totalFocusMinutes} goalMinutes={dailyGoal} />
+            
+            {/* Progress bar */}
+            <div className="mt-12 w-full max-w-lg mx-auto">
+              <ProgressBar currentMinutes={totalFocusMinutes} goalMinutes={dailyGoal} />
+            </div>
           </div>
-        </div>
-      </TabsContent>
-      
-      <TabsContent value="party">
-        <PartyTimer />
-      </TabsContent>
+        </TabsContent>
+        
+        <TabsContent value="party">
+          <PartyTimer />
+        </TabsContent>
+      </Tabs>
       
       {/* Cat companion */}
       <div className="fixed bottom-6 right-6">

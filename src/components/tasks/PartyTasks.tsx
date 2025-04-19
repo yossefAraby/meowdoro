@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -72,6 +71,7 @@ export const PartyTasks = () => {
     if (!activeParty) return;
     
     try {
+      // Here we need to use a string literal for the table name since it's not in the types yet
       const { data, error } = await supabase
         .from('party_tasks')
         .select('*')
@@ -80,7 +80,7 @@ export const PartyTasks = () => {
       
       if (error) throw error;
       
-      setPartyTasks(data || []);
+      setPartyTasks(data as PartyTask[] || []);
     } catch (error: any) {
       console.error("Error fetching party tasks:", error);
       toast({
@@ -104,15 +104,17 @@ export const PartyTasks = () => {
         created_by: user.id
       };
       
+      // Here we need to use a string literal for the table name
       const { data, error } = await supabase
         .from('party_tasks')
         .insert(newTask)
-        .select()
-        .single();
+        .select();
       
       if (error) throw error;
       
-      setPartyTasks([...partyTasks, data]);
+      if (data) {
+        setPartyTasks([...partyTasks, data[0] as PartyTask]);
+      }
       setNewTaskText("");
       
       toast({
@@ -131,6 +133,7 @@ export const PartyTasks = () => {
 
   const toggleTaskCompletion = async (taskId: string, currentStatus: boolean) => {
     try {
+      // Here we need to use a string literal for the table name
       const { error } = await supabase
         .from('party_tasks')
         .update({ completed: !currentStatus })
@@ -153,6 +156,7 @@ export const PartyTasks = () => {
 
   const deleteTask = async (taskId: string) => {
     try {
+      // Here we need to use a string literal for the table name
       const { error } = await supabase
         .from('party_tasks')
         .delete()
