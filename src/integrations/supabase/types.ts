@@ -38,6 +38,24 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string
+          first_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          first_name: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          first_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
       study_parties: {
         Row: {
           code: string
