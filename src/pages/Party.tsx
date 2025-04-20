@@ -8,6 +8,7 @@ import { Cat, Users, Link, Copy, ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { PartyMembers } from "@/components/party/PartyMembers";
 
 interface Party {
   id: string;
@@ -24,6 +25,12 @@ interface PartyMembership {
   joined_at: string;
 }
 
+interface PartyMember {
+  id: string;
+  first_name: string;
+  joined_at: string;
+}
+
 const Party: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -34,7 +41,7 @@ const Party: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeParty, setActiveParty] = useState<Party | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [members, setMembers] = useState<any[]>([]);
+  const [members, setMembers] = useState<PartyMember[]>([]);
 
   const { toast } = useToast();
 
@@ -262,8 +269,11 @@ const Party: React.FC = () => {
       const { data: memberData, error: memberError } = await supabase
         .from('party_members')
         .select(`
+          id,
           user_id,
+          joined_at,
           profiles:user_id (
+            id,
             first_name
           )
         `)
@@ -347,7 +357,7 @@ const Party: React.FC = () => {
             </div>
           </CardContent>
           
-          <div className="mt-8 border-t pt-6">
+          <div className="mt-8 border-t pt-6 px-6 pb-6">
             <PartyMembers
               partyId={activeParty.id}
               members={members}
