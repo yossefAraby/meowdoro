@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -266,28 +267,47 @@ const Party: React.FC = () => {
     if (!activeParty) return;
     
     try {
+      // Modified query to get separate profiles data
       const { data: memberData, error: memberError } = await supabase
         .from('party_members')
-        .select(`
-          id,
-          user_id,
-          joined_at,
-          profiles:user_id (
-            id,
-            first_name
-          )
-        `)
+        .select('id, user_id, joined_at')
         .eq('party_id', activeParty.id);
       
       if (memberError) throw memberError;
       
-      if (memberData) {
-        const formattedMembers = memberData.map(member => ({
-          id: member.user_id,
-          first_name: member.profiles?.first_name || 'Anonymous',
-          joined_at: member.joined_at
-        }));
+      if (memberData && memberData.length > 0) {
+        // Get all user_ids from party members
+        const userIds = memberData.map(member => member.user_id);
+        
+        // Separate query to get profiles
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, first_name')
+          .in('id', userIds);
+        
+        if (profilesError) throw profilesError;
+        
+        // Create a map of profile data by user_id for quick lookup
+        const profilesMap = new Map();
+        if (profilesData) {
+          profilesData.forEach(profile => {
+            profilesMap.set(profile.id, profile);
+          });
+        }
+        
+        // Now combine the member data with their profile info
+        const formattedMembers = memberData.map(member => {
+          const profile = profilesMap.get(member.user_id);
+          return {
+            id: member.user_id,
+            first_name: profile?.first_name || 'Anonymous',
+            joined_at: member.joined_at
+          };
+        });
+        
         setMembers(formattedMembers);
+      } else {
+        setMembers([]);
       }
     } catch (error: any) {
       console.error("Error fetching party members:", error);
