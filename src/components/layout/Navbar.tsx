@@ -1,10 +1,11 @@
 
 import React from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { Sun, Moon, Menu, LogOut } from "lucide-react";
+import { Sun, Moon, Menu, User } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,13 +34,19 @@ export const Navbar: React.FC = () => {
     });
   };
 
+  // Get user info from localStorage if guest
+  const guestUser = user ? null : JSON.parse(localStorage.getItem("meowdoro-user") || "null");
+  const isGuest = Boolean(guestUser);
+  const displayName = user?.user_metadata?.first_name || guestUser?.first_name || "User";
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 glass animate-fade-in">
       <div className="container mx-auto">
         <nav className="flex justify-between items-center py-4">
           <NavbarLogo />
           
-          {user && <NavbarMenu />}
+          {/* Show NavbarMenu for both authenticated and guest users */}
+          <NavbarMenu />
           
           {/* Right Side Actions */}
           <div className="flex items-center space-x-2">
@@ -52,16 +59,29 @@ export const Navbar: React.FC = () => {
             </button>
             
             {!isLoading && (
-              user ? (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleSignOut}
-                  className="gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </Button>
+              user || isGuest ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      onClick={handleSignOut}
+                    >
+                      <User className="h-4 w-4" />
+                      {displayName}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="text-sm">
+                      <p className="font-medium">{displayName}</p>
+                      {isGuest && (
+                        <p className="text-muted-foreground text-xs">Guest Account</p>
+                      )}
+                      <p className="text-xs mt-1">Click to sign out</p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
               ) : (
                 <AuthDialog />
               )
@@ -79,29 +99,22 @@ export const Navbar: React.FC = () => {
                   <div className="text-xl font-bold mb-6">Meowdoro</div>
                   
                   <div className="space-y-2">
-                    {user ? (
-                      <>
-                        {navItems.map((item) => (
-                          <Link
-                            key={item.path}
-                            to={item.path}
-                            className={cn(
-                              "flex items-center gap-3 p-3 rounded-lg transition-all",
-                              location.pathname === item.path 
-                                ? "bg-accent text-primary" 
-                                : "hover:bg-accent/50"
-                            )}
-                          >
-                            <item.icon className="w-5 h-5" />
-                            <span>{item.label}</span>
-                          </Link>
-                        ))}
-                      </>
-                    ) : (
-                      <div className="mt-auto space-y-3">
-                        <AuthDialog />
-                      </div>
-                    )}
+                    {/* Show navigation items for both authenticated and guest users */}
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        className={cn(
+                          "flex items-center gap-3 p-3 rounded-lg transition-all",
+                          location.pathname === item.path 
+                            ? "bg-accent text-primary" 
+                            : "hover:bg-accent/50"
+                        )}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        <span>{item.label}</span>
+                      </Link>
+                    ))}
                   </div>
                 </div>
               </SheetContent>
