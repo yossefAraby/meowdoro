@@ -6,11 +6,6 @@ import { CatCompanion } from "@/components/timer/CatCompanion";
 import { AudioControls, useBackgroundSounds } from "@/components/timer/AudioControls";
 import { TimerSettings } from "@/components/timer/TimerSettings";
 import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Clock } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { PartyTimer } from "@/components/timer/PartyTimer";
 
 const Timer: React.FC = () => {
   // Timer state - whether countdown or count-up
@@ -26,9 +21,6 @@ const Timer: React.FC = () => {
   const [catStatus, setCatStatus] = useState<"sleeping" | "idle" | "happy" | "focused">("idle");
   const [timerCompleted, setTimerCompleted] = useState(false);
   const [currentMode, setCurrentMode] = useState<"focus" | "break" | "longBreak">("focus");
-  const [activeTab, setActiveTab] = useState('personal');
-  const [hasActiveParty, setHasActiveParty] = useState(false);
-  const { user } = useAuth();
   
   // Settings from localStorage
   const [completionSound, setCompletionSound] = useState(() => {
@@ -57,31 +49,6 @@ const Timer: React.FC = () => {
   
   const { toast } = useToast();
   const { soundPlaying, playSound } = useBackgroundSounds();
-  
-  // Check if user is in a party
-  useEffect(() => {
-    if (user) {
-      checkPartyStatus();
-    }
-  }, [user]);
-
-  const checkPartyStatus = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('party_members')
-        .select('party_id')
-        .eq('user_id', user.id)
-        .limit(1);
-      
-      if (error) throw error;
-      
-      setHasActiveParty(data && data.length > 0);
-    } catch (error) {
-      console.error("Error checking party status:", error);
-    }
-  };
   
   // Update cat status based on timer state
   useEffect(() => {
@@ -180,71 +147,52 @@ const Timer: React.FC = () => {
   
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 page-transition">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-          <TabsTrigger value="personal" className="gap-2">
-            <Clock className="h-4 w-4" />
-            Personal Timer
-          </TabsTrigger>
-          <TabsTrigger value="party" disabled={!hasActiveParty} className="gap-2">
-            <Users className="h-4 w-4" />
-            Party Timer
-          </TabsTrigger>
-        </TabsList>
+      <div className="flex flex-col items-center">
+        {/* Timer controls */}
+        <AudioControls 
+          isCountdown={isCountdown}
+          toggleTimerMode={toggleTimerMode}
+          soundPlaying={soundPlaying}
+          onPlaySound={playSound}
+        >
+          {/* Settings button */}
+          <TimerSettings
+            focusMinutes={focusMinutes}
+            breakMinutes={breakMinutes}
+            longBreakMinutes={longBreakMinutes}
+            sessionsBeforeLongBreak={sessionsBeforeLongBreak}
+            dailyGoal={dailyGoal}
+            completionSound={completionSound}
+            customYoutubeUrl={customYoutubeUrl}
+            setFocusMinutes={setFocusMinutes}
+            setBreakMinutes={setBreakMinutes}
+            setLongBreakMinutes={setLongBreakMinutes}
+            setSessionsBeforeLongBreak={setSessionsBeforeLongBreak}
+            setDailyGoal={setDailyGoal}
+            setCompletionSound={setCompletionSound}
+            setCustomYoutubeUrl={setCustomYoutubeUrl}
+            saveSettings={saveTimerSettings}
+          />
+        </AudioControls>
         
-        <TabsContent value="personal" className="space-y-6">
-          <div className="flex flex-col items-center">
-            {/* Timer controls */}
-            <AudioControls 
-              isCountdown={isCountdown}
-              toggleTimerMode={toggleTimerMode}
-              soundPlaying={soundPlaying}
-              onPlaySound={playSound}
-            >
-              {/* Settings button */}
-              <TimerSettings
-                focusMinutes={focusMinutes}
-                breakMinutes={breakMinutes}
-                longBreakMinutes={longBreakMinutes}
-                sessionsBeforeLongBreak={sessionsBeforeLongBreak}
-                dailyGoal={dailyGoal}
-                completionSound={completionSound}
-                customYoutubeUrl={customYoutubeUrl}
-                setFocusMinutes={setFocusMinutes}
-                setBreakMinutes={setBreakMinutes}
-                setLongBreakMinutes={setLongBreakMinutes}
-                setSessionsBeforeLongBreak={setSessionsBeforeLongBreak}
-                setDailyGoal={setDailyGoal}
-                setCompletionSound={setCompletionSound}
-                setCustomYoutubeUrl={setCustomYoutubeUrl}
-                saveSettings={saveTimerSettings}
-              />
-            </AudioControls>
-            
-            {/* Main timer circle */}
-            <TimerCircle 
-              initialMinutes={focusMinutes}
-              breakMinutes={breakMinutes}
-              longBreakMinutes={longBreakMinutes}
-              sessionsBeforeLongBreak={sessionsBeforeLongBreak}
-              isCountdown={isCountdown}
-              onTimerComplete={handleTimerComplete}
-              onTimerUpdate={handleTimerUpdate}
-              onModeChange={handleModeChange}
-              soundUrl={completionSound}
-            />
-            
-            {/* Progress bar */}
-            <div className="mt-12 w-full max-w-lg mx-auto">
-              <ProgressBar currentMinutes={totalFocusMinutes} goalMinutes={dailyGoal} />
-            </div>
-          </div>
-        </TabsContent>
+        {/* Main timer circle */}
+        <TimerCircle 
+          initialMinutes={focusMinutes}
+          breakMinutes={breakMinutes}
+          longBreakMinutes={longBreakMinutes}
+          sessionsBeforeLongBreak={sessionsBeforeLongBreak}
+          isCountdown={isCountdown}
+          onTimerComplete={handleTimerComplete}
+          onTimerUpdate={handleTimerUpdate}
+          onModeChange={handleModeChange}
+          soundUrl={completionSound}
+        />
         
-        <TabsContent value="party">
-          <PartyTimer />
-        </TabsContent>
-      </Tabs>
+        {/* Progress bar */}
+        <div className="mt-12 w-full max-w-lg mx-auto">
+          <ProgressBar currentMinutes={totalFocusMinutes} goalMinutes={dailyGoal} />
+        </div>
+      </div>
       
       {/* Cat companion */}
       <div className="fixed bottom-6 right-6">
