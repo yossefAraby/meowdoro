@@ -14,6 +14,8 @@ import Timer from "./pages/Timer";
 import Tasks from "./pages/Tasks";
 import Party from "./pages/Party";
 import Docs from "./pages/Docs";
+import Stats from "./pages/Stats";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
 // Create a new query client for React Query
@@ -64,6 +66,7 @@ const App = () => {
                 {/* Public routes */}
                 <Route path="/" element={<Landing />} />
                 <Route path="/docs" element={<Docs />} />
+                <Route path="/pricing" element={<Pricing />} />
                 
                 {/* Protected routes - redirect to home if not logged in */}
                 <Route 
@@ -78,12 +81,12 @@ const App = () => {
                   path="/party" 
                   element={isAuthenticated ? <Party /> : <Navigate to="/" replace />} 
                 />
-                
-                {/* Redirect settings and stats to timer */}
                 <Route 
                   path="/stats" 
-                  element={<Navigate to="/timer" replace />} 
+                  element={isAuthenticated ? <Stats /> : <Navigate to="/" replace />} 
                 />
+                
+                {/* Redirect settings to timer */}
                 <Route 
                   path="/settings" 
                   element={<Navigate to="/timer" replace />} 
