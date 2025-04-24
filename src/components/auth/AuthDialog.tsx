@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Github, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,29 +13,15 @@ export const AuthDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
   const { toast } = useToast();
 
   const handleEmailAuth = async (isSignUp: boolean) => {
     try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              first_name: firstName.trim(),
-            },
-          },
-        });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-      }
+      const { error } = isSignUp 
+        ? await supabase.auth.signUp({ email, password })
+        : await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) throw error;
       
       setIsOpen(false);
       toast({
@@ -90,14 +77,6 @@ export const AuthDialog = () => {
           {["signin", "signup"].map((tab) => (
             <TabsContent key={tab} value={tab} className="space-y-4">
               <div className="space-y-2">
-                {tab === "signup" && (
-                  <Input
-                    type="text"
-                    placeholder="First Name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                  />
-                )}
                 <Input
                   type="email"
                   placeholder="Email"

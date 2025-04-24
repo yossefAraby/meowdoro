@@ -9,8 +9,8 @@ import { Cat, Users, Link, Copy, ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { PartyMembers } from "@/components/party/PartyMembers";
 
+// Interfaces for party and membership data
 interface Party {
   id: string;
   name: string;
@@ -26,12 +26,6 @@ interface PartyMembership {
   joined_at: string;
 }
 
-interface PartyMember {
-  id: string;
-  first_name: string;
-  joined_at: string;
-}
-
 const Party: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -42,10 +36,10 @@ const Party: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeParty, setActiveParty] = useState<Party | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [members, setMembers] = useState<PartyMember[]>([]);
-
+  
   const { toast } = useToast();
-
+  
+  // Check if user is already in a party
   useEffect(() => {
     if (user) {
       checkActiveParty();
@@ -56,6 +50,7 @@ const Party: React.FC = () => {
     if (!user) return;
     
     try {
+      // Get party memberships for current user
       const { data: memberships, error: membershipError } = await supabase
         .from('party_members')
         .select('*, party:party_id(*)')
@@ -66,6 +61,7 @@ const Party: React.FC = () => {
       if (membershipError) throw membershipError;
       
       if (memberships && memberships.length > 0) {
+        // User is in a party
         setActiveParty(memberships[0].party as unknown as Party);
       }
     } catch (error: any) {
@@ -110,6 +106,7 @@ const Party: React.FC = () => {
       
       if (error) throw error;
       
+      // Join the party you created
       const { error: joinError } = await supabase
         .from('party_members')
         .insert({
@@ -138,7 +135,7 @@ const Party: React.FC = () => {
       setIsLoading(false);
     }
   };
-
+  
   const joinParty = async () => {
     if (!user) {
       toast({
@@ -162,6 +159,7 @@ const Party: React.FC = () => {
     setErrorMessage("");
     
     try {
+      // First find the party
       const { data: party, error: findError } = await supabase
         .from('study_parties')
         .select('*')
@@ -175,6 +173,7 @@ const Party: React.FC = () => {
         throw findError;
       }
       
+      // Check if already a member
       const { data: existingMembership, error: membershipCheckError } = await supabase
         .from('party_members')
         .select('*')
@@ -193,6 +192,7 @@ const Party: React.FC = () => {
         return;
       }
       
+      // Then join it
       const { error: joinError } = await supabase
         .from('party_members')
         .insert({
@@ -209,6 +209,7 @@ const Party: React.FC = () => {
         description: `You have joined the study party "${party.name}".`
       });
       
+      // Reset the form
       setPartyCode("");
       setActiveTab("create");
     } catch (error: any) {
@@ -223,7 +224,7 @@ const Party: React.FC = () => {
       setIsLoading(false);
     }
   };
-
+  
   const leaveParty = async () => {
     if (!user || !activeParty) return;
     
@@ -250,7 +251,7 @@ const Party: React.FC = () => {
       });
     }
   };
-
+  
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -262,64 +263,8 @@ const Party: React.FC = () => {
   const navigateTo = (path: string) => {
     navigate(path);
   };
-
-  const fetchPartyMembers = async () => {
-    if (!activeParty) return;
-    
-    try {
-      // Modified query to get separate profiles data
-      const { data: memberData, error: memberError } = await supabase
-        .from('party_members')
-        .select('id, user_id, joined_at')
-        .eq('party_id', activeParty.id);
-      
-      if (memberError) throw memberError;
-      
-      if (memberData && memberData.length > 0) {
-        // Get all user_ids from party members
-        const userIds = memberData.map(member => member.user_id);
-        
-        // Separate query to get profiles
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, first_name')
-          .in('id', userIds);
-        
-        if (profilesError) throw profilesError;
-        
-        // Create a map of profile data by user_id for quick lookup
-        const profilesMap = new Map();
-        if (profilesData) {
-          profilesData.forEach(profile => {
-            profilesMap.set(profile.id, profile);
-          });
-        }
-        
-        // Now combine the member data with their profile info
-        const formattedMembers = memberData.map(member => {
-          const profile = profilesMap.get(member.user_id);
-          return {
-            id: member.user_id,
-            first_name: profile?.first_name || 'Anonymous',
-            joined_at: member.joined_at
-          };
-        });
-        
-        setMembers(formattedMembers);
-      } else {
-        setMembers([]);
-      }
-    } catch (error: any) {
-      console.error("Error fetching party members:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (activeParty) {
-      fetchPartyMembers();
-    }
-  }, [activeParty]);
-
+  
+  // Show active party view if user is in a party
   if (activeParty) {
     return (
       <div className="container max-w-3xl mx-auto px-4 py-8 page-transition">
@@ -376,19 +321,9 @@ const Party: React.FC = () => {
               </Button>
             </div>
           </CardContent>
-          
-          <div className="mt-8 border-t pt-6 px-6 pb-6">
-            <PartyMembers
-              partyId={activeParty.id}
-              members={members}
-              isHost={activeParty.created_by === user?.id}
-              onMemberRemoved={(memberId) => {
-                setMembers(members.filter(m => m.id !== memberId));
-              }}
-            />
-          </div>
         </Card>
         
+        {/* Cat Illustrations */}
         <div className="mt-16 flex justify-center items-end gap-12">
           <div className="relative">
             <div className="animate-float">
@@ -407,7 +342,7 @@ const Party: React.FC = () => {
       </div>
     );
   }
-
+  
   return (
     <div className="container max-w-3xl mx-auto px-4 py-8 page-transition">
       <div className="text-center mb-12">
@@ -527,6 +462,7 @@ const Party: React.FC = () => {
         </Tabs>
       </Card>
       
+      {/* Cat Illustrations using Lucide icons with animation */}
       <div className="mt-16 flex justify-center items-end gap-12">
         <div className="relative">
           <div className="animate-float">
