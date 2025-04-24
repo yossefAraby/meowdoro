@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +12,8 @@ import {
   Search, 
   CheckSquare, 
   ListPlus,
-  Palette
+  Palette,
+  Users
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -33,6 +33,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PartyTasks } from "@/components/tasks/PartyTasks";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 // Types
 type Task = {
@@ -71,6 +75,9 @@ const Tasks: React.FC = () => {
     return savedNotes ? JSON.parse(savedNotes) : [];
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('personal');
+  const [hasActiveParty, setHasActiveParty] = useState(false);
+  const { user } = useAuth();
   
   // State for creating new notes
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -86,6 +93,31 @@ const Tasks: React.FC = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const taskInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  
+  // Check if user is in a party
+  useEffect(() => {
+    if (user) {
+      checkPartyStatus();
+    }
+  }, [user]);
+
+  const checkPartyStatus = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('party_members')
+        .select('party_id')
+        .eq('user_id', user.id)
+        .limit(1);
+      
+      if (error) throw error;
+      
+      setHasActiveParty(data && data.length > 0);
+    } catch (error) {
+      console.error("Error checking party status:", error);
+    }
+  };
   
   // Save notes to localStorage
   useEffect(() => {
@@ -234,284 +266,300 @@ const Tasks: React.FC = () => {
   
   return (
     <div className="container max-w-6xl mx-auto py-8 px-4 page-transition">
-      {/* Search bar */}
-      <div className="max-w-lg mx-auto mb-6 relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="Search notes"
-          className="pl-10"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
+          <TabsTrigger value="personal" className="gap-2">
+            <CheckSquare className="h-4 w-4" />
+            Personal Notes
+          </TabsTrigger>
+          <TabsTrigger value="party" disabled={!hasActiveParty} className="gap-2">
+            <Users className="h-4 w-4" />
+            Party Tasks
+          </TabsTrigger>
+        </TabsList>
       
-      {/* Note editor */}
-      <div 
-        ref={editorRef}
-        className={`max-w-lg mx-auto mb-8 ${getColorClass(selectedColor)} rounded-lg border shadow transition-all ${isPinned ? 'ring-1 ring-primary' : ''} ${
-          isEditorOpen ? 'p-4' : 'hover:shadow-md cursor-pointer min-h-12'
-        }`}
-        onClick={() => !isEditorOpen && setIsEditorOpen(true)}
-      >
-        {isEditorOpen ? (
-          <>
-            <div className="flex items-center gap-2 mb-2">
-              <Input
-                type="text"
-                placeholder="Title"
-                className="flex-1 border-none px-0 text-lg font-medium focus-visible:ring-0 bg-transparent"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`h-8 w-8 p-0 ${isPinned ? 'text-primary' : ''}`}
-                onClick={() => setIsPinned(!isPinned)}
-              >
-                <PinIcon className={`h-4 w-4 ${isPinned ? 'fill-primary' : ''}`} />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <Palette className="h-4 w-4" />
+        <TabsContent value="personal" className="space-y-6">
+          {/* Search bar */}
+          <div className="max-w-lg mx-auto mb-6 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search notes"
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          {/* Note editor */}
+          <div 
+            ref={editorRef}
+            className={`max-w-lg mx-auto mb-8 ${getColorClass(selectedColor)} rounded-lg border shadow transition-all ${isPinned ? 'ring-1 ring-primary' : ''} ${
+              isEditorOpen ? 'p-4' : 'hover:shadow-md cursor-pointer min-h-12'
+            }`}
+            onClick={() => !isEditorOpen && setIsEditorOpen(true)}
+          >
+            {isEditorOpen ? (
+              <>
+                <div className="flex items-center gap-2 mb-2">
+                  <Input
+                    type="text"
+                    placeholder="Title"
+                    className="flex-1 border-none px-0 text-lg font-medium focus-visible:ring-0 bg-transparent"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`h-8 w-8 p-0 ${isPinned ? 'text-primary' : ''}`}
+                    onClick={() => setIsPinned(!isPinned)}
+                  >
+                    <PinIcon className={`h-4 w-4 ${isPinned ? 'fill-primary' : ''}`} />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-auto flex p-1 gap-1">
-                  {colorOptions.map(color => (
-                    <button
-                      key={color.value}
-                      className={`w-6 h-6 rounded-full ${color.class} border hover:scale-110 transition-transform ${selectedColor === color.value ? 'ring-2 ring-primary' : ''}`}
-                      onClick={() => setSelectedColor(color.value)}
-                      title={color.name}
-                    />
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            
-            {noteType === 'note' ? (
-              <Textarea
-                placeholder="Take a note..."
-                className="w-full resize-none border-none px-0 focus-visible:ring-0 min-h-[100px] bg-transparent"
-                value={newContent}
-                onChange={(e) => setNewContent(e.target.value)}
-              />
-            ) : (
-              <div className="space-y-2 mb-3">
-                {newTasks.map(task => (
-                  <div key={task.id} className="flex items-center gap-2">
-                    <Checkbox 
-                      checked={task.completed}
-                      onCheckedChange={() => {
-                        setNewTasks(newTasks.map(t => 
-                          t.id === task.id ? { ...t, completed: !t.completed } : t
-                        ));
-                      }}
-                    />
-                    <span className={task.completed ? 'line-through text-muted-foreground flex-1' : 'flex-1'}>
-                      {task.text}
-                    </span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Palette className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-auto flex p-1 gap-1">
+                      {colorOptions.map(color => (
+                        <button
+                          key={color.value}
+                          className={`w-6 h-6 rounded-full ${color.class} border hover:scale-110 transition-transform ${selectedColor === color.value ? 'ring-2 ring-primary' : ''}`}
+                          onClick={() => setSelectedColor(color.value)}
+                          title={color.name}
+                        />
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                
+                {noteType === 'note' ? (
+                  <Textarea
+                    placeholder="Take a note..."
+                    className="w-full resize-none border-none px-0 focus-visible:ring-0 min-h-[100px] bg-transparent"
+                    value={newContent}
+                    onChange={(e) => setNewContent(e.target.value)}
+                  />
+                ) : (
+                  <div className="space-y-2 mb-3">
+                    {newTasks.map(task => (
+                      <div key={task.id} className="flex items-center gap-2">
+                        <Checkbox 
+                          checked={task.completed}
+                          onCheckedChange={() => {
+                            setNewTasks(newTasks.map(t => 
+                              t.id === task.id ? { ...t, completed: !t.completed } : t
+                            ));
+                          }}
+                        />
+                        <span className={task.completed ? 'line-through text-muted-foreground flex-1' : 'flex-1'}>
+                          {task.text}
+                        </span>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 opacity-50 hover:opacity-100"
+                          onClick={() => deleteTask(task.id)}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    
+                    <div className="flex items-center gap-2">
+                      <Input
+                        ref={taskInputRef}
+                        type="text"
+                        placeholder="Add item..."
+                        className="border-none focus-visible:ring-0 px-0 bg-transparent"
+                        value={newTaskText}
+                        onChange={(e) => setNewTaskText(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && addTask()}
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8"
+                        onClick={addTask}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex justify-between items-center mt-4 pt-2 border-t">
+                  <div className="flex gap-2">
                     <Button 
                       variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 opacity-50 hover:opacity-100"
-                      onClick={() => deleteTask(task.id)}
+                      size="sm" 
+                      className={noteType === 'note' ? 'bg-primary/10' : ''}
+                      onClick={() => setNoteType('note')}
                     >
-                      <Trash className="h-4 w-4" />
+                      <Edit className="h-4 w-4 mr-2" />
+                      Note
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className={noteType === 'checklist' ? 'bg-primary/10' : ''}
+                      onClick={() => setNoteType('checklist')}
+                    >
+                      <CheckSquare className="h-4 w-4 mr-2" />
+                      Checklist
                     </Button>
                   </div>
-                ))}
-                
-                <div className="flex items-center gap-2">
-                  <Input
-                    ref={taskInputRef}
-                    type="text"
-                    placeholder="Add item..."
-                    className="border-none focus-visible:ring-0 px-0 bg-transparent"
-                    value={newTaskText}
-                    onChange={(e) => setNewTaskText(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && addTask()}
-                  />
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8"
-                    onClick={addTask}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
+                  
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" onClick={resetEditor}>
+                      Cancel
+                    </Button>
+                    <Button variant="default" size="sm" onClick={saveNote}>
+                      Save
+                    </Button>
+                  </div>
                 </div>
+              </>
+            ) : (
+              <div className="p-4 text-muted-foreground">
+                Click to add a note...
               </div>
             )}
-            
-            <div className="flex justify-between items-center mt-4 pt-2 border-t">
-              <div className="flex gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={noteType === 'note' ? 'bg-primary/10' : ''}
-                  onClick={() => setNoteType('note')}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Note
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className={noteType === 'checklist' ? 'bg-primary/10' : ''}
-                  onClick={() => setNoteType('checklist')}
-                >
-                  <CheckSquare className="h-4 w-4 mr-2" />
-                  Checklist
-                </Button>
-              </div>
-              
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={resetEditor}>
-                  Cancel
-                </Button>
-                <Button variant="default" size="sm" onClick={saveNote}>
-                  Save
-                </Button>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="p-4 text-muted-foreground">
-            Click to add a note...
           </div>
-        )}
-      </div>
-      
-      {/* Notes grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-auto">
-        {filteredNotes.map(note => (
-          <div 
-            key={note.id} 
-            className={`${getColorClass(note.color)} rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow relative p-4 flex flex-col min-h-[100px] h-full`}
-          >
-            {/* Pin indicator */}
-            {note.pinned && (
-              <div className="absolute top-2 right-2">
-                <PinIcon className="h-4 w-4 text-primary fill-primary" />
-              </div>
-            )}
-            
-            <div className="flex-1 mb-2">
-              {note.title && (
-                <h3 className="font-medium text-lg mb-2 pr-6">{note.title}</h3>
-              )}
-              
-              {note.type === 'note' ? (
-                <div className="whitespace-pre-wrap break-words">
-                  {note.content}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {note.tasks.map(task => (
-                    <div key={task.id} className="flex items-start gap-2">
-                      <Checkbox 
-                        checked={task.completed}
-                        id={`task-${task.id}`}
-                        onCheckedChange={() => toggleTaskCompletion(note.id, task.id)}
-                        className="mt-0.5"
-                      />
-                      <label 
-                        htmlFor={`task-${task.id}`}
-                        className={`flex-1 ${task.completed ? 'line-through text-muted-foreground' : ''}`}
-                      >
-                        {task.text}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            <div className="flex justify-end mt-auto space-x-1 opacity-0 group-hover:opacity-100 hover:opacity-100 focus-within:opacity-100 transition-opacity">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-                    <Palette className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="flex p-1 gap-1">
-                  {colorOptions.map(color => (
-                    <button
-                      key={color.value}
-                      className={`w-6 h-6 rounded-full ${color.class} border hover:scale-110 transition-transform`}
-                      onClick={() => changeColor(note.id, color.value)}
-                      title={color.name}
-                    />
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 p-0"
-                onClick={() => togglePin(note.id)}
+          
+          {/* Notes grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-auto">
+            {filteredNotes.map(note => (
+              <div 
+                key={note.id} 
+                className={`${getColorClass(note.color)} rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow relative p-4 flex flex-col min-h-[100px] h-full`}
               >
-                <PinIcon className={`h-4 w-4 ${note.pinned ? 'fill-primary' : ''}`} />
-              </Button>
-              
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 p-0 text-destructive/70 hover:text-destructive">
-                    <Trash className="h-4 w-4" />
+                {note.pinned && (
+                  <div className="absolute top-2 right-2">
+                    <PinIcon className="h-4 w-4 text-primary fill-primary" />
+                  </div>
+                )}
+                
+                <div className="flex-1 mb-2">
+                  {note.title && (
+                    <h3 className="font-medium text-lg mb-2 pr-6">{note.title}</h3>
+                  )}
+                  
+                  {note.type === 'note' ? (
+                    <div className="whitespace-pre-wrap break-words">
+                      {note.content}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {note.tasks.map(task => (
+                        <div key={task.id} className="flex items-start gap-2">
+                          <Checkbox 
+                            checked={task.completed}
+                            id={`task-${task.id}`}
+                            onCheckedChange={() => toggleTaskCompletion(note.id, task.id)}
+                            className="mt-0.5"
+                          />
+                          <label 
+                            htmlFor={`task-${task.id}`}
+                            className={`flex-1 ${task.completed ? 'line-through text-muted-foreground' : ''}`}
+                          >
+                            {task.text}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex justify-end mt-auto space-x-1 opacity-0 group-hover:opacity-100 hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                        <Palette className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="flex p-1 gap-1">
+                      {colorOptions.map(color => (
+                        <button
+                          key={color.value}
+                          className={`w-6 h-6 rounded-full ${color.class} border hover:scale-110 transition-transform`}
+                          onClick={() => changeColor(note.id, color.value)}
+                          title={color.name}
+                        />
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 p-0"
+                    onClick={() => togglePin(note.id)}
+                  >
+                    <PinIcon className={`h-4 w-4 ${note.pinned ? 'fill-primary' : ''}`} />
                   </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Note</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete this note? This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => deleteNote(note.id)}>
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                  
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 p-0 text-destructive/70 hover:text-destructive">
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Note</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this note? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => deleteNote(note.id)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {notes.length === 0 && (
+            <div className="text-center py-12">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                <ListPlus className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-medium mb-2">No notes yet</h3>
+              <p className="text-muted-foreground mb-4">
+                Click the input above to create your first note
+              </p>
             </div>
-          </div>
-        ))}
-      </div>
-      
-      {/* Empty state */}
-      {notes.length === 0 && (
-        <div className="text-center py-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-            <ListPlus className="h-8 w-8 text-primary" />
-          </div>
-          <h3 className="text-xl font-medium mb-2">No notes yet</h3>
-          <p className="text-muted-foreground mb-4">
-            Click the input above to create your first note
-          </p>
-        </div>
-      )}
-      
-      {/* No search results */}
-      {notes.length > 0 && filteredNotes.length === 0 && (
-        <div className="text-center py-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-            <Search className="h-8 w-8 text-primary" />
-          </div>
-          <h3 className="text-xl font-medium mb-2">No matching notes</h3>
-          <p className="text-muted-foreground mb-4">
-            Try a different search term
-          </p>
-          <Button variant="outline" onClick={() => setSearchQuery('')}>
-            Clear Search
-          </Button>
-        </div>
-      )}
+          )}
+          
+          {notes.length > 0 && filteredNotes.length === 0 && (
+            <div className="text-center py-12">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                <Search className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-medium mb-2">No matching notes</h3>
+              <p className="text-muted-foreground mb-4">
+                Try a different search term
+              </p>
+              <Button variant="outline" onClick={() => setSearchQuery('')}>
+                Clear Search
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="party">
+          <PartyTasks />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
