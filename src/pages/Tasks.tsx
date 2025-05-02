@@ -94,13 +94,7 @@ const Tasks: React.FC = () => {
   const taskInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
-  // Check if user is in a party
-  useEffect(() => {
-    if (user) {
-      checkPartyStatus();
-    }
-  }, [user]);
-
+  // Modified function to check party status
   const checkPartyStatus = async () => {
     if (!user) return;
     
@@ -109,7 +103,7 @@ const Tasks: React.FC = () => {
         .from('party_members')
         .select('party_id')
         .eq('user_id', user.id)
-        .limit(1);
+        .limit(1) as any;
       
       if (error) throw error;
       

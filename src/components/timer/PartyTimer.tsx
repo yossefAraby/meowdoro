@@ -65,7 +65,7 @@ export const PartyTimer = () => {
         .select('party:party_id(*)')
         .eq('user_id', user.id)
         .order('joined_at', { ascending: false })
-        .limit(1);
+        .limit(1) as any; // Type assertion
       
       if (error) throw error;
       
@@ -87,12 +87,12 @@ export const PartyTimer = () => {
       const { data, error } = await supabase
         .from('party_members')
         .select('user_id')
-        .eq('party_id', activeParty.id);
+        .eq('party_id', activeParty.id) as any; // Type assertion
       
       if (error) throw error;
       
       if (data) {
-        setPartyMembers(data.map(member => member.user_id));
+        setPartyMembers(data.map((member: any) => member.user_id));
       }
     } catch (error: any) {
       console.error("Error fetching party members:", error);

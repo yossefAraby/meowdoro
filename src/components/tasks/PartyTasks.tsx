@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,7 +52,7 @@ export const PartyTasks = () => {
         .select('party:party_id(*)')
         .eq('user_id', user.id)
         .order('joined_at', { ascending: false })
-        .limit(1);
+        .limit(1) as any; // Use type assertion here
       
       if (error) throw error;
       
@@ -71,14 +72,14 @@ export const PartyTasks = () => {
     
     try {
       const { data, error } = await supabase
-        .from('party_tasks' as any)
+        .from('party_tasks')
         .select('*')
         .eq('party_id', activeParty.id)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true }) as any;
       
       if (error) throw error;
       
-      setPartyTasks(((data || []) as unknown) as PartyTask[]);
+      setPartyTasks(data || []);
     } catch (error: any) {
       console.error("Error fetching party tasks:", error);
       toast({
@@ -103,14 +104,14 @@ export const PartyTasks = () => {
       };
       
       const { data, error } = await supabase
-        .from('party_tasks' as any)
-        .insert(newTask as any)
-        .select();
+        .from('party_tasks')
+        .insert(newTask)
+        .select() as any;
       
       if (error) throw error;
       
       if (data) {
-        setPartyTasks([...partyTasks, ((data[0]) as unknown) as PartyTask]);
+        setPartyTasks([...partyTasks, data[0] as unknown as PartyTask]);
       }
       setNewTaskText("");
       
@@ -131,9 +132,9 @@ export const PartyTasks = () => {
   const toggleTaskCompletion = async (taskId: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
-        .from('party_tasks' as any)
-        .update({ completed: !currentStatus } as any)
-        .eq('id', taskId);
+        .from('party_tasks')
+        .update({ completed: !currentStatus })
+        .eq('id', taskId) as any;
       
       if (error) throw error;
       
@@ -153,9 +154,9 @@ export const PartyTasks = () => {
   const deleteTask = async (taskId: string) => {
     try {
       const { error } = await supabase
-        .from('party_tasks' as any)
+        .from('party_tasks')
         .delete()
-        .eq('id', taskId);
+        .eq('id', taskId) as any;
       
       if (error) throw error;
       

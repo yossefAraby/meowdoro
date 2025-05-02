@@ -56,7 +56,7 @@ const Party: React.FC = () => {
         .select('*, party:party_id(*)')
         .eq('user_id', user.id)
         .order('joined_at', { ascending: false })
-        .limit(1);
+        .limit(1) as any;
       
       if (membershipError) throw membershipError;
       
@@ -102,7 +102,7 @@ const Party: React.FC = () => {
           created_by: user?.id
         })
         .select()
-        .single();
+        .single() as any;
       
       if (error) throw error;
       
@@ -112,12 +112,12 @@ const Party: React.FC = () => {
         .insert({
           party_id: data.id,
           user_id: user?.id
-        });
+        }) as any;
       
       if (joinError) throw joinError;
       
       setGeneratedCode(code);
-      setActiveParty(data);
+      setActiveParty(data as Party);
       
       toast({
         title: "Party created!",
@@ -164,7 +164,7 @@ const Party: React.FC = () => {
         .from('study_parties')
         .select('*')
         .eq('code', partyCode.toUpperCase())
-        .single();
+        .single() as any;
       
       if (findError) {
         if (findError.code === 'PGRST116') {
@@ -179,12 +179,12 @@ const Party: React.FC = () => {
         .select('*')
         .eq('party_id', party.id)
         .eq('user_id', user?.id)
-        .maybeSingle();
+        .maybeSingle() as any;
         
       if (membershipCheckError) throw membershipCheckError;
       
       if (existingMembership) {
-        setActiveParty(party);
+        setActiveParty(party as Party);
         toast({
           title: "Already a member",
           description: "You are already a member of this party."
@@ -198,11 +198,11 @@ const Party: React.FC = () => {
         .insert({
           party_id: party.id,
           user_id: user?.id
-        });
+        }) as any;
       
       if (joinError) throw joinError;
       
-      setActiveParty(party);
+      setActiveParty(party as Party);
       
       toast({
         title: "Joined successfully!",
@@ -233,7 +233,7 @@ const Party: React.FC = () => {
         .from('party_members')
         .delete()
         .eq('party_id', activeParty.id)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id) as any;
       
       if (error) throw error;
       
