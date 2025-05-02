@@ -23,10 +23,17 @@ export const GuestDialog: React.FC<GuestDialogProps> = ({ onClose }) => {
   const { toast } = useToast();
 
   const handleContinueAsGuest = () => {
+    // Set guest user in localStorage
+    localStorage.setItem("meowdoro-user", JSON.stringify({ isGuest: true }));
+    
+    // Trigger auth change event
+    window.dispatchEvent(new Event('auth-change'));
+    
     toast({
       title: "Continuing as guest",
       description: "You can create an account later to save your progress.",
     });
+    
     navigate("/timer");
     setIsOpen(false);
     if (onClose) onClose();

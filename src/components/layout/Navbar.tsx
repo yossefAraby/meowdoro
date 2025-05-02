@@ -20,6 +20,9 @@ export const Navbar: React.FC = () => {
   const { toast } = useToast();
   const { user, isLoading } = useAuth();
   
+  // Check if the user is authenticated or in guest mode (using localStorage)
+  const isGuest = localStorage.getItem("meowdoro-user") !== null;
+  
   const toggleMode = () => {
     setMode(mode === "light" ? "dark" : "light");
   };
@@ -39,7 +42,8 @@ export const Navbar: React.FC = () => {
         <nav className="flex justify-between items-center py-4">
           <NavbarLogo />
           
-          {user && <NavbarMenu />}
+          {/* Show navbar menu for both authenticated users AND guests */}
+          {(user || isGuest) && <NavbarMenu />}
           
           {/* Right Side Actions */}
           <div className="flex items-center space-x-2">
@@ -63,7 +67,27 @@ export const Navbar: React.FC = () => {
                   Sign Out
                 </Button>
               ) : (
-                <AuthDialog />
+                isGuest ? (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => {
+                      localStorage.removeItem("meowdoro-user");
+                      window.dispatchEvent(new Event('auth-change'));
+                      navigate("/");
+                      toast({
+                        title: "Signed out from guest mode",
+                        description: "You've been signed out from guest mode.",
+                      });
+                    }}
+                    className="gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Exit Guest Mode
+                  </Button>
+                ) : (
+                  <AuthDialog />
+                )
               )
             )}
             
@@ -79,7 +103,7 @@ export const Navbar: React.FC = () => {
                   <div className="text-xl font-bold mb-6">Meowdoro</div>
                   
                   <div className="space-y-2">
-                    {user ? (
+                    {(user || isGuest) ? (
                       <>
                         {navItems.map((item) => (
                           <Link
