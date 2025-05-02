@@ -6,7 +6,7 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
-import { Cat, MessageSquare, X, BrainCircuit } from "lucide-react";
+import { Cat, X, BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -14,8 +14,6 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogTrigger,
-  DialogDescription,
   DialogClose 
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -42,25 +40,6 @@ const studyTips = [
   "Practice meditation or deep breathing to reduce stress before studying.",
   "Use colored pens or highlighters to organize information visually.",
   "Study difficult subjects when you're most alert."
-];
-
-// AI cat responses for the chat
-const catResponses = [
-  "Meow! That's an interesting question. Based on productivity research, I'd suggest breaking that task into smaller parts.",
-  "Purr-fect timing! I just read a study about that. The key is consistency and regular breaks.",
-  "I'm feline good about your progress! Keep it up and remember to stay hydrated.",
-  "Hmm, let me think... *paws for a moment* The research suggests setting specific, measurable goals for each session.",
-  "According to neuroscience, your brain needs both focus and rest cycles. That's why the Pomodoro technique works so well!",
-  "Meow-velous question! Time-blocking your calendar can help with that particular challenge.",
-  "I'm pawsitive that you're making progress! Remember that learning is not linear - it's okay to have ups and downs.",
-  "My whiskers tell me you need a quick break. Stand up, stretch, and then get back to it!",
-  "The most effective students don't just re-read material - they test themselves on it! Try active recall instead.",
-  "I've been lapping up knowledge about this! The key is to create connections between new and existing information.",
-  "According to my cat-culations, your approach makes sense, but have you considered batching similar tasks together?",
-  "Paw-don me, but have you tried the Eisenhower Matrix for prioritizing your tasks? It's quite effective!",
-  "I'm not kitten around - consistent sleep schedules dramatically improve cognitive performance!",
-  "My tail is twitching with excitement about your question! Research shows alternating study topics improves retention.",
-  "Meow-nificent progress! Remember that even a few minutes of focused work is better than none."
 ];
 
 interface CatCompanionProps {
@@ -95,7 +74,6 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
     }
   ]);
   const [isTyping, setIsTyping] = useState(false);
-  const [isAiPowered, setIsAiPowered] = useState(false);
   const [apiKey, setApiKey] = useState(() => {
     return localStorage.getItem("meowdoro-gemini-key") || "AIzaSyDTbR2SMAp2xlGCN3y0QGTNu58NKPEOC-k";
   });
@@ -128,6 +106,11 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
     setTip(studyTips[randomIndex]);
   };
 
+  // Open chat dialog when clicking on the cat
+  const handleCatClick = () => {
+    setIsChatOpen(true);
+  };
+
   // Function to handle sending a message
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,39 +131,15 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
     setIsTyping(true);
     
     try {
-      if (isAiPowered && apiKey) {
-        // Attempt to use Gemini API
-        await generateAIResponse(userMessage.text);
-      } else {
-        // Use pre-defined responses
-        setTimeout(() => {
-          const randomIndex = Math.floor(Math.random() * catResponses.length);
-          const catMessage: ChatMessage = {
-            text: catResponses[randomIndex],
-            sender: "cat",
-            timestamp: new Date()
-          };
-          
-          setMessages(prev => [...prev, catMessage]);
-          setIsTyping(false);
-        }, 1000 + Math.random() * 500); // Slightly randomized delay for realism
-      }
+      // Always use AI response
+      await generateAIResponse(userMessage.text);
     } catch (error) {
       console.error("Error generating AI response:", error);
-      // Fallback to pre-defined responses on error
-      const randomIndex = Math.floor(Math.random() * catResponses.length);
-      const catMessage: ChatMessage = {
-        text: catResponses[randomIndex],
-        sender: "cat",
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, catMessage]);
       setIsTyping(false);
       
       toast({
         title: "AI Connection Issue",
-        description: "Using pre-defined responses for now.",
+        description: "Unable to connect to AI service. Please check your API key.",
         variant: "destructive"
       });
     }
@@ -236,27 +195,6 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
     }
   };
   
-  // Toggle AI mode
-  const toggleAIMode = () => {
-    if (!isAiPowered && !apiKey) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your Gemini API key in the settings.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsAiPowered(!isAiPowered);
-    
-    toast({
-      title: `AI Mode ${!isAiPowered ? "Enabled" : "Disabled"}`,
-      description: !isAiPowered 
-        ? "Meowdoro will now use Gemini to generate responses." 
-        : "Meowdoro will now use pre-defined responses."
-    });
-  };
-  
   return (
     <div className="relative">
       <TooltipProvider>
@@ -264,8 +202,8 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
           <TooltipTrigger asChild>
             <div 
               className="text-5xl sm:text-6xl cursor-pointer hover:scale-110 hover:rotate-3 transition-all duration-300"
-              onClick={getRandomTip}
-              aria-label="Click for a study tip"
+              onClick={handleCatClick}
+              aria-label="Chat with Meowdoro"
             >
               <Cat 
                 className={`w-14 h-14 sm:w-16 sm:h-16 text-primary drop-shadow-lg
@@ -278,21 +216,10 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
           </TooltipTrigger>
           <TooltipContent side="left" className="max-w-xs bg-card/90 backdrop-blur-sm border-primary/20">
             <p className="text-foreground">{tip}</p>
-            <p className="text-xs text-muted-foreground mt-1">Click for another tip!</p>
+            <p className="text-xs text-muted-foreground mt-1">Click for a chat!</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      
-      {/* Chat button with improved visibility */}
-      <Button 
-        size="sm"
-        variant="outline"
-        className="absolute -top-2 -right-2 rounded-full w-8 h-8 p-0 bg-primary/20 border-primary/30 hover:bg-primary/30 shadow-sm"
-        onClick={() => setIsChatOpen(true)}
-        aria-label="Open chat with Meowdoro"
-      >
-        <MessageSquare className="w-4 h-4 text-primary" />
-      </Button>
       
       {/* Chat Dialog with improved UI */}
       <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
@@ -301,33 +228,15 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
             <DialogTitle className="flex items-center gap-2">
               <Cat className="h-5 w-5 text-primary" />
               Chat with Meowdoro
-              {isAiPowered && (
-                <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full flex items-center">
-                  <BrainCircuit className="h-3 w-3 mr-1" />
-                  AI Powered
-                </span>
-              )}
+              <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full flex items-center">
+                <BrainCircuit className="h-3 w-3 mr-1" />
+                AI Powered
+              </span>
             </DialogTitle>
-            <DialogDescription>
-              Ask your cat companion for study tips and motivation
-            </DialogDescription>
             <DialogClose className="absolute top-4 right-4">
               <X className="h-4 w-4" />
             </DialogClose>
           </DialogHeader>
-          
-          {/* AI Mode Toggle */}
-          <div className="flex justify-end mb-2">
-            <Button 
-              variant={isAiPowered ? "default" : "outline"} 
-              size="sm" 
-              className="text-xs flex items-center gap-1"
-              onClick={toggleAIMode}
-            >
-              <BrainCircuit className="h-3 w-3" />
-              {isAiPowered ? "Using AI" : "Use AI"}
-            </Button>
-          </div>
           
           {/* Chat messages with improved styling */}
           <div className="flex flex-col h-[50vh] overflow-y-auto pr-2 mb-4 scrollbar-none">
@@ -388,42 +297,38 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
           </form>
           
           <p className="text-xs text-muted-foreground text-center mt-2">
-            {isAiPowered 
-              ? "Powered by Google Gemini API" 
-              : "Using pre-defined cat responses. Enable AI for more interactive conversations."}
+            Powered by Google Gemini API
           </p>
           
           {/* API Key setting */}
-          {isAiPowered && (
-            <div className="mt-4 p-3 bg-primary/5 rounded-md border border-primary/10">
-              <p className="text-xs font-medium mb-2">Gemini API Key</p>
-              <div className="flex gap-2">
-                <Input 
-                  type="password"
-                  value={apiKey || ''}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="Enter your Gemini API key"
-                  className="text-xs"
-                />
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="text-xs"
-                  onClick={() => {
-                    if (apiKey) {
-                      localStorage.setItem("meowdoro-gemini-key", apiKey);
-                      toast({
-                        title: "API Key Saved",
-                        description: "Your Gemini API key has been saved."
-                      });
-                    }
-                  }}
-                >
-                  Save
-                </Button>
-              </div>
+          <div className="mt-4 p-3 bg-primary/5 rounded-md border border-primary/10">
+            <p className="text-xs font-medium mb-2">Gemini API Key</p>
+            <div className="flex gap-2">
+              <Input 
+                type="password"
+                value={apiKey || ''}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="Enter your Gemini API key"
+                className="text-xs"
+              />
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="text-xs"
+                onClick={() => {
+                  if (apiKey) {
+                    localStorage.setItem("meowdoro-gemini-key", apiKey);
+                    toast({
+                      title: "API Key Saved",
+                      description: "Your Gemini API key has been saved."
+                    });
+                  }
+                }}
+              >
+                Save
+              </Button>
             </div>
-          )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

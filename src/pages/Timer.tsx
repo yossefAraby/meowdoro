@@ -18,7 +18,19 @@ const Timer: React.FC = () => {
   
   // Track focus time and progress
   const [totalFocusMinutes, setTotalFocusMinutes] = useState(() => {
-    return parseInt(localStorage.getItem("meowdoro-focus-minutes") || "0", 10);
+    // Check if the current date matches the stored date
+    const storedDate = localStorage.getItem("meowdoro-focus-date");
+    const currentDate = new Date().toDateString();
+    
+    // If dates match, return saved minutes, otherwise return 0
+    if (storedDate === currentDate) {
+      return parseInt(localStorage.getItem("meowdoro-focus-minutes") || "0", 10);
+    } else {
+      // Reset minutes for new day
+      localStorage.setItem("meowdoro-focus-date", currentDate);
+      localStorage.setItem("meowdoro-focus-minutes", "0");
+      return 0;
+    }
   });
   
   // Timer state
@@ -64,6 +76,30 @@ const Timer: React.FC = () => {
       checkPartyStatus();
     }
   }, [user]);
+  
+  // Check for day change when component mounts or becomes active
+  useEffect(() => {
+    const checkDayChange = () => {
+      const storedDate = localStorage.getItem("meowdoro-focus-date");
+      const currentDate = new Date().toDateString();
+      
+      if (storedDate !== currentDate) {
+        // Reset for new day
+        localStorage.setItem("meowdoro-focus-date", currentDate);
+        localStorage.setItem("meowdoro-focus-minutes", "0");
+        setTotalFocusMinutes(0);
+      }
+    };
+    
+    // Check immediately when component mounts
+    checkDayChange();
+    
+    // Also check periodically (every minute)
+    const intervalId = setInterval(checkDayChange, 60000);
+    
+    // Clean up interval on unmount
+    return () => clearInterval(intervalId);
+  }, []);
 
   const checkPartyStatus = async () => {
     if (!user) return;
@@ -112,7 +148,10 @@ const Timer: React.FC = () => {
     if (currentMode === "focus") {
       const newTotal = totalFocusMinutes + focusMinutes;
       setTotalFocusMinutes(newTotal);
+      
+      // Save the focus minutes along with the current date
       localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
+      localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
       
       toast({
         title: "Focus session completed!",
@@ -146,7 +185,10 @@ const Timer: React.FC = () => {
       const additionalMinute = 1;
       const newTotal = totalFocusMinutes + additionalMinute;
       setTotalFocusMinutes(newTotal);
+      
+      // Save the focus minutes along with the current date
       localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
+      localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
     }
     
     setTimerCompleted(false);
