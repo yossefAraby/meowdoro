@@ -21,13 +21,15 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
-    localStorage.getItem("meowdoro-user") !== null
+    localStorage.getItem("meowdoro-user") !== null || 
+    localStorage.getItem("supabase.auth.token") !== null
   );
   
   useEffect(() => {
     const checkAuth = () => {
-      const user = localStorage.getItem("meowdoro-user");
-      setIsAuthenticated(user !== null);
+      const guestUser = localStorage.getItem("meowdoro-user");
+      const supabaseAuth = localStorage.getItem("supabase.auth.token");
+      setIsAuthenticated(guestUser !== null || supabaseAuth !== null);
     };
     
     checkAuth();

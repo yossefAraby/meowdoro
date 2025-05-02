@@ -47,14 +47,8 @@ const Landing: React.FC = () => {
       description: "Your Meowdoro APK download will begin shortly."
     });
     
-    // Simulate download (in a real app, this would link to an actual file)
-    setTimeout(() => {
-      toast({
-        title: "Demo Mode",
-        description: "This is a demo. In a real app, the APK would download now.",
-        variant: "default"
-      });
-    }, 2000);
+    // Use the real APK download link
+    window.location.href = "https://drive.google.com/uc?export=download&id=1xvm8vnooJHohNbHQBP_qGyZuYXxhgbP_";
   };
 
   const handleGetStarted = () => {

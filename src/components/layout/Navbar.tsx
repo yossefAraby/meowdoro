@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { Sun, Moon, Menu, LogOut } from "lucide-react";
+import { Sun, Moon, Menu, LogOut, User } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { NavbarLogo } from "./NavbarLogo";
 import { NavbarMenu, navItems } from "./NavbarMenu";
 import { cn } from "@/lib/utils";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
@@ -29,6 +34,8 @@ export const Navbar: React.FC = () => {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem("meowdoro-user");
+    window.dispatchEvent(new Event('auth-change'));
     navigate("/");
     toast({
       title: "Signed out",
@@ -57,15 +64,45 @@ export const Navbar: React.FC = () => {
             
             {!isLoading && (
               user ? (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleSignOut}
-                  className="gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </Button>
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <User className="h-4 w-4" />
+                      Account
+                    </Button>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-80">
+                    <div className="flex flex-col space-y-2">
+                      <div className="flex items-center space-x-4">
+                        <div className="bg-primary/20 rounded-full p-3">
+                          <User className="h-8 w-8 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium">{user.email}</h4>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {user.id}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="pt-2">
+                        <Button 
+                          variant="outline"
+                          size="sm" 
+                          onClick={handleSignOut}
+                          className="w-full gap-2 mt-2"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Sign Out
+                        </Button>
+                      </div>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
               ) : (
                 isGuest ? (
                   <Button 
