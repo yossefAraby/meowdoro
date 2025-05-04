@@ -19,10 +19,12 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { PricingDialog } from "@/components/pricing/PricingDialog";
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
   const [showLearnMoreDialog, setShowLearnMoreDialog] = useState(false);
+  const [showPricingDialog, setShowPricingDialog] = useState(false);
   const { toast } = useToast();
   
   const handleJoinUs = () => {
@@ -101,6 +103,17 @@ const Landing: React.FC = () => {
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="rounded-full px-8 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary backdrop-blur-sm"
+                  onClick={() => setShowPricingDialog(true)}
+                >
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                  See plans and pricing
+                </Button>
+                
                 <Button 
                   variant="outline" 
                   size="lg" 
@@ -401,6 +414,12 @@ const Landing: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Pricing Dialog */}
+      <PricingDialog 
+        open={showPricingDialog} 
+        onClose={() => setShowPricingDialog(false)} 
+      />
     </div>
   );
 };

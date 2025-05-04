@@ -1,7 +1,7 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { Sun, Moon, Menu, LogOut, User } from "lucide-react";
+import { Sun, Moon, Menu, LogOut, User, Sparkles } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PricingDialog } from "@/components/pricing/PricingDialog";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
@@ -25,6 +26,7 @@ export const Navbar: React.FC = () => {
   const { mode, setMode } = useTheme();
   const { toast } = useToast();
   const { user, isLoading } = useAuth();
+  const [showPricingDialog, setShowPricingDialog] = useState(false);
   
   // Check if the user is authenticated or in guest mode (using localStorage)
   const isGuest = localStorage.getItem("meowdoro-user") !== null;
@@ -93,12 +95,22 @@ export const Navbar: React.FC = () => {
                         </div>
                       </div>
                       
-                      <div className="pt-2">
+                      <div className="pt-2 space-y-2">
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowPricingDialog(true)}
+                          className="w-full gap-2"
+                        >
+                          <Sparkles className="h-4 w-4 text-primary" />
+                          Upgrade to Pro
+                        </Button>
+                        
                         <Button 
                           variant="outline"
                           size="sm" 
                           onClick={handleSignOut}
-                          className="w-full gap-2 mt-2"
+                          className="w-full gap-2"
                         >
                           <LogOut className="h-4 w-4" />
                           Sign Out
@@ -161,6 +173,17 @@ export const Navbar: React.FC = () => {
                             <span>{item.label}</span>
                           </Link>
                         ))}
+                        
+                        {user && (
+                          <Button
+                            variant="outline"
+                            onClick={() => setShowPricingDialog(true)} 
+                            className="w-full mt-4 gap-2"
+                          >
+                            <Sparkles className="h-4 w-4 text-primary" />
+                            Upgrade to Pro
+                          </Button>
+                        )}
                       </>
                     ) : (
                       <div className="mt-auto space-y-3">
@@ -174,6 +197,12 @@ export const Navbar: React.FC = () => {
           </div>
         </nav>
       </div>
+      
+      {/* Pricing Dialog */}
+      <PricingDialog 
+        open={showPricingDialog} 
+        onClose={() => setShowPricingDialog(false)} 
+      />
     </div>
   );
 };
