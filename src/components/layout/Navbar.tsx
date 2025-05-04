@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Sun, Moon, Menu, LogOut, User, Sparkles } from "lucide-react";

@@ -6,7 +6,7 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
-import { Cat, X, BrainCircuit } from "lucide-react";
+import { Cat, X, BrainCircuit, User, Send, Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 

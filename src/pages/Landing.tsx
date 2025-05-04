@@ -108,20 +108,22 @@ const Landing: React.FC = () => {
                   variant="outline" 
                   size="lg" 
                   className="rounded-full px-8 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary backdrop-blur-sm"
-                  onClick={() => setShowPricingDialog(true)}
-                >
-                  <ArrowRight className="mr-2 h-4 w-4" />
-                  See plans and pricing
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="rounded-full px-8 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary backdrop-blur-sm"
                   onClick={() => setShowLearnMoreDialog(true)}
                 >
                   <BookOpen className="mr-2 h-5 w-5" />
                   Learn More
+                </Button>
+              </div>
+              
+              <div className="mt-4 sm:mt-4">
+                <Button 
+                  variant="ghost" 
+                  size="lg" 
+                  className="rounded-full px-8 text-primary hover:bg-primary/10"
+                  onClick={() => setShowPricingDialog(true)}
+                >
+                  <ArrowRight className="mr-2 h-4 w-4 fill-current" />
+                  See plans and pricing
                 </Button>
               </div>
             </div>

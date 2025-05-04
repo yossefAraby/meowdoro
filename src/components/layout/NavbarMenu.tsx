@@ -1,13 +1,14 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Timer, CheckSquare, Users } from "lucide-react";
+import { Timer, CheckSquare, Users, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const navItems = [
   { path: "/timer", icon: Timer, label: "Timer" },
   { path: "/tasks", icon: CheckSquare, label: "Tasks" },
   { path: "/party", icon: Users, label: "Party" },
+  { path: "/statistics", icon: Activity, label: "Stats" },
 ];
 
 export const NavbarMenu = () => {
