@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, 
-  Tooltip, ResponsiveContainer, PieChart, Pie, Cell
+  Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell
 } from "recharts";
 import { 
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
@@ -212,19 +211,31 @@ const Statistics: React.FC = () => {
   //   }
   // };
   
-  // Chart configurations
+  // Chart configurations - Fix the structure to match ChartConfig type
   const chartConfig = {
     focusTime: {
-      purple: "#8B5CF6",
+      label: "Focus Time",
+      color: colors.purple,
     },
     tasks: {
-      green: "#10B981",
+      label: "Tasks",
+      color: colors.green,
     },
     notes: {
-      blue: "#3B82F6",
+      label: "Notes",
+      color: colors.blue,
     },
     completed: {
-      yellow: "#F59E0B",
+      label: "Completed",
+      color: colors.yellow,
+    },
+    pending: {
+      label: "Pending",
+      color: "#CBD5E1",
+    },
+    goal: {
+      label: "Daily Goal",
+      color: colors.pink,
     }
   };
   
@@ -320,36 +331,30 @@ const Statistics: React.FC = () => {
                 config={chartConfig}
                 className="h-80"
               >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={statsData.dailyStats}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis yAxisId="left" orientation="left" stroke={colors.purple} />
-                    <YAxis yAxisId="right" orientation="right" stroke={colors.green} />
-                    <ChartTooltip 
-                      content={(props) => (
-                        <ChartTooltipContent {...props} />
-                      )} 
-                    />
-                    <Bar 
-                      yAxisId="left"
-                      dataKey="focusTime" 
-                      name="Focus minutes" 
-                      fill={colors.purple} 
-                      radius={[4, 4, 0, 0]} 
-                    />
-                    <Bar 
-                      yAxisId="right"
-                      dataKey="tasksCompleted" 
-                      name="Tasks completed" 
-                      fill={colors.green} 
-                      radius={[4, 4, 0, 0]} 
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+                <BarChart
+                  data={statsData.dailyStats}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day" />
+                  <YAxis yAxisId="left" orientation="left" stroke={colors.purple} />
+                  <YAxis yAxisId="right" orientation="right" stroke={colors.green} />
+                  <ChartTooltip />
+                  <Bar 
+                    yAxisId="left"
+                    dataKey="focusTime" 
+                    name="Focus minutes" 
+                    fill={colors.purple} 
+                    radius={[4, 4, 0, 0]} 
+                  />
+                  <Bar 
+                    yAxisId="right"
+                    dataKey="tasksCompleted" 
+                    name="Tasks completed" 
+                    fill={colors.green} 
+                    radius={[4, 4, 0, 0]} 
+                  />
+                </BarChart>
               </ChartContainer>
             </CardContent>
             <CardFooter>
@@ -369,44 +374,29 @@ const Statistics: React.FC = () => {
               </CardHeader>
               <CardContent className="h-[300px]">
                 <ChartContainer
-                  config={{
-                    completed: {
-                      label: "Completed",
-                      color: colors.green
-                    },
-                    pending: {
-                      label: "Pending",
-                      color: "#CBD5E1"
-                    }
-                  }}
+                  config={chartConfig}
                   className="h-64"
                 >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: "Completed", value: statsData.totalCompletedTasks, dataKey: "completed" },
-                          { name: "Pending", value: statsData.totalTasks - statsData.totalCompletedTasks, dataKey: "pending" }
-                        ]}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={5}
-                        dataKey="value"
-                        labelLine={false}
-                        label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
-                      >
-                        <Cell key="cell-0" fill={colors.green} />
-                        <Cell key="cell-1" fill="#CBD5E1" />
-                      </Pie>
-                      <ChartTooltip 
-                        content={(props) => (
-                          <ChartTooltipContent {...props} />
-                        )} 
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: "Completed", value: statsData.totalCompletedTasks, dataKey: "completed" },
+                        { name: "Pending", value: statsData.totalTasks - statsData.totalCompletedTasks, dataKey: "pending" }
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                      labelLine={false}
+                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                    >
+                      <Cell key="cell-0" fill={colors.green} />
+                      <Cell key="cell-1" fill="#CBD5E1" />
+                    </Pie>
+                    <ChartTooltip />
+                  </PieChart>
                 </ChartContainer>
               </CardContent>
               <CardFooter>
@@ -425,51 +415,36 @@ const Statistics: React.FC = () => {
               </CardHeader>
               <CardContent className="h-[300px]">
                 <ChartContainer
-                  config={{
-                    focusTime: {
-                      label: "Focus Time",
-                      color: colors.purple
-                    },
-                    goal: {
-                      label: "Daily Goal",
-                      color: colors.pink
-                    }
-                  }}
+                  config={chartConfig}
                   className="h-64"
                 >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={statsData.dailyStats.map(stat => ({ ...stat, goal: 90 }))}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="day" />
-                      <YAxis />
-                      <ChartTooltip 
-                        content={(props) => (
-                          <ChartTooltipContent {...props} />
-                        )} 
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="focusTime" 
-                        name="Focus Time" 
-                        stroke={colors.purple} 
-                        strokeWidth={2} 
-                        dot={{ r: 4 }}
-                        activeDot={{ r: 6, strokeWidth: 2 }}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="goal" 
-                        name="Daily Goal" 
-                        stroke={colors.pink} 
-                        strokeDasharray="5 5" 
-                        strokeWidth={2} 
-                        dot={false}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <LineChart
+                    data={statsData.dailyStats.map(stat => ({ ...stat, goal: 90 }))}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="day" />
+                    <YAxis />
+                    <ChartTooltip />
+                    <Line 
+                      type="monotone" 
+                      dataKey="focusTime" 
+                      name="Focus Time" 
+                      stroke={colors.purple} 
+                      strokeWidth={2} 
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6, strokeWidth: 2 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="goal" 
+                      name="Daily Goal" 
+                      stroke={colors.pink} 
+                      strokeDasharray="5 5" 
+                      strokeWidth={2} 
+                      dot={false}
+                    />
+                  </LineChart>
                 </ChartContainer>
               </CardContent>
               <CardFooter>
