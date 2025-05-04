@@ -17,6 +17,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
@@ -68,11 +69,14 @@ export const Navbar: React.FC = () => {
                   <HoverCardTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      size="sm"
-                      className="gap-2"
+                      size="icon"
+                      className="rounded-full"
                     >
-                      <User className="h-4 w-4" />
-                      Account
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
                     </Button>
                   </HoverCardTrigger>
                   <HoverCardContent className="w-80">
@@ -82,9 +86,9 @@ export const Navbar: React.FC = () => {
                           <User className="h-8 w-8 text-primary" />
                         </div>
                         <div>
-                          <h4 className="font-medium">{user.email}</h4>
+                          <h4 className="font-medium">{user.user_metadata?.username || user.email}</h4>
                           <p className="text-sm text-muted-foreground truncate">
-                            {user.id}
+                            {user.email}
                           </p>
                         </div>
                       </div>

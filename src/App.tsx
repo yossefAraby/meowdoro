@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./components/layout/ThemeProvider";
 import { Navbar } from "./components/layout/Navbar";
 import { useState, useEffect } from "react";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ToastProvider } from "./hooks/use-toast";
 
 // Import page components
@@ -20,30 +20,53 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
-    localStorage.getItem("meowdoro-user") !== null || 
-    localStorage.getItem("supabase.auth.token") !== null
-  );
+// Protected route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useAuth();
+  const isGuest = localStorage.getItem("meowdoro-user") !== null;
   
-  useEffect(() => {
-    const checkAuth = () => {
-      const guestUser = localStorage.getItem("meowdoro-user");
-      const supabaseAuth = localStorage.getItem("supabase.auth.token");
-      setIsAuthenticated(guestUser !== null || supabaseAuth !== null);
-    };
-    
-    checkAuth();
-    
-    window.addEventListener('storage', checkAuth);
-    window.addEventListener('auth-change', checkAuth);
-    
-    return () => {
-      window.removeEventListener('storage', checkAuth);
-      window.removeEventListener('auth-change', checkAuth);
-    };
-  }, []);
+  if (isLoading) {
+    return <div className="h-screen flex items-center justify-center">Loading...</div>;
+  }
+  
+  if (!user && !isGuest) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return <>{children}</>;
+};
 
+const AppRoutes = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/docs" element={<Docs />} />
+      
+      <Route path="/timer" element={
+        <ProtectedRoute>
+          <Timer />
+        </ProtectedRoute>
+      } />
+      <Route path="/tasks" element={
+        <ProtectedRoute>
+          <Tasks />
+        </ProtectedRoute>
+      } />
+      <Route path="/party" element={
+        <ProtectedRoute>
+          <Party />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/stats" element={<Navigate to="/timer" replace />} />
+      <Route path="/settings" element={<Navigate to="/timer" replace />} />
+      
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
+const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -55,36 +78,8 @@ const App = () => {
               
               <BrowserRouter>
                 <Navbar />
-                
                 <main className="pt-20 min-h-screen">
-                  <Routes>
-                    <Route path="/" element={<Landing />} />
-                    <Route path="/docs" element={<Docs />} />
-                    
-                    <Route 
-                      path="/timer" 
-                      element={isAuthenticated ? <Timer /> : <Navigate to="/" replace />} 
-                    />
-                    <Route 
-                      path="/tasks" 
-                      element={isAuthenticated ? <Tasks /> : <Navigate to="/" replace />} 
-                    />
-                    <Route 
-                      path="/party" 
-                      element={isAuthenticated ? <Party /> : <Navigate to="/" replace />} 
-                    />
-                    
-                    <Route 
-                      path="/stats" 
-                      element={<Navigate to="/timer" replace />} 
-                    />
-                    <Route 
-                      path="/settings" 
-                      element={<Navigate to="/timer" replace />} 
-                    />
-                    
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+                  <AppRoutes />
                 </main>
               </BrowserRouter>
             </TooltipProvider>
