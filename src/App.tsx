@@ -8,6 +8,7 @@ import { ThemeProvider } from "./components/layout/ThemeProvider";
 import { Navbar } from "./components/layout/Navbar";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ToastProvider } from "./hooks/use-toast";
 
 // Import page components
 import Landing from "./pages/Landing";
@@ -46,47 +47,49 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            
-            <BrowserRouter>
-              <Navbar />
+        <ToastProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
               
-              <main className="pt-20 min-h-screen">
-                <Routes>
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/docs" element={<Docs />} />
-                  
-                  <Route 
-                    path="/timer" 
-                    element={isAuthenticated ? <Timer /> : <Navigate to="/" replace />} 
-                  />
-                  <Route 
-                    path="/tasks" 
-                    element={isAuthenticated ? <Tasks /> : <Navigate to="/" replace />} 
-                  />
-                  <Route 
-                    path="/party" 
-                    element={isAuthenticated ? <Party /> : <Navigate to="/" replace />} 
-                  />
-                  
-                  <Route 
-                    path="/stats" 
-                    element={<Navigate to="/timer" replace />} 
-                  />
-                  <Route 
-                    path="/settings" 
-                    element={<Navigate to="/timer" replace />} 
-                  />
-                  
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
-            </BrowserRouter>
-          </TooltipProvider>
-        </AuthProvider>
+              <BrowserRouter>
+                <Navbar />
+                
+                <main className="pt-20 min-h-screen">
+                  <Routes>
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/docs" element={<Docs />} />
+                    
+                    <Route 
+                      path="/timer" 
+                      element={isAuthenticated ? <Timer /> : <Navigate to="/" replace />} 
+                    />
+                    <Route 
+                      path="/tasks" 
+                      element={isAuthenticated ? <Tasks /> : <Navigate to="/" replace />} 
+                    />
+                    <Route 
+                      path="/party" 
+                      element={isAuthenticated ? <Party /> : <Navigate to="/" replace />} 
+                    />
+                    
+                    <Route 
+                      path="/stats" 
+                      element={<Navigate to="/timer" replace />} 
+                    />
+                    <Route 
+                      path="/settings" 
+                      element={<Navigate to="/timer" replace />} 
+                    />
+                    
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+              </BrowserRouter>
+            </TooltipProvider>
+          </AuthProvider>
+        </ToastProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
