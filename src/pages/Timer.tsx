@@ -1,297 +1,271 @@
 
 import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { 
+  Tabs, TabsContent, TabsList, TabsTrigger
+} from "@/components/ui/tabs";
 import { TimerCircle } from "@/components/timer/TimerCircle";
+import { TimerSettings } from "@/components/timer/TimerSettings";
 import { ProgressBar } from "@/components/timer/ProgressBar";
 import { CatCompanion } from "@/components/timer/CatCompanion";
-import { AudioControls, useBackgroundSounds } from "@/components/timer/AudioControls";
-import { TimerSettings } from "@/components/timer/TimerSettings";
-import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Clock } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { SoundControls } from "@/components/timer/SoundControls";
+import { Button } from "@/components/ui/button";
+import { AudioControls } from "@/components/timer/AudioControls";
+import { Settings, Users } from "lucide-react";
 import { PartyTimer } from "@/components/timer/PartyTimer";
+import { format } from "date-fns";
+
+// Default timer settings
+const defaultSettings = {
+  pomodoro: 25,
+  shortBreak: 5,
+  longBreak: 15,
+  autoStartBreaks: true,
+  autoStartPomodoros: false,
+  longBreakInterval: 4,
+};
 
 const Timer: React.FC = () => {
-  // Timer state - whether countdown or count-up
-  const [isCountdown, setIsCountdown] = useState(true);
+  // States
+  const [timerMode, setTimerMode] = useState("pomodoro");  
+  const [timerSettings, setTimerSettings] = useState(defaultSettings);
+  const [isPaused, setIsPaused] = useState(true);
+  const [timeRemaining, setTimeRemaining] = useState(timerSettings.pomodoro * 60);
+  const [completedPomodoros, setCompletedPomodoros] = useState(0);
+  const [totalSeconds, setTotalSeconds] = useState(timerSettings.pomodoro * 60);
+  const [showSettings, setShowSettings] = useState(false);
+  const [catStatus, setCatStatus] = useState<"idle" | "focused" | "happy">("idle");
+  const [activeTab, setActiveTab] = useState("solo");
   
-  // Track focus time and progress
-  const [totalFocusMinutes, setTotalFocusMinutes] = useState(() => {
-    // Check if the current date matches the stored date
-    const storedDate = localStorage.getItem("meowdoro-focus-date");
-    const currentDate = new Date().toDateString();
+  // Update the time remaining when the settings change
+  useEffect(() => {
+    let seconds = 0;
     
-    // If dates match, return saved minutes, otherwise return 0
-    if (storedDate === currentDate) {
-      return parseInt(localStorage.getItem("meowdoro-focus-minutes") || "0", 10);
-    } else {
-      // Reset minutes for new day
-      localStorage.setItem("meowdoro-focus-date", currentDate);
-      localStorage.setItem("meowdoro-focus-minutes", "0");
-      return 0;
+    switch (timerMode) {
+      case "pomodoro":
+        seconds = timerSettings.pomodoro * 60;
+        break;
+      case "short-break":
+        seconds = timerSettings.shortBreak * 60;
+        break;
+      case "long-break":
+        seconds = timerSettings.longBreak * 60;
+        break;
+      default:
+        seconds = timerSettings.pomodoro * 60;
     }
-  });
+    
+    setTimeRemaining(seconds);
+    setTotalSeconds(seconds);
+    
+  }, [timerMode, timerSettings]);
   
-  // Timer state
-  const [currentSeconds, setCurrentSeconds] = useState(0);
-  const [catStatus, setCatStatus] = useState<"sleeping" | "idle" | "happy" | "focused">("idle");
-  const [timerCompleted, setTimerCompleted] = useState(false);
-  const [currentMode, setCurrentMode] = useState<"focus" | "break" | "longBreak">("focus");
-  const [activeTab, setActiveTab] = useState('personal');
-  const [hasActiveParty, setHasActiveParty] = useState(false);
-  const { user } = useAuth();
-  
-  // Settings from localStorage
-  const [completionSound, setCompletionSound] = useState(() => {
-    return localStorage.getItem("meowdoro-completion-sound") || "";
-  });
-  const [customYoutubeUrl, setCustomYoutubeUrl] = useState(() => {
-    return localStorage.getItem("meowdoro-youtube-sound") || "";
-  });
-  
-  // Pomodoro timer settings
-  const [focusMinutes, setFocusMinutes] = useState(() => {
-    return parseInt(localStorage.getItem("meowdoro-focus-time") || "25", 10);
-  });
-  const [breakMinutes, setBreakMinutes] = useState(() => {
-    return parseInt(localStorage.getItem("meowdoro-break-time") || "5", 10);
-  });
-  const [longBreakMinutes, setLongBreakMinutes] = useState(() => {
-    return parseInt(localStorage.getItem("meowdoro-long-break-time") || "15", 10);
-  });
-  const [sessionsBeforeLongBreak, setSessionsBeforeLongBreak] = useState(() => {
-    return parseInt(localStorage.getItem("meowdoro-sessions-before-long-break") || "4", 10);
-  });
-  const [dailyGoal, setDailyGoal] = useState(() => {
-    return parseInt(localStorage.getItem("meowdoro-daily-goal") || "90", 10);
-  });
-  
-  const { toast } = useToast();
-  const { soundPlaying, playSound } = useBackgroundSounds();
-  
-  // Check if user is in a party
+  // Timer effect
   useEffect(() => {
-    if (user) {
-      checkPartyStatus();
-    }
-  }, [user]);
-  
-  // Check for day change when component mounts or becomes active
-  useEffect(() => {
-    const checkDayChange = () => {
-      const storedDate = localStorage.getItem("meowdoro-focus-date");
-      const currentDate = new Date().toDateString();
+    let interval: number | undefined;
+    
+    if (!isPaused && timeRemaining > 0) {
+      interval = window.setInterval(() => {
+        setTimeRemaining(prevTime => prevTime - 1);
+      }, 1000);
       
-      if (storedDate !== currentDate) {
-        // Reset for new day
-        localStorage.setItem("meowdoro-focus-date", currentDate);
-        localStorage.setItem("meowdoro-focus-minutes", "0");
-        setTotalFocusMinutes(0);
+      // Update cat status to focused during active pomodoro
+      if (timerMode === "pomodoro") {
+        setCatStatus("focused");
+      } else {
+        setCatStatus("happy");
       }
-    };
-    
-    // Check immediately when component mounts
-    checkDayChange();
-    
-    // Also check periodically (every minute)
-    const intervalId = setInterval(checkDayChange, 60000);
-    
-    // Clean up interval on unmount
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const checkPartyStatus = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('party_members')
-        .select('party_id')
-        .eq('user_id', user.id)
-        .limit(1);
-      
-      if (error) throw error;
-      
-      setHasActiveParty(data && data.length > 0);
-    } catch (error) {
-      console.error("Error checking party status:", error);
-    }
-  };
-  
-  // Update cat status based on timer state
-  useEffect(() => {
-    if (timerCompleted) {
-      setCatStatus("happy");
-    } else if (currentMode === "break" || currentMode === "longBreak") {
-      setCatStatus("idle");
-    } else if (currentSeconds > 0 && isCountdown && currentMode === "focus") {
-      setCatStatus("focused");
+    } else if (timeRemaining === 0) {
+      // Timer completed
+      handleTimerComplete();
     } else {
       setCatStatus("idle");
     }
     
-    // Celebrate at milestone achievement
-    if (totalFocusMinutes === 30 || totalFocusMinutes === 60 || totalFocusMinutes === 90) {
-      setCatStatus("happy");
-      setTimeout(() => {
-        setCatStatus(currentMode === "focus" ? "focused" : "idle");
-      }, 3000);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPaused, timeRemaining, timerMode]);
+  
+  // Save completed pomodoro sessions to localStorage
+  useEffect(() => {
+    const savedCompletedPomodoros = localStorage.getItem("meowdoro-completed-pomodoros");
+    if (savedCompletedPomodoros) {
+      setCompletedPomodoros(parseInt(savedCompletedPomodoros, 10));
     }
-  }, [timerCompleted, isCountdown, currentSeconds, totalFocusMinutes, currentMode]);
+  }, []);
   
   // Handle timer completion
   const handleTimerComplete = () => {
-    setTimerCompleted(true);
+    // Play notification sound (to be implemented)
+    setIsPaused(true);
     
-    // Only increment total focus minutes when a focus session completes
-    if (currentMode === "focus") {
-      const newTotal = totalFocusMinutes + focusMinutes;
-      setTotalFocusMinutes(newTotal);
+    if (timerMode === "pomodoro") {
+      // Track focus time in localStorage for statistics
+      const focusMinutes = timerSettings.pomodoro;
+      const currentFocusMinutes = parseInt(localStorage.getItem("meowdoro-focus-minutes") || "0", 10);
+      localStorage.setItem("meowdoro-focus-minutes", (currentFocusMinutes + focusMinutes).toString());
       
-      // Save the focus minutes along with the current date
-      localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
-      localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
+      // Track the date for this session
+      const today = format(new Date(), "yyyy-MM-dd");
+      const dailyFocusKey = `meowdoro-focus-${today}`;
+      const dailyFocusMinutes = parseInt(localStorage.getItem(dailyFocusKey) || "0", 10);
+      localStorage.setItem(dailyFocusKey, (dailyFocusMinutes + focusMinutes).toString());
       
-      toast({
-        title: "Focus session completed!",
-        description: `You've focused for ${newTotal} minutes today.`,
-      });
-    } else if (currentMode === "break") {
-      toast({
-        title: "Break completed!",
-        description: "Time to get back to focusing.",
-      });
-    } else if (currentMode === "longBreak") {
-      toast({
-        title: "Long break completed!",
-        description: "Ready for another productive focus session?",
-      });
+      // Update completed pomodoros
+      const newCompletedPomodoros = completedPomodoros + 1;
+      setCompletedPomodoros(newCompletedPomodoros);
+      localStorage.setItem("meowdoro-completed-pomodoros", newCompletedPomodoros.toString());
+      
+      // Check if daily goal is met (90 minutes)
+      if (dailyFocusMinutes + focusMinutes >= 90) {
+        const goalsMetCount = parseInt(localStorage.getItem("meowdoro-goals-met") || "0", 10);
+        localStorage.setItem("meowdoro-goals-met", (goalsMetCount + 1).toString());
+      }
+      
+      // Store the last session date
+      localStorage.setItem("meowdoro-last-session", new Date().toISOString());
+      
+      // Determine which break to take
+      const pomodorosUntilLongBreak = timerSettings.longBreakInterval;
+      if ((newCompletedPomodoros % pomodorosUntilLongBreak) === 0) {
+        // Time for a long break
+        setTimerMode("long-break");
+      } else {
+        // Time for a short break
+        setTimerMode("short-break");
+      }
+      
+      // Auto-start breaks if enabled
+      if (timerSettings.autoStartBreaks) {
+        setIsPaused(false);
+      }
+    } else {
+      // Break timer completed, switch back to pomodoro
+      setTimerMode("pomodoro");
+      
+      // Auto-start pomodoros if enabled
+      if (timerSettings.autoStartPomodoros) {
+        setIsPaused(false);
+      }
     }
-    
-    setCatStatus("happy");
-    
-    setTimeout(() => {
-      setCatStatus(currentMode === "focus" ? "sleeping" : "idle");
-    }, 5000);
   };
   
-  // Handle timer updates
-  const handleTimerUpdate = (seconds: number) => {
-    setCurrentSeconds(seconds);
-    
-    // For stopwatch, increment focus time every minute
-    if (!isCountdown && seconds % 60 === 0 && seconds > 0) {
-      const additionalMinute = 1;
-      const newTotal = totalFocusMinutes + additionalMinute;
-      setTotalFocusMinutes(newTotal);
-      
-      // Save the focus minutes along with the current date
-      localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
-      localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
-    }
-    
-    setTimerCompleted(false);
-  };
-  
-  // Handle mode changes (focus, break, long break)
-  const handleModeChange = (mode: "focus" | "break" | "longBreak") => {
-    setCurrentMode(mode);
-  };
-  
-  // Toggle between countdown and stopwatch modes
-  const toggleTimerMode = () => {
-    setIsCountdown(!isCountdown);
-  };
-  
-  // Save timer settings to localStorage
-  const saveTimerSettings = () => {
-    localStorage.setItem("meowdoro-focus-time", focusMinutes.toString());
-    localStorage.setItem("meowdoro-break-time", breakMinutes.toString());
-    localStorage.setItem("meowdoro-long-break-time", longBreakMinutes.toString());
-    localStorage.setItem("meowdoro-sessions-before-long-break", sessionsBeforeLongBreak.toString());
-    localStorage.setItem("meowdoro-daily-goal", dailyGoal.toString());
-    localStorage.setItem("meowdoro-completion-sound", completionSound);
-    localStorage.setItem("meowdoro-youtube-sound", customYoutubeUrl);
-    
-    toast({
-      title: "Timer settings saved",
-      description: "Your Pomodoro settings have been updated.",
-    });
-  };
+  // Calculate progress percentage
+  const progressPercentage = ((totalSeconds - timeRemaining) / totalSeconds) * 100;
   
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8 page-transition">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-          <TabsTrigger value="personal" className="gap-2">
-            <Clock className="h-4 w-4" />
-            Personal Timer
+    <div className="container max-w-3xl mx-auto px-4 py-8 flex flex-col items-center page-transition">
+      {/* Solo/Party tabs */}
+      <Tabs 
+        value={activeTab} 
+        onValueChange={setActiveTab}
+        className="w-full max-w-md mb-6"
+      >
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="solo">
+            Solo Timer
           </TabsTrigger>
-          <TabsTrigger value="party" disabled={!hasActiveParty} className="gap-2">
+          <TabsTrigger value="party" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Party Timer
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="personal" className="space-y-6">
-          <div className="flex flex-col items-center">
-            {/* Timer controls */}
-            <AudioControls 
-              isCountdown={isCountdown}
-              toggleTimerMode={toggleTimerMode}
-              soundPlaying={soundPlaying}
-              onPlaySound={playSound}
-            >
-              {/* Settings button */}
-              <TimerSettings
-                focusMinutes={focusMinutes}
-                breakMinutes={breakMinutes}
-                longBreakMinutes={longBreakMinutes}
-                sessionsBeforeLongBreak={sessionsBeforeLongBreak}
-                dailyGoal={dailyGoal}
-                completionSound={completionSound}
-                customYoutubeUrl={customYoutubeUrl}
-                setFocusMinutes={setFocusMinutes}
-                setBreakMinutes={setBreakMinutes}
-                setLongBreakMinutes={setLongBreakMinutes}
-                setSessionsBeforeLongBreak={setSessionsBeforeLongBreak}
-                setDailyGoal={setDailyGoal}
-                setCompletionSound={setCompletionSound}
-                setCustomYoutubeUrl={setCustomYoutubeUrl}
-                saveSettings={saveTimerSettings}
-              />
-            </AudioControls>
-            
-            {/* Main timer circle */}
-            <TimerCircle 
-              initialMinutes={focusMinutes}
-              breakMinutes={breakMinutes}
-              longBreakMinutes={longBreakMinutes}
-              sessionsBeforeLongBreak={sessionsBeforeLongBreak}
-              isCountdown={isCountdown}
-              onTimerComplete={handleTimerComplete}
-              onTimerUpdate={handleTimerUpdate}
-              onModeChange={handleModeChange}
-              soundUrl={completionSound}
-            />
-            
-            {/* Progress bar */}
-            <div className="mt-12 w-full max-w-lg mx-auto">
-              <ProgressBar currentMinutes={totalFocusMinutes} goalMinutes={dailyGoal} />
-            </div>
-          </div>
+        <TabsContent value="solo" className="w-full">
+          <Card className="border-t-0 rounded-tl-none">
+            <CardContent className="pt-6">
+              {/* Timer mode selector */}
+              <div className="flex justify-center mb-6">
+                <div className="inline-flex bg-accent/50 rounded-lg p-1">
+                  <Button
+                    variant={timerMode === "pomodoro" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setTimerMode("pomodoro")}
+                    className={timerMode === "pomodoro" ? "" : "text-muted-foreground hover:text-foreground"}
+                  >
+                    Pomodoro
+                  </Button>
+                  <Button 
+                    variant={timerMode === "short-break" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setTimerMode("short-break")}
+                    className={timerMode === "short-break" ? "" : "text-muted-foreground hover:text-foreground"}
+                  >
+                    Short Break
+                  </Button>
+                  <Button 
+                    variant={timerMode === "long-break" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setTimerMode("long-break")}
+                    className={timerMode === "long-break" ? "" : "text-muted-foreground hover:text-foreground"}
+                  >
+                    Long Break
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Main timer circle */}
+              <div className="flex justify-center mb-6">
+                <TimerCircle 
+                  timeRemaining={timeRemaining} 
+                  isPaused={isPaused} 
+                  setIsPaused={setIsPaused}
+                  timerMode={timerMode}
+                />
+              </div>
+              
+              {/* Progress bar */}
+              <div className="mb-6">
+                <ProgressBar percentage={progressPercentage} />
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                  <span>
+                    {completedPomodoros} pomodoros today
+                  </span>
+                  <span>
+                    {timerMode === "pomodoro" ? "Focus time" : "Break time"}
+                  </span>
+                </div>
+              </div>
+              
+              {/* Sound controls + settings */}
+              <div className="flex justify-between items-center">
+                <AudioControls />
+                <Button 
+                  size="icon" 
+                  variant="ghost" 
+                  onClick={() => setShowSettings(!showSettings)}
+                >
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </div>
+              
+              {/* Settings panel */}
+              {showSettings && (
+                <div className="mt-6">
+                  <TimerSettings
+                    settings={timerSettings}
+                    onSettingsChange={setTimerSettings}
+                    onClose={() => setShowSettings(false)}
+                  />
+                </div>
+              )}
+              
+              {/* Sound controls */}
+              {!showSettings && <SoundControls />}
+              
+              {/* Cat companion */}
+              <div className="fixed bottom-6 right-6">
+                <CatCompanion status={catStatus} />
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
         
-        <TabsContent value="party">
+        <TabsContent value="party" className="w-full">
           <PartyTimer />
         </TabsContent>
-      </Tabs>
-      
-      {/* Cat companion */}
-      <div className="fixed bottom-6 right-6">
-        <CatCompanion status={catStatus} />
-      </div>
+      </Tabs>  
     </div>
   );
 };
