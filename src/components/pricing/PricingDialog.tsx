@@ -153,7 +153,7 @@ export const PricingDialog: React.FC<PricingDialogProps> = ({ open, onClose }) =
                     )}
                     variant={tier.highlighted ? "default" : "outline"}
                     onClick={tier.name === "Pro" ? handleUpgrade : onClose}
-                    disabled={tier.name === "Free" && user}
+                    disabled={tier.name === "Free" && !!user}
                   >
                     {tier.buttonText}
                   </Button>
