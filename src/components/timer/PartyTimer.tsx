@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,12 +64,12 @@ export const PartyTimer = () => {
         .select('party:party_id(*)')
         .eq('user_id', user.id)
         .order('joined_at', { ascending: false })
-        .limit(1) as any; // Type assertion
+        .limit(1);
       
       if (error) throw error;
       
       if (memberships && memberships.length > 0) {
-        setActiveParty(memberships[0].party as unknown as Party);
+        setActiveParty(memberships[0].party);
       } else {
         setIsLoading(false);
       }
@@ -87,7 +86,7 @@ export const PartyTimer = () => {
       const { data, error } = await supabase
         .from('party_members')
         .select('user_id')
-        .eq('party_id', activeParty.id) as any; // Type assertion
+        .eq('party_id', activeParty.id);
       
       if (error) throw error;
       

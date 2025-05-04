@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,13 +55,13 @@ const Party: React.FC = () => {
         .select('*, party:party_id(*)')
         .eq('user_id', user.id)
         .order('joined_at', { ascending: false })
-        .limit(1) as any;
+        .limit(1);
       
       if (membershipError) throw membershipError;
       
       if (memberships && memberships.length > 0) {
         // User is in a party
-        setActiveParty(memberships[0].party as unknown as Party);
+        setActiveParty(memberships[0].party);
       }
     } catch (error: any) {
       console.error("Error checking party status:", error);

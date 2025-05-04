@@ -52,12 +52,12 @@ export const PartyTasks = () => {
         .select('party:party_id(*)')
         .eq('user_id', user.id)
         .order('joined_at', { ascending: false })
-        .limit(1) as any; // Use type assertion here
+        .limit(1);
       
       if (error) throw error;
       
       if (memberships && memberships.length > 0) {
-        setActiveParty(memberships[0].party as unknown as Party);
+        setActiveParty(memberships[0].party);
       } else {
         setIsLoading(false);
       }
@@ -75,7 +75,7 @@ export const PartyTasks = () => {
         .from('party_tasks')
         .select('*')
         .eq('party_id', activeParty.id)
-        .order('created_at', { ascending: true }) as any;
+        .order('created_at', { ascending: true });
       
       if (error) throw error;
       
@@ -106,12 +106,12 @@ export const PartyTasks = () => {
       const { data, error } = await supabase
         .from('party_tasks')
         .insert(newTask)
-        .select() as any;
+        .select();
       
       if (error) throw error;
       
       if (data) {
-        setPartyTasks([...partyTasks, data[0] as unknown as PartyTask]);
+        setPartyTasks([...partyTasks, data[0]]);
       }
       setNewTaskText("");
       
@@ -134,7 +134,7 @@ export const PartyTasks = () => {
       const { error } = await supabase
         .from('party_tasks')
         .update({ completed: !currentStatus })
-        .eq('id', taskId) as any;
+        .eq('id', taskId);
       
       if (error) throw error;
       
@@ -156,7 +156,7 @@ export const PartyTasks = () => {
       const { error } = await supabase
         .from('party_tasks')
         .delete()
-        .eq('id', taskId) as any;
+        .eq('id', taskId);
       
       if (error) throw error;
       
