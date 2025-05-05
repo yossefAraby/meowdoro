@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import { 
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, 
-  Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell
+  Tooltip as RechartsTooltip, PieChart, Pie, Cell, ResponsiveContainer
 } from "recharts";
 import { 
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
@@ -10,16 +11,18 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  Calendar, Clock, CheckSquare, Star, Activity, Award, TrendingUp, ListChecks
+  Calendar, Clock, CheckSquare, Star, Activity, Award, TrendingUp, ListChecks, Timer, Check
 } from "lucide-react";
 import { CatCompanion } from "@/components/timer/CatCompanion";
 import { 
   ChartContainer, 
-  ChartTooltip, 
-  ChartTooltipContent 
+  ChartTooltip,
+  ChartTooltipContent
 } from "@/components/ui/chart";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
+import { format, subDays, startOfWeek, parseISO } from "date-fns";
 
 // Define types for the statistics data
 type DailyStats = {
@@ -66,32 +69,31 @@ const Statistics: React.FC = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  // Sample color palette for the charts
+  // Color palette updated with cyan instead of purple
   const colors = {
-    purple: "#8B5CF6",
-    blue: "#3B82F6", 
+    primary: "#1EAEDB", // Cyan/blue color
     green: "#10B981",
     yellow: "#F59E0B",
     pink: "#EC4899",
     orange: "#F97316",
   };
 
-  // Sample achievements data
+  // Achievements data with real tracking
   const [achievements, setAchievements] = useState<Achievement[]>([
     {
       name: "Focus Novice",
       description: "Complete 5 focus sessions",
-      icon: <Clock className="w-8 h-8 text-blue-500" />,
-      unlocked: true,
-      progress: 12,
+      icon: <Clock className="w-8 h-8 text-primary" />,
+      unlocked: false,
+      progress: 0,
       maxProgress: 5
     },
     {
       name: "Task Master",
       description: "Complete 20 tasks",
       icon: <CheckSquare className="w-8 h-8 text-green-500" />,
-      unlocked: true,
-      progress: 24,
+      unlocked: false,
+      progress: 0,
       maxProgress: 20
     },
     {
@@ -99,15 +101,15 @@ const Statistics: React.FC = () => {
       description: "Create 10 notes",
       icon: <ListChecks className="w-8 h-8 text-yellow-500" />,
       unlocked: false,
-      progress: 7,
+      progress: 0,
       maxProgress: 10
     },
     {
       name: "Consistency King",
       description: "Maintain a 7-day streak",
-      icon: <TrendingUp className="w-8 h-8 text-purple-500" />,
+      icon: <TrendingUp className="w-8 h-8 text-primary" />,
       unlocked: false,
-      progress: 4,
+      progress: 0,
       maxProgress: 7
     },
     {
@@ -115,7 +117,7 @@ const Statistics: React.FC = () => {
       description: "Reach your daily goal 5 times",
       icon: <Star className="w-8 h-8 text-orange-500" />,
       unlocked: false,
-      progress: 3,
+      progress: 0,
       maxProgress: 5
     },
     {
@@ -123,7 +125,7 @@ const Statistics: React.FC = () => {
       description: "Accumulate 10 hours of focus time",
       icon: <Award className="w-8 h-8 text-pink-500" />,
       unlocked: false,
-      progress: 540,
+      progress: 0,
       maxProgress: 600
     }
   ]);
@@ -131,91 +133,141 @@ const Statistics: React.FC = () => {
   // Week days for data
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   
-  // Load mock data for now or fetch from localStorage/database
+  // Generate dates for the current week
+  const generateWeekDates = () => {
+    const today = new Date();
+    const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 1 });
+    
+    return weekDays.map((_, index) => {
+      const date = new Date(startOfCurrentWeek);
+      date.setDate(date.getDate() + index);
+      return format(date, "yyyy-MM-dd");
+    });
+  };
+  
+  const weekDates = generateWeekDates();
+  
+  // Load real data from localStorage or fetch from database
   useEffect(() => {
-    // Generate mock daily stats data
-    const generateMockDailyStats = () => {
-      const daily: DailyStats[] = [];
-      let totalTime = 0;
-      let total = 0;
-      let completed = 0;
-      let goals = 0;
-      
-      weekDays.forEach((day, index) => {
-        // Random values between 25-120 minutes for focus time
-        const focusTime = Math.floor(Math.random() * 95) + 25;
-        // Random values between 2-8 for tasks completed
-        const tasksCompleted = Math.floor(Math.random() * 6) + 2;
+    const loadUserStats = async () => {
+      try {
+        // Get focus time from localStorage
+        const storedMinutes = parseInt(localStorage.getItem("meowdoro-focus-minutes") || "0", 10);
         
-        daily.push({ day, focusTime, tasksCompleted });
+        // Get tasks data from localStorage
+        const tasksData = JSON.parse(localStorage.getItem("meowdoro-tasks") || "[]");
+        const completedTasks = tasksData.filter((task: any) => task.completed).length;
         
-        totalTime += focusTime;
-        total += index % 2 === 0 ? tasksCompleted + 2 : tasksCompleted + 1;
-        completed += tasksCompleted;
+        // Get notes data (if available)
+        const notesData = JSON.parse(localStorage.getItem("meowdoro-notes") || "[]");
         
-        // Count days where the daily goal was met (90 minutes)
-        if (focusTime >= 90) {
-          goals++;
-        }
-      });
-      
-      // Actually use data from localStorage if available
-      const storedMinutes = parseInt(localStorage.getItem("meowdoro-focus-minutes") || "0", 10);
-      if (storedMinutes > 0) {
-        totalTime = storedMinutes;
+        // Calculate streak (for now just a placeholder)
+        const lastSessionDate = localStorage.getItem("meowdoro-last-session") || "";
+        const streak = lastSessionDate ? 
+          (Math.abs(new Date().getTime() - new Date(lastSessionDate).getTime()) < 48 * 60 * 60 * 1000 ? 1 : 0) : 0;
+        
+        // Get daily goal completions
+        const dailyGoalMinutes = 90; // 90 minutes per day is the goal
+        const dailyGoalsMet = parseInt(localStorage.getItem("meowdoro-goals-met") || "0", 10);
+        
+        // Generate daily stats for the week
+        const dailyStats = weekDays.map((day, index) => {
+          const dateKey = weekDates[index];
+          const dailyFocusKey = `meowdoro-focus-${dateKey}`;
+          const dailyTasksKey = `meowdoro-tasks-completed-${dateKey}`;
+          
+          const focusTime = parseInt(localStorage.getItem(dailyFocusKey) || "0", 10);
+          const tasksCompleted = parseInt(localStorage.getItem(dailyTasksKey) || "0", 10);
+          
+          return { day, focusTime, tasksCompleted };
+        });
+        
+        // Calculate weekly average
+        const weeklyTotal = dailyStats.reduce((sum, day) => sum + day.focusTime, 0);
+        const weeklyAverage = Math.round(weeklyTotal / 7);
+        
+        // Find best day
+        let bestDay = "None";
+        let maxFocusTime = 0;
+        dailyStats.forEach(day => {
+          if (day.focusTime > maxFocusTime) {
+            maxFocusTime = day.focusTime;
+            bestDay = day.day;
+          }
+        });
+        
+        // Update achievements based on actual data
+        const updatedAchievements = [...achievements];
+        
+        // Focus sessions (assume 1 session is 25 mins)
+        const focusSessions = Math.floor(storedMinutes / 25);
+        updatedAchievements[0].progress = focusSessions;
+        updatedAchievements[0].unlocked = focusSessions >= updatedAchievements[0].maxProgress;
+        
+        // Completed tasks
+        updatedAchievements[1].progress = completedTasks;
+        updatedAchievements[1].unlocked = completedTasks >= updatedAchievements[1].maxProgress;
+        
+        // Notes
+        updatedAchievements[2].progress = notesData.length;
+        updatedAchievements[2].unlocked = notesData.length >= updatedAchievements[2].maxProgress;
+        
+        // Streak
+        updatedAchievements[3].progress = streak;
+        updatedAchievements[3].unlocked = streak >= updatedAchievements[3].maxProgress;
+        
+        // Goals met
+        updatedAchievements[4].progress = dailyGoalsMet;
+        updatedAchievements[4].unlocked = dailyGoalsMet >= updatedAchievements[4].maxProgress;
+        
+        // Focus time (in minutes)
+        updatedAchievements[5].progress = storedMinutes;
+        updatedAchievements[5].unlocked = storedMinutes >= updatedAchievements[5].maxProgress;
+        
+        setAchievements(updatedAchievements);
+        
+        // Set all stats data
+        setStatsData({
+          totalFocusTime: storedMinutes,
+          totalTasks: tasksData.length,
+          totalCompletedTasks: completedTasks,
+          totalNotes: notesData.length,
+          goalsMet: dailyGoalsMet,
+          dailyStats,
+          weeklyAverage,
+          bestDay,
+          streak,
+        });
+        
+        // Update some localStorage values for next time
+        localStorage.setItem("meowdoro-last-session", new Date().toISOString());
+        
+      } catch (error) {
+        console.error("Error loading user stats:", error);
+        toast({
+          title: "Error loading statistics",
+          description: "We couldn't load your statistics data. Please try again.",
+          variant: "destructive"
+        });
       }
-      
-      return {
-        dailyStats: daily,
-        totalFocusTime: totalTime,
-        totalTasks: total,
-        totalCompletedTasks: completed,
-        totalNotes: Math.floor(Math.random() * 10) + 5,
-        goalsMet: goals,
-        weeklyAverage: Math.round(totalTime / 7),
-        bestDay: weekDays[Math.floor(Math.random() * weekDays.length)],
-        streak: Math.floor(Math.random() * 5) + 1,
-      };
     };
     
-    setStatsData(generateMockDailyStats());
+    loadUserStats();
     
-    // Note: In a real app, you would fetch this data from your Supabase database
-    // if (user) {
-    //   fetchUserStats();
-    // }
-  }, [user]);
-  
-  // Make the cat happy when viewing achievements
-  useEffect(() => {
+    // Update cat status when viewing achievements
     if (activeView === "achievements") {
       setCatStatus("happy");
     } else {
       setCatStatus("focused");
     }
-  }, [activeView]);
-  
-  // const fetchUserStats = async () => {
-  //   try {
-  //     // This would be actual database calls to fetch user statistics
-  //     // const { data, error } = await supabase.from('user_stats').select('*').eq('user_id', user.id);
-  //     // if (error) throw error;
-  //     // Process and set the data
-  //   } catch (error) {
-  //     console.error("Error fetching user stats:", error);
-  //     toast({
-  //       title: "Error loading statistics",
-  //       description: "We couldn't load your statistics. Please try again later.",
-  //       variant: "destructive"
-  //     });
-  //   }
-  // };
+    
+  }, [activeView, toast]);
   
   // Chart configurations - Fix the structure to match ChartConfig type
   const chartConfig = {
     focusTime: {
       label: "Focus Time",
-      color: colors.purple,
+      color: colors.primary,
     },
     tasks: {
       label: "Tasks",
@@ -223,11 +275,11 @@ const Statistics: React.FC = () => {
     },
     notes: {
       label: "Notes",
-      color: colors.blue,
+      color: colors.primary,
     },
     completed: {
       label: "Completed",
-      color: colors.yellow,
+      color: colors.green,
     },
     pending: {
       label: "Pending",
@@ -248,7 +300,8 @@ const Statistics: React.FC = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {/* Total Focus Time Card */}
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Clock className="h-5 w-5 text-primary" />
@@ -266,7 +319,8 @@ const Statistics: React.FC = () => {
         </Card>
         
         {/* Tasks Completed Card */}
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <CheckSquare className="h-5 w-5 text-green-500" />
@@ -284,7 +338,8 @@ const Statistics: React.FC = () => {
         </Card>
         
         {/* Goals Met Card */}
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Star className="h-5 w-5 text-yellow-500" />
@@ -303,14 +358,10 @@ const Statistics: React.FC = () => {
       </div>
       
       <Tabs defaultValue="weekly" value={activeView} onValueChange={setActiveView} className="mb-6">
-        <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
+        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
           <TabsTrigger value="weekly" className="gap-2">
             <Calendar className="h-4 w-4" />
             Weekly Progress
-          </TabsTrigger>
-          <TabsTrigger value="trends" className="gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Trends
           </TabsTrigger>
           <TabsTrigger value="achievements" className="gap-2">
             <Award className="h-4 w-4" />
@@ -319,55 +370,58 @@ const Statistics: React.FC = () => {
         </TabsList>
         
         <TabsContent value="weekly" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Weekly Focus & Tasks</CardTitle>
+          <Card className="overflow-hidden border-primary/10">
+            <CardHeader className="bg-gradient-to-r from-primary/10 to-transparent">
+              <CardTitle className="flex items-center gap-2">
+                <Timer className="h-5 w-5 text-primary" />
+                Weekly Focus & Tasks
+              </CardTitle>
               <CardDescription>
                 Your productivity during the current week
               </CardDescription>
             </CardHeader>
-            <CardContent className="h-[350px] pt-4">
-              <ChartContainer
-                config={chartConfig}
-                className="h-80"
-              >
+            <CardContent className="h-[350px] pt-8">
+              <ChartContainer config={chartConfig} className="h-80">
                 <BarChart
                   data={statsData.dailyStats}
                   margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="day" />
-                  <YAxis yAxisId="left" orientation="left" stroke={colors.purple} />
+                  <YAxis yAxisId="left" orientation="left" stroke={colors.primary} />
                   <YAxis yAxisId="right" orientation="right" stroke={colors.green} />
-                  <ChartTooltip />
+                  <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar 
                     yAxisId="left"
                     dataKey="focusTime" 
-                    name="Focus minutes" 
-                    fill={colors.purple} 
+                    name="focusTime"
+                    fill={colors.primary} 
                     radius={[4, 4, 0, 0]} 
                   />
                   <Bar 
                     yAxisId="right"
                     dataKey="tasksCompleted" 
-                    name="Tasks completed" 
+                    name="tasks" 
                     fill={colors.green} 
                     radius={[4, 4, 0, 0]} 
                   />
                 </BarChart>
               </ChartContainer>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="bg-gradient-to-r from-transparent to-primary/5">
               <div className="text-sm text-muted-foreground">
-                Your most productive day is usually <span className="font-medium">{statsData.bestDay}</span>
+                Your most productive day is usually <span className="font-medium text-primary">{statsData.bestDay}</span>
               </div>
             </CardFooter>
           </Card>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Task Completion</CardTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="overflow-hidden border-primary/10">
+              <CardHeader className="bg-gradient-to-r from-green-500/10 to-transparent">
+                <CardTitle className="flex items-center gap-2">
+                  <Check className="h-5 w-5 text-green-500" />
+                  Task Completion
+                </CardTitle>
                 <CardDescription>
                   Distribution of completed vs. remaining tasks
                 </CardDescription>
@@ -380,8 +434,8 @@ const Statistics: React.FC = () => {
                   <PieChart>
                     <Pie
                       data={[
-                        { name: "Completed", value: statsData.totalCompletedTasks, dataKey: "completed" },
-                        { name: "Pending", value: statsData.totalTasks - statsData.totalCompletedTasks, dataKey: "pending" }
+                        { name: "completed", value: statsData.totalCompletedTasks },
+                        { name: "pending", value: statsData.totalTasks - statsData.totalCompletedTasks }
                       ]}
                       cx="50%"
                       cy="50%"
@@ -395,20 +449,23 @@ const Statistics: React.FC = () => {
                       <Cell key="cell-0" fill={colors.green} />
                       <Cell key="cell-1" fill="#CBD5E1" />
                     </Pie>
-                    <ChartTooltip />
+                    <ChartTooltip content={<ChartTooltipContent />} />
                   </PieChart>
                 </ChartContainer>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="bg-gradient-to-r from-transparent to-green-500/5">
                 <div className="text-sm text-muted-foreground">
-                  You've completed <span className="font-medium">{Math.round((statsData.totalCompletedTasks / statsData.totalTasks) * 100)}%</span> of your tasks.
+                  You've completed <span className="font-medium text-green-500">{statsData.totalTasks > 0 ? Math.round((statsData.totalCompletedTasks / statsData.totalTasks) * 100) : 0}%</span> of your tasks.
                 </div>
               </CardFooter>
             </Card>
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Daily Focus Time</CardTitle>
+            <Card className="overflow-hidden border-primary/10">
+              <CardHeader className="bg-gradient-to-r from-primary/10 to-transparent">
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  Daily Focus Time
+                </CardTitle>
                 <CardDescription>
                   Minutes spent focusing over the week
                 </CardDescription>
@@ -422,23 +479,23 @@ const Statistics: React.FC = () => {
                     data={statsData.dailyStats.map(stat => ({ ...stat, goal: 90 }))}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                     <XAxis dataKey="day" />
                     <YAxis />
-                    <ChartTooltip />
+                    <ChartTooltip content={<ChartTooltipContent />} />
                     <Line 
                       type="monotone" 
                       dataKey="focusTime" 
-                      name="Focus Time" 
-                      stroke={colors.purple} 
+                      name="focusTime"
+                      stroke={colors.primary} 
                       strokeWidth={2} 
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6, strokeWidth: 2 }}
+                      dot={{ r: 4, fill: colors.primary }} 
+                      activeDot={{ r: 6, strokeWidth: 2, fill: colors.primary }}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="goal" 
-                      name="Daily Goal" 
+                      name="goal"
                       stroke={colors.pink} 
                       strokeDasharray="5 5" 
                       strokeWidth={2} 
@@ -447,37 +504,29 @@ const Statistics: React.FC = () => {
                   </LineChart>
                 </ChartContainer>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="bg-gradient-to-r from-transparent to-primary/5">
                 <div className="text-sm text-muted-foreground">
                   You reached your daily goal of 90 minutes {statsData.goalsMet} times this week.
                 </div>
               </CardFooter>
             </Card>
           </div>
-        </TabsContent>
-        
-        <TabsContent value="trends" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Productivity Trends</CardTitle>
-              <CardDescription>
-                Your focus time and task completion over time
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-[400px]">
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center max-w-md">
-                  <div className="bg-muted/50 rounded-full p-8 mb-4 inline-block">
-                    <Activity className="h-12 w-12 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Coming Soon!</h3>
-                  <p className="text-muted-foreground">
-                    Historical trend analysis will be available once we collect more data about your productivity patterns.
-                  </p>
+          
+          <div className="bg-primary/5 backdrop-blur-sm p-6 rounded-lg border border-primary/10">
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <div className="flex-shrink-0">
+                <div className="bg-white/10 rounded-full p-4 border border-primary/20">
+                  <Star className="h-8 w-8 text-primary" />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-1">Productivity Tip</h3>
+                <p className="text-muted-foreground">
+                  Focus on completing one task at a time for better productivity. Your best focus time appears to be around {statsData.bestDay}. Try to schedule your most important tasks then.
+                </p>
+              </div>
+            </div>
+          </div>
         </TabsContent>
         
         <TabsContent value="achievements" className="space-y-6">
@@ -485,7 +534,12 @@ const Statistics: React.FC = () => {
             {achievements.map((achievement, index) => (
               <Card 
                 key={index} 
-                className={`hover:shadow-md transition-shadow ${achievement.unlocked ? 'border-primary/40' : ''}`}
+                className={cn(
+                  "hover:shadow-md transition-all",
+                  achievement.unlocked 
+                    ? "border-primary/40 bg-gradient-to-br from-primary/5 to-transparent" 
+                    : ""
+                )}
               >
                 <CardHeader className="pb-2 relative">
                   {achievement.unlocked && (
@@ -504,7 +558,12 @@ const Statistics: React.FC = () => {
                   </p>
                   <div className="w-full bg-muted rounded-full h-2.5 mb-1">
                     <div 
-                      className={`h-2.5 rounded-full ${achievement.unlocked ? 'bg-primary' : 'bg-primary/60'}`}
+                      className={cn(
+                        "h-2.5 rounded-full", 
+                        achievement.unlocked 
+                          ? "bg-primary" 
+                          : "bg-primary/60"
+                      )}
                       style={{ width: `${Math.min(100, (achievement.progress / achievement.maxProgress) * 100)}%` }}
                     ></div>
                   </div>
@@ -515,6 +574,28 @@ const Statistics: React.FC = () => {
               </Card>
             ))}
           </div>
+          
+          <Card className="bg-gradient-to-br from-primary/5 to-transparent border-primary/10">
+            <CardHeader>
+              <CardTitle>Achievement Progress</CardTitle>
+              <CardDescription>
+                You've unlocked {achievements.filter(a => a.unlocked).length} of {achievements.length} achievements
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pb-6">
+              <div className="w-full bg-muted rounded-full h-3 mb-2">
+                <div 
+                  className="h-3 rounded-full bg-primary"
+                  style={{ width: `${(achievements.filter(a => a.unlocked).length / achievements.length) * 100}%` }}
+                ></div>
+              </div>
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Beginner</span>
+                <span>Intermediate</span>
+                <span>Expert</span>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
       

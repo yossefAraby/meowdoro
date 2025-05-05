@@ -114,38 +114,3 @@
 .glass-dark {
   @apply backdrop-blur-md bg-black/30 border border-white/10 shadow-sm;
 }
-
-/* Mobile optimizations */
-@media (max-width: 768px) {
-  /* Adjust main container padding for mobile */
-  .container {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-  
-  /* Improve touch targets on mobile */
-  button, a {
-    min-height: 40px;
-    min-width: 40px;
-  }
-  
-  /* Ensure inputs are easier to tap */
-  input, select, textarea {
-    font-size: 16px !important; /* Prevents iOS from zooming when input is focused */
-  }
-  
-  /* Improve form controls on mobile */
-  .form-control {
-    margin-bottom: 1rem;
-  }
-  
-  /* Better spacing for mobile dialog content */
-  .mobile-dialog-content {
-    padding: 1rem;
-  }
-  
-  /* Improve readability of small text on mobile */
-  .text-xs, .text-sm {
-    line-height: 1.5;
-  }
-}

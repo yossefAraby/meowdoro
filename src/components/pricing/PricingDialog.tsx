@@ -36,7 +36,7 @@ export const PricingDialog: React.FC<PricingDialogProps> = ({ open, onClose }) =
         "Full access to Pomodoro timer",
         "Full access to tasks/notes",
         "Limited to only one active party",
-        "AI-Ready prompts linked to external LLMs",
+        "5 Meowdoro AI requests trial",
       ],
       buttonText: user ? "Current Plan" : "Get Started",
     },
@@ -48,7 +48,7 @@ export const PricingDialog: React.FC<PricingDialogProps> = ({ open, onClose }) =
       features: [
         "Everything in Free plan",
         "Unlimited party access",
-        "Monthly Meowdoro AI requests with tasks and study session analysis",
+        "50 Monthly Meowdoro AI requests",
       ],
       buttonText: "Upgrade",
       highlighted: true,

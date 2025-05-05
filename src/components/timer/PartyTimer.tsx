@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Users, Play, Pause, RotateCcw } from "lucide-react";
 
 interface Party {
@@ -16,7 +14,6 @@ interface Party {
 export const PartyTimer = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
   const [activeParty, setActiveParty] = useState<Party | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [timeInSeconds, setTimeInSeconds] = useState(0);
@@ -37,7 +34,7 @@ export const PartyTimer = () => {
 
     return () => {
       if (activeParty) {
-        supabase.removeChannel('party-timer');
+        supabase.removeChannel(supabase.channel('party-timer'));
       }
     };
   }, [activeParty]);
@@ -195,9 +192,9 @@ export const PartyTimer = () => {
     return (
       <div className="py-8 text-center">
         <div className="mb-4">
-          <Users className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-          <h3 className="text-lg md:text-xl font-semibold mb-2">No Active Party</h3>
-          <p className="text-sm md:text-base text-muted-foreground mb-4 px-4">
+          <Users className="h-16 w-16 mx-auto text-muted-foreground mb-2" />
+          <h3 className="text-xl font-semibold mb-2">No Active Party</h3>
+          <p className="text-muted-foreground mb-4">
             Join a study party to access the shared timer.
           </p>
         </div>
@@ -207,9 +204,9 @@ export const PartyTimer = () => {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-4 md:mb-6">
-        <h3 className="text-base md:text-lg font-semibold flex items-center">
-          <Users className="h-4 w-4 md:h-5 md:w-5 mr-1 md:mr-2" />
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold flex items-center">
+          <Users className="h-5 w-5 mr-2" />
           {activeParty.name} Timer
         </h3>
         <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
@@ -217,33 +214,30 @@ export const PartyTimer = () => {
         </span>
       </div>
 
-      <div className="flex flex-col items-center justify-center space-y-4 md:space-y-6">
-        <div className={cn(
-          "text-3xl md:text-4xl font-mono font-bold",
-          isMobile ? "bg-accent/30 py-3 px-6 rounded-lg w-full text-center" : ""
-        )}>
+      <div className="flex flex-col items-center justify-center space-y-6">
+        <div className="text-4xl font-mono font-bold">
           {formatTime(timeInSeconds)}
         </div>
 
-        <div className="flex space-x-2 w-full justify-center">
+        <div className="flex space-x-2">
           {!isRunning ? (
-            <Button onClick={startTimer} className="gap-2 flex-1 max-w-[140px]">
+            <Button onClick={startTimer} className="gap-2">
               <Play className="h-4 w-4" />
               Start
             </Button>
           ) : (
-            <Button onClick={pauseTimer} variant="secondary" className="gap-2 flex-1 max-w-[140px]">
+            <Button onClick={pauseTimer} variant="secondary" className="gap-2">
               <Pause className="h-4 w-4" />
               Pause
             </Button>
           )}
-          <Button onClick={resetTimer} variant="outline" className="gap-2 flex-1 max-w-[140px]">
+          <Button onClick={resetTimer} variant="outline" className="gap-2">
             <RotateCcw className="h-4 w-4" />
             Reset
           </Button>
         </div>
 
-        <div className="text-xs md:text-sm text-muted-foreground mt-2 md:mt-4">
+        <div className="text-sm text-muted-foreground mt-4">
           <span>Studying with {partyMembers.length} {partyMembers.length === 1 ? 'person' : 'people'}</span>
         </div>
       </div>
