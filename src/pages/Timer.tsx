@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { TimerCircle } from "@/components/timer/TimerCircle";
 import { ProgressBar } from "@/components/timer/ProgressBar";
@@ -10,9 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { PartyTimer } from "@/components/timer/PartyTimer";
+import { cn } from "@/lib/utils";
 
 const Timer: React.FC = () => {
+  const isMobile = useIsMobile();
   // Timer state - whether countdown or count-up
   const [isCountdown, setIsCountdown] = useState(true);
   
@@ -221,20 +223,26 @@ const Timer: React.FC = () => {
   };
   
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8 page-transition">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-          <TabsTrigger value="personal" className="gap-2">
-            <Clock className="h-4 w-4" />
-            Personal Timer
+    <div className={cn(
+      "container max-w-4xl mx-auto px-3 md:px-4 py-4 md:py-8 page-transition",
+      isMobile && "pb-20" // Add padding at bottom for mobile to account for the cat companion
+    )}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4 md:mb-6">
+        <TabsList className={cn(
+          "grid w-full mx-auto grid-cols-2",
+          isMobile ? "max-w-[300px]" : "max-w-md"
+        )}>
+          <TabsTrigger value="personal" className="gap-1 md:gap-2 text-xs sm:text-sm">
+            <Clock className="h-3 w-3 md:h-4 md:w-4" />
+            <span>Personal Timer</span>
           </TabsTrigger>
-          <TabsTrigger value="party" disabled={!hasActiveParty} className="gap-2">
-            <Users className="h-4 w-4" />
-            Party Timer
+          <TabsTrigger value="party" disabled={!hasActiveParty} className="gap-1 md:gap-2 text-xs sm:text-sm">
+            <Users className="h-3 w-3 md:h-4 md:w-4" />
+            <span>Party Timer</span>
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="personal" className="space-y-6">
+        <TabsContent value="personal" className="space-y-4 md:space-y-6">
           <div className="flex flex-col items-center">
             {/* Timer controls */}
             <AudioControls 
@@ -264,20 +272,22 @@ const Timer: React.FC = () => {
             </AudioControls>
             
             {/* Main timer circle */}
-            <TimerCircle 
-              initialMinutes={focusMinutes}
-              breakMinutes={breakMinutes}
-              longBreakMinutes={longBreakMinutes}
-              sessionsBeforeLongBreak={sessionsBeforeLongBreak}
-              isCountdown={isCountdown}
-              onTimerComplete={handleTimerComplete}
-              onTimerUpdate={handleTimerUpdate}
-              onModeChange={handleModeChange}
-              soundUrl={completionSound}
-            />
+            <div className={isMobile ? "w-[280px] h-[280px] mx-auto" : ""}>
+              <TimerCircle 
+                initialMinutes={focusMinutes}
+                breakMinutes={breakMinutes}
+                longBreakMinutes={longBreakMinutes}
+                sessionsBeforeLongBreak={sessionsBeforeLongBreak}
+                isCountdown={isCountdown}
+                onTimerComplete={handleTimerComplete}
+                onTimerUpdate={handleTimerUpdate}
+                onModeChange={handleModeChange}
+                soundUrl={completionSound}
+              />
+            </div>
             
             {/* Progress bar */}
-            <div className="mt-12 w-full max-w-lg mx-auto">
+            <div className="mt-8 md:mt-12 w-full max-w-lg mx-auto px-2 md:px-0">
               <ProgressBar currentMinutes={totalFocusMinutes} goalMinutes={dailyGoal} />
             </div>
           </div>
@@ -288,8 +298,12 @@ const Timer: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Cat companion */}
-      <div className="fixed bottom-6 right-6">
+      {/* Cat companion - fixed at bottom on mobile, bottom right on desktop */}
+      <div className={cn(
+        isMobile 
+          ? "fixed bottom-2 left-1/2 transform -translate-x-1/2" 
+          : "fixed bottom-6 right-6"
+      )}>
         <CatCompanion status={catStatus} />
       </div>
     </div>

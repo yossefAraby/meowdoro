@@ -9,6 +9,7 @@ import { Navbar } from "./components/layout/Navbar";
 import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ToastProvider } from "./hooks/use-toast";
+import "./App.css";
 
 // Import page components
 import Landing from "./pages/Landing";
@@ -73,6 +74,27 @@ const AppRoutes = () => {
 };
 
 const App = () => {
+  // Add a class to body for mobile detection in CSS
+  useEffect(() => {
+    const checkMobile = () => {
+      if (window.innerWidth < 768) {
+        document.body.classList.add('is-mobile');
+      } else {
+        document.body.classList.remove('is-mobile');
+      }
+    };
+    
+    // Initial check
+    checkMobile();
+    
+    // Listen for resize events
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -80,11 +102,11 @@ const App = () => {
           <AuthProvider>
             <TooltipProvider>
               <Toaster />
-              <Sonner />
+              <Sonner position={window.innerWidth < 768 ? "top-center" : "bottom-right"} />
               
               <BrowserRouter>
                 <Navbar />
-                <main className="pt-20 min-h-screen">
+                <main className="pt-16 md:pt-20 min-h-screen">
                   <AppRoutes />
                 </main>
               </BrowserRouter>
