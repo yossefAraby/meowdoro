@@ -2,182 +2,104 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-    /* Light mode - Default theme (Improved for better readability and accessibility) */
-    --background: 210 40% 98%;
-    --foreground: 222 50% 10%; /* Darker foreground text for better contrast */
-    --card: 0 0% 100%;
-    --card-foreground: 222 50% 10%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 222 50% 10%;
-    --primary: 196 80% 45%; /* Adjusted for better contrast */
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --primary: 262.1 83.3% 57.8%;
+    --primary-rgb: 123, 22, 255;
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 94%; /* Slightly darker for better visibility */
-    --secondary-foreground: 222 50% 10%;
-    --muted: 210 40% 94%; 
-    --muted-foreground: 215 25% 35%; /* Higher contrast muted text */
-    --accent: 210 40% 92%; /* Slightly darker accent for visibility */
-    --accent-foreground: 222 50% 10%;
-    --destructive: 0 84% 50%; /* Higher contrast destructive */
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 80%; /* Slightly darker border for visibility */
-    --input: 214 32% 85%;
-    --ring: 222 50% 10%;
-    --radius: 0.75rem;
 
-    /* Theme variants - Light mode (slightly more saturated) */
-    --green-primary: 145 80% 40%;
-    --yellow-primary: 45 85% 45%;
-    --lavender-primary: 270 75% 60%;
-    --peach-primary: 25 75% 55%;
-    --mint-primary: 165 75% 40%;
-    --rose-primary: 355 75% 55%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 215 20.2% 65.1%;
+
+    --radius: 0.5rem;
   }
- 
+
   .dark {
-    /* Dark mode - Default theme (Cyan) - Keep as is */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 196 80% 65%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 217 32% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 32% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 32% 17%;
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+
+    --accent: 216 34% 17%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 0 62% 30%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
+
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+
+    --primary: 263 70% 50%;
+    --primary-rgb: 123, 22, 255;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217 32% 17%;
-    --input: 217 32% 17%;
-    --ring: 212 35% 65%;
-  }
 
-  /* Theme variations - Applied via theme provider */
-  .theme-green {
-    --primary: var(--green-primary);
-  }
+    --ring: 216 34% 17%;
 
-  .theme-yellow {
-    --primary: var(--yellow-primary);
-  }
-
-  .theme-lavender {
-    --primary: var(--lavender-primary);
-  }
-
-  .theme-peach {
-    --primary: var(--peach-primary);
-  }
-
-  .theme-mint {
-    --primary: var(--mint-primary);
-  }
-
-  .theme-rose {
-    --primary: var(--rose-primary);
+    --radius: 0.5rem;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
-  }
-
-  /* Improved focus styles for accessibility */
-  a:focus, button:focus, input:focus, select:focus, textarea:focus {
-    @apply outline-2 outline-primary outline-offset-2 ring-2 ring-primary/30;
-  }
-
-  /* Hide selection rectangle only while typing in a note/task */
-  input:focus, textarea:focus {
-    outline: none !important;
-  }
-
-  /* Improved text readability */
-  p, span, div, button, a {
-    @apply font-medium; /* Slightly bolder text for better readability */
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Animation Utilities */
-@layer utilities {
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  .animate-pulse-soft {
-    animation: pulse-soft 3s ease-in-out infinite;
-  }
-  
-  .hover-scale {
-    @apply transition-transform duration-200 hover:scale-105;
-  }
-
-  .glass {
-    @apply backdrop-blur-md bg-background/70 border border-border/40;
-  }
-}
-
-@keyframes float {
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
-}
-
-@keyframes pulse-soft {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-/* Background patterns */
-.bg-dots {
-  background-image: radial-gradient(currentColor 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-.bg-grid {
-  background-image: 
-    linear-gradient(to right, currentColor 1px, transparent 1px),
-    linear-gradient(to bottom, currentColor 1px, transparent 1px);
-  background-size: 25px 25px;
-}
-
-/* Page transitions */
 .page-transition {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: scale-in 0.3s ease-out;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+/* Interactive animations for landing page */
+@layer components {
+  .interactive-text span {
+    display: inline-block;
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .interactive-text:hover span {
+    text-shadow: 0 0 8px hsla(var(--primary), 0.5);
   }
+}
+
+/* Water bubble effect styles */
+canvas {
+  touch-action: none;
 }

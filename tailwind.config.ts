@@ -89,18 +89,49 @@ export default {
         "pulse-soft": {
           "0%, 100%": { transform: "scale(1)" },
           "50%": { transform: "scale(1.1)" }
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-20px)" }
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" }
+        },
+        "bubble-float": {
+          "0%": { transform: "translate(0, 0) scale(1)" },
+          "33%": { transform: "translate(3px, -8px) scale(1.02)" },
+          "66%": { transform: "translate(-3px, -4px) scale(0.98)" },
+          "100%": { transform: "translate(0, 0) scale(1)" }
+        },
+        "water-ripple": {
+          "0%": { transform: "scale(0.8)", opacity: "0.6" },
+          "50%": { transform: "scale(1.05)", opacity: "0.3" },
+          "100%": { transform: "scale(0.8)", opacity: "0.6" }
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "scale-in": "scale-in 0.4s ease-out",
-        "pulse-soft": "pulse-soft 2s infinite ease-in-out"
+        "pulse-soft": "pulse-soft 2s infinite ease-in-out",
+        "float": "float 6s infinite ease-in-out",
+        "shimmer": "shimmer 2s infinite linear",
+        "bubble-float": "bubble-float 8s infinite ease-in-out",
+        "water-ripple": "water-ripple 5s infinite ease-in-out"
       },
       boxShadow: {
         'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',
         'soft-md': '0 6px 25px rgba(0, 0, 0, 0.08)',
         'soft-lg': '0 10px 30px rgba(0, 0, 0, 0.1)',
+      },
+      backgroundImage: {
+        'grid': 'linear-gradient(to right, rgba(var(--primary-rgb), 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(var(--primary-rgb), 0.1) 1px, transparent 1px)',
+        'dots': 'radial-gradient(rgba(var(--primary-rgb), 0.1) 2px, transparent 2px)'
+      },
+      backgroundSize: {
+        'grid': '50px 50px',
+        'dots': '20px 20px'
       }
     }
   },
