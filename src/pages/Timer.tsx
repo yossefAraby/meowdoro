@@ -5,11 +5,12 @@ import { AudioControls, useBackgroundSounds } from "@/components/timer/AudioCont
 import { TimerSettings } from "@/components/timer/TimerSettings";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Clock } from "lucide-react";
+import { Users, Clock, Fish } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PartyTimer } from "@/components/timer/PartyTimer";
 import MeowAIButton from "@/components/ai/MeowAIButton";
+import { toast } from "sonner";
 
 const Timer: React.FC = () => {
   // Timer state - whether countdown or count-up
@@ -40,6 +41,11 @@ const Timer: React.FC = () => {
   const [hasActiveParty, setHasActiveParty] = useState(false);
   const { user } = useAuth();
   
+  // User fish count
+  const [userFish, setUserFish] = useState(() => {
+    return parseInt(localStorage.getItem("meowdoro-user-fish") || "0", 10);
+  });
+  
   // Settings from localStorage
   const [completionSound, setCompletionSound] = useState(() => {
     return localStorage.getItem("meowdoro-completion-sound") || "";
@@ -67,6 +73,12 @@ const Timer: React.FC = () => {
   
   const { toast } = useToast();
   const { soundPlaying, playSound } = useBackgroundSounds();
+  
+  // Save user fish to localStorage
+  const updateUserFish = (newCount: number) => {
+    setUserFish(newCount);
+    localStorage.setItem("meowdoro-user-fish", newCount.toString());
+  };
   
   // Check if user is in a party
   useEffect(() => {
@@ -130,10 +142,27 @@ const Timer: React.FC = () => {
       localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
       localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
       
-      toast({
-        title: "Focus session completed!",
-        description: `You've focused for ${newTotal} minutes today.`,
-      });
+      // Award fish for completed focus session (1 fish per full 25 minutes)
+      if (focusMinutes >= 25) {
+        const fishEarned = Math.floor(focusMinutes / 25);
+        const newFishCount = userFish + fishEarned;
+        updateUserFish(newFishCount);
+        
+        toast({
+          title: `Focus session completed! +${fishEarned} fish`,
+          description: `You've focused for ${newTotal} minutes today.`,
+        });
+        
+        // Also show a sonner toast for fish
+        toast.success(`You earned ${fishEarned} fish! 🐟`, {
+          description: "Use them in the Shop to customize your experience."
+        });
+      } else {
+        toast({
+          title: "Focus session completed!",
+          description: `You've focused for ${newTotal} minutes today.`,
+        });
+      }
     } else if (currentMode === "break") {
       toast({
         title: "Break completed!",
@@ -207,6 +236,12 @@ const Timer: React.FC = () => {
         
         <TabsContent value="personal" className="space-y-6">
           <div className="flex flex-col items-center">
+            {/* Fish count display */}
+            <div className="flex items-center gap-2 mb-4 text-sm">
+              <Fish className="h-4 w-4 text-primary" />
+              <span>{userFish} Fish</span>
+            </div>
+            
             {/* Timer controls */}
             <AudioControls 
               isCountdown={isCountdown}

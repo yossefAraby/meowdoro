@@ -17,6 +17,7 @@ import Timer from "./pages/Timer";
 import Tasks from "./pages/Tasks";
 import Party from "./pages/Party";
 import Statistics from "./pages/Statistics";
+import Shop from "./pages/Shop";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,11 @@ const AppRoutes = () => {
       <Route path="/statistics" element={
         <ProtectedRoute>
           <Statistics />
+        </ProtectedRoute>
+      } />
+      <Route path="/shop" element={
+        <ProtectedRoute>
+          <Shop />
         </ProtectedRoute>
       } />
       
