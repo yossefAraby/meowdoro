@@ -9,6 +9,7 @@ import { Navbar } from "./components/layout/Navbar";
 import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ToastProvider } from "./hooks/use-toast";
+import { ShopProvider } from "./contexts/ShopContext";
 
 // Import page components
 import Landing from "./pages/Landing";
@@ -17,6 +18,7 @@ import Timer from "./pages/Timer";
 import Tasks from "./pages/Tasks";
 import Party from "./pages/Party";
 import Statistics from "./pages/Statistics";
+import Shop from "./pages/Shop";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +65,11 @@ const AppRoutes = () => {
           <Statistics />
         </ProtectedRoute>
       } />
+      <Route path="/shop" element={
+        <ProtectedRoute>
+          <Shop />
+        </ProtectedRoute>
+      } />
       
       <Route path="/stats" element={<Navigate to="/statistics" replace />} />
       <Route path="/settings" element={<Navigate to="/timer" replace />} />
@@ -78,17 +85,19 @@ const App = () => {
       <ThemeProvider>
         <ToastProvider>
           <AuthProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              
-              <BrowserRouter>
-                <Navbar />
-                <main className="pt-20 min-h-screen">
-                  <AppRoutes />
-                </main>
-              </BrowserRouter>
-            </TooltipProvider>
+            <ShopProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                
+                <BrowserRouter>
+                  <Navbar />
+                  <main className="pt-20 min-h-screen">
+                    <AppRoutes />
+                  </main>
+                </BrowserRouter>
+              </TooltipProvider>
+            </ShopProvider>
           </AuthProvider>
         </ToastProvider>
       </ThemeProvider>

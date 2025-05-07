@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Sun, Moon, Menu, LogOut, User, Sparkles } from "lucide-react";
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/hover-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PricingDialog } from "@/components/pricing/PricingDialog";
+import { FishCurrency } from "@/components/shop/FishCurrency";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
@@ -56,6 +58,9 @@ export const Navbar: React.FC = () => {
           
           {/* Right Side Actions */}
           <div className="flex items-center space-x-2">
+            {/* Fish Currency */}
+            {(user || isGuest) && <FishCurrency />}
+            
             <button 
               onClick={toggleMode} 
               className="p-2 rounded-full hover:bg-accent/50 transition-all duration-150"

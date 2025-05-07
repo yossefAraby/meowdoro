@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Tooltip, 
@@ -17,6 +16,7 @@ import {
   DialogClose 
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { CustomizableCat } from "@/components/shop/CustomizableCat";
 
 // Study tips for the cat to share
 const studyTips = [
@@ -205,12 +205,13 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
               onClick={handleCatClick}
               aria-label="Chat with Meowdoro"
             >
-              <Cat 
-                className={`w-14 h-14 sm:w-16 sm:h-16 text-primary drop-shadow-lg
-                  ${status === "sleeping" ? "opacity-50" : ""}
-                  ${status === "happy" ? "text-primary animate-pulse-soft" : ""}
-                  ${status === "focused" ? "text-primary" : ""}
-                `}
+              <CustomizableCat 
+                size="md" 
+                className={cn(
+                  status === "sleeping" ? "opacity-50" : "",
+                  status === "happy" ? "animate-pulse-soft" : ""
+                )}
+                onClick={handleCatClick}
               />
             </div>
           </TooltipTrigger>

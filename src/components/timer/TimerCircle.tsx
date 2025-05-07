@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Play, Pause, RotateCcw, Coffee, FastForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
+import { useShop } from "@/contexts/ShopContext";
 
 // This component handles the circular timer display and controls
 interface TimerCircleProps {
@@ -45,6 +45,9 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   // References
   const intervalRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  // Add shop context
+  const { addFish } = useShop();
   
   // Initialize audio for completion sound
   useEffect(() => {
@@ -112,6 +115,12 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
                 const newCompletedSessions = completedSessions + 1;
                 setCompletedSessions(newCompletedSessions);
                 
+                // Reward fish for completing a focus session
+                // Check if the focus time was at least 25 minutes
+                if (initialMinutes >= 25) {
+                  addFish(1); // Add 1 fish per completed focus session
+                }
+                
                 // Determine if next break should be a long break
                 if (newCompletedSessions % sessionsBeforeLongBreak === 0) {
                   setCurrentMode("longBreak");
@@ -152,7 +161,7 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
         clearInterval(intervalRef.current);
       }
     };
-  }, [isActive, isCountdown, currentMode, completedSessions, onTimerComplete, onTimerUpdate]);
+  }, [isActive, isCountdown, currentMode, completedSessions, onTimerComplete, onTimerUpdate, initialMinutes, addFish]);
   
   // Update sound URL if provided
   useEffect(() => {

@@ -34,6 +34,24 @@
     --peach-primary: 25 75% 55%;
     --mint-primary: 165 75% 40%;
     --rose-primary: 355 75% 55%;
+    
+    /* Cat color transformations */
+    --cyan-hue: 0deg;
+    --green-hue: 140deg;
+    --yellow-hue: 50deg;
+    --lavender-hue: 260deg;
+    --peach-hue: 30deg;
+    --mint-hue: 150deg;
+    --rose-hue: 330deg;
+    
+    /* Saturation adjustments */
+    --cyan-saturation: 100%;
+    --green-saturation: 120%;
+    --yellow-saturation: 110%;
+    --lavender-saturation: 90%;
+    --peach-saturation: 110%;
+    --mint-saturation: 120%;
+    --rose-saturation: 90%;
   }
  
   .dark {

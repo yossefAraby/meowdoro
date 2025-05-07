@@ -1,7 +1,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useShop } from "@/contexts/ShopContext";
 
-type Theme = "cyan" | "green" | "yellow" | "lavender" | "peach" | "mint" | "rose";
+type Theme = "cyan" | "green" | "yellow" | "lavender" | "peach" | "mint" | "rose" | string;
 type Mode = "light" | "dark";
 
 interface ThemeContextType {
@@ -59,10 +60,57 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       "theme-mint",
       "theme-rose"
     );
-    if (theme !== "cyan") {
-      document.documentElement.classList.add(`theme-${theme}`);
+    
+    if (["cyan", "green", "yellow", "lavender", "peach", "mint", "rose"].includes(theme)) {
+      if (theme !== "cyan") {
+        document.documentElement.classList.add(`theme-${theme}`);
+      }
+    } else {
+      // Handle custom colors (not predefined themes)
+      const root = document.documentElement;
+      const color = theme;
+      
+      // Set the HSL values for custom color
+      if (color.startsWith('#')) {
+        try {
+          // Convert hex to RGB
+          const hex = color.substring(1);
+          const r = parseInt(hex.substring(0, 2), 16) / 255;
+          const g = parseInt(hex.substring(2, 4), 16) / 255;
+          const b = parseInt(hex.substring(4, 6), 16) / 255;
+          
+          // Find max and min RGB values
+          const max = Math.max(r, g, b);
+          const min = Math.min(r, g, b);
+          
+          // Calculate lightness
+          const l = (max + min) / 2;
+          
+          // Calculate saturation
+          let s = 0;
+          if (max !== min) {
+            s = l > 0.5 ? (max - min) / (2 - max - min) : (max - min) / (max + min);
+          }
+          
+          // Calculate hue
+          let h = 0;
+          if (max !== min) {
+            if (max === r) h = (g - b) / (max - min) + (g < b ? 6 : 0);
+            else if (max === g) h = (b - r) / (max - min) + 2;
+            else h = (r - g) / (max - min) + 4;
+            h *= 60;
+          }
+          
+          // Set custom primary color
+          root.style.setProperty('--primary', `${h} ${s * 100}% ${mode === 'dark' ? 65 : 45}%`);
+        } catch (error) {
+          console.error("Error converting hex color:", error);
+          // Fallback to default
+          root.style.removeProperty('--primary');
+        }
+      }
     }
-  }, [theme]);
+  }, [theme, mode]);
 
   useEffect(() => {
     localStorage.setItem("meowdoro-mode", mode);

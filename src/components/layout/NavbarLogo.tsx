@@ -1,6 +1,7 @@
 
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { CustomizableCat } from "@/components/shop/CustomizableCat";
 
 export const NavbarLogo = () => {
   // Use try/catch to handle cases where the component might be rendered
@@ -28,11 +29,7 @@ export const NavbarLogo = () => {
     >
       <div className="relative">
         <div className="absolute inset-0 bg-primary/20 rounded-full blur-[6px]"></div>
-        <img 
-          src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
-          alt="Meowdoro Logo" 
-          className="w-8 h-8 relative z-10"
-        />
+        <CustomizableCat size="sm" className="relative z-10" />
       </div>
       <span className="font-bold text-xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
         Meowdoro

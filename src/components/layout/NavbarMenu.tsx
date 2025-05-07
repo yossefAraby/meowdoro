@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Timer, CheckSquare, Users, Activity } from "lucide-react";
+import { Timer, CheckSquare, Users, Activity, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const navItems = [
@@ -9,6 +9,7 @@ export const navItems = [
   { path: "/tasks", icon: CheckSquare, label: "Tasks" },
   { path: "/party", icon: Users, label: "Party" },
   { path: "/statistics", icon: Activity, label: "Stats" },
+  { path: "/shop", icon: ShoppingBag, label: "Shop" },
 ];
 
 export const NavbarMenu = () => {
