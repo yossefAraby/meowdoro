@@ -1,56 +1,35 @@
 
-import { NavLink } from "react-router-dom";
-import { Clock, CheckSquare, Users, BarChart3, Fish } from "lucide-react";
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Timer, CheckSquare, Users, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Define navbar items with their paths, labels, and icons
 export const navItems = [
-  {
-    path: "/timer",
-    label: "Timer",
-    icon: Clock
-  },
-  {
-    path: "/tasks",
-    label: "Tasks",
-    icon: CheckSquare
-  },
-  {
-    path: "/party",
-    label: "Party",
-    icon: Users
-  },
-  {
-    path: "/statistics",
-    label: "Stats",
-    icon: BarChart3
-  },
-  {
-    path: "/shop",
-    label: "Shop",
-    icon: Fish
-  }
+  { path: "/timer", icon: Timer, label: "Timer" },
+  { path: "/tasks", icon: CheckSquare, label: "Tasks" },
+  { path: "/party", icon: Users, label: "Party" },
+  { path: "/statistics", icon: Activity, label: "Stats" },
 ];
 
 export const NavbarMenu = () => {
+  const location = useLocation();
+  
   return (
-    <div className="hidden md:flex space-x-1">
+    <div className="hidden md:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2 space-x-1">
       {navItems.map((item) => (
-        <NavLink
+        <Link
           key={item.path}
           to={item.path}
-          className={({ isActive }) =>
-            cn(
-              "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
-              isActive
-                ? "bg-muted text-primary"
-                : "text-foreground/70 hover:text-foreground hover:bg-accent"
-            )
-          }
+          className={cn(
+            "flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-150",
+            location.pathname === item.path 
+              ? "text-primary bg-accent/50" 
+              : "text-foreground/60 hover:text-primary hover:bg-accent/30"
+          )}
         >
-          <item.icon className="h-4 w-4" />
-          <span>{item.label}</span>
-        </NavLink>
+          <item.icon className="w-5 h-5" />
+          <span className="text-xs mt-1">{item.label}</span>
+        </Link>
       ))}
     </div>
   );
