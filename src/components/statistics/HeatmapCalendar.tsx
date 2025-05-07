@@ -2,13 +2,24 @@
 import React from 'react';
 import { useTheme } from 'next-themes';
 
+interface DayData {
+  date: Date;
+  value: number;
+}
+
+interface MonthData {
+  name: string;
+  year: number;
+  days: (DayData | null)[];
+}
+
 export const HeatmapCalendar = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
   // Generate 6 months of sample data
-  const generateHeatmapData = () => {
-    const data = [];
+  const generateHeatmapData = (): DayData[] => {
+    const data: DayData[] = [];
     // Go back 6 months
     const startDate = new Date();
     startDate.setMonth(startDate.getMonth() - 6);
@@ -35,8 +46,8 @@ export const HeatmapCalendar = () => {
   const heatmapData = generateHeatmapData();
   
   // Group by month and day of week for rendering
-  const monthsData = () => {
-    const months = {};
+  const monthsData = (): MonthData[] => {
+    const months: Record<string, MonthData> = {};
     
     heatmapData.forEach(day => {
       const monthKey = `${day.date.getFullYear()}-${day.date.getMonth()}`;
@@ -55,7 +66,7 @@ export const HeatmapCalendar = () => {
     return Object.values(months);
   };
   
-  const getColorForValue = (value) => {
+  const getColorForValue = (value: number | null | undefined): string => {
     if (value === null || value === undefined) return 'var(--muted)'; // No data
     
     const opacity = [0.1, 0.25, 0.5, 0.75, 1][value];
@@ -77,10 +88,10 @@ export const HeatmapCalendar = () => {
                     .filter((day) => day && day.date.getDay() === dayOfWeekIndex)
                     .map((day) => (
                       <div
-                        key={day.date.toISOString()}
+                        key={day?.date.toISOString()}
                         className="w-3 h-3 rounded-sm"
-                        style={{ backgroundColor: getColorForValue(day.value) }}
-                        title={`${day.date.toLocaleDateString()}: ${day.value > 0 ? `${day.value * 30} minutes` : 'No activity'}`}
+                        style={{ backgroundColor: getColorForValue(day?.value) }}
+                        title={`${day?.date.toLocaleDateString()}: ${day?.value && day.value > 0 ? `${day.value * 30} minutes` : 'No activity'}`}
                       />
                     ))}
                 </div>
