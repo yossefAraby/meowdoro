@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 // Custom hook to check if an element is in view
 export const useInView = (options = {}) => {
-  const ref = useRef<HTMLElement | null>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   const [isInView, setIsInView] = useState(false);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export const useInView = (options = {}) => {
 
 // Custom hook for parallax scrolling effect
 export const useParallax = (speed = 0.5) => {
-  const ref = useRef<HTMLElement | null>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   
   useEffect(() => {
     if (!ref.current) return;
@@ -304,9 +304,10 @@ export class WaterBubble {
       this.center.x, this.center.y, this.radius * 1.2
     );
     
-    gradient.addColorStop(0, 'hsla(var(--primary), 0.6)');
-    gradient.addColorStop(0.5, 'hsla(var(--primary), 0.3)');
-    gradient.addColorStop(1, 'hsla(var(--primary), 0.1)');
+    // Fix for hsla syntax - using specific color values instead of CSS variables
+    gradient.addColorStop(0, 'rgba(123, 22, 255, 0.6)');
+    gradient.addColorStop(0.5, 'rgba(123, 22, 255, 0.3)');
+    gradient.addColorStop(1, 'rgba(123, 22, 255, 0.1)');
     
     this.ctx.fillStyle = gradient;
     this.ctx.fill();
@@ -335,7 +336,8 @@ export class WaterBubble {
     this.ctx.globalAlpha = 0.3;
     this.ctx.beginPath();
     this.ctx.arc(this.center.x, this.center.y, this.radius * 0.9, 0, Math.PI * 2);
-    this.ctx.fillStyle = 'hsla(var(--primary), 0.6)';
+    // Fix for hsla syntax - using specific color values instead of CSS variables
+    this.ctx.fillStyle = 'rgba(123, 22, 255, 0.6)';
     this.ctx.fill();
     this.ctx.restore();
   }

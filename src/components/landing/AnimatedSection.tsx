@@ -102,13 +102,15 @@ export const FloatingElement: React.FC<{
         animationDelay: `${delay}s`,
       }}
     >
-      <style jsx>{`
-        @keyframes floating {
-          0% { transform: translateY(0px); }
-          50% { transform: translateY(-${amplitude}px); }
-          100% { transform: translateY(0px); }
-        }
-      `}</style>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-${amplitude}px); }
+            100% { transform: translateY(0px); }
+          }
+        `
+      }} />
       {children}
     </div>
   );

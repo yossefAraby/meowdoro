@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -110,19 +111,21 @@ const Landing: React.FC = () => {
             ))}
           </div>
           
-          <style jsx>{`
-            @keyframes float {
-              0%, 100% { transform: translate(0, 0); }
-              25% { transform: translate(5%, 10%); }
-              50% { transform: translate(10%, 5%); }
-              75% { transform: translate(5%, 15%); }
-            }
-            
-            @keyframes shimmer {
-              0% { background-position: -200% 0; }
-              100% { background-position: 200% 0; }
-            }
-          `}</style>
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              @keyframes float {
+                0%, 100% { transform: translate(0, 0); }
+                25% { transform: translate(5%, 10%); }
+                50% { transform: translate(10%, 5%); }
+                75% { transform: translate(5%, 15%); }
+              }
+              
+              @keyframes shimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+              }
+            `
+          }} />
         </div>
         
         {/* Main hero content */}
@@ -234,19 +237,25 @@ const Landing: React.FC = () => {
               className="absolute -left-16 top-20 w-32 h-32 bg-primary/10 rounded-full blur-xl z-0" 
               amplitude={20}
               duration={8}
-            />
+            >
+              <div className="w-full h-full" />
+            </FloatingElement>
             <FloatingElement 
               className="absolute right-10 bottom-40 w-64 h-64 bg-primary/10 rounded-full blur-2xl z-0" 
               amplitude={30}
               duration={12}
               delay={2}
-            />
+            >
+              <div className="w-full h-full" />
+            </FloatingElement>
             <FloatingElement 
               className="absolute left-1/4 bottom-10 w-24 h-24 bg-primary/15 rounded-full blur-lg z-0" 
               amplitude={15}
               duration={7}
               delay={1}
-            />
+            >
+              <div className="w-full h-full" />
+            </FloatingElement>
           </>
         )}
         

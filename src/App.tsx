@@ -58,7 +58,7 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
       
-      {/* Removed Statistics route */}
+      {/* All stats routes redirect to Timer */}
       <Route path="/stats" element={<Navigate to="/timer" replace />} />
       <Route path="/statistics" element={<Navigate to="/timer" replace />} />
       <Route path="/settings" element={<Navigate to="/timer" replace />} />
