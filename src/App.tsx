@@ -16,6 +16,7 @@ import Docs from "./pages/Docs";
 import Timer from "./pages/Timer";
 import Tasks from "./pages/Tasks";
 import Party from "./pages/Party";
+import Statistics from "./pages/Statistics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,10 +58,13 @@ const AppRoutes = () => {
           <Party />
         </ProtectedRoute>
       } />
+      <Route path="/statistics" element={
+        <ProtectedRoute>
+          <Statistics />
+        </ProtectedRoute>
+      } />
       
-      {/* All stats routes redirect to Timer */}
-      <Route path="/stats" element={<Navigate to="/timer" replace />} />
-      <Route path="/statistics" element={<Navigate to="/timer" replace />} />
+      <Route path="/stats" element={<Navigate to="/statistics" replace />} />
       <Route path="/settings" element={<Navigate to="/timer" replace />} />
       
       <Route path="*" element={<NotFound />} />

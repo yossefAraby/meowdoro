@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -15,35 +14,18 @@ import {
   Download,
   Smartphone,
   Laptop,
-  ExternalLink,
-  MousePointer,
-  ChevronDown
+  ExternalLink
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { PricingDialog } from "@/components/pricing/PricingDialog";
-import { InteractiveAppName } from "@/components/landing/InteractiveAppName";
-import { WaterBubbleLogo } from "@/components/landing/WaterBubbleLogo";
-import { AnimatedSection, ParallaxImage, FloatingElement } from "@/components/landing/AnimatedSection";
-import { useInView, useSmoothCounter } from "@/lib/animation-utils";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
   const [showLearnMoreDialog, setShowLearnMoreDialog] = useState(false);
   const [showPricingDialog, setShowPricingDialog] = useState(false);
   const { toast } = useToast();
-  const isMobile = useIsMobile();
-  const heroRef = useRef<HTMLDivElement>(null);
-  
-  // Animated scroll for hero section chevron
-  const scrollToFeatures = () => {
-    const featuresSection = document.getElementById('features-section');
-    if (featuresSection) {
-      featuresSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
   
   const handleJoinUs = () => {
     // Set a dummy user in localStorage to simulate login
@@ -78,189 +60,108 @@ const Landing: React.FC = () => {
       authTrigger.click();
     }
   };
-  
-  // Animation for productivity stats
-  const { ref: statsRef, isInView: statsInView } = useInView({ threshold: 0.1 });
-  const focusHours = useSmoothCounter(statsInView ? 1224 : 0);
-  const tasksCompleted = useSmoothCounter(statsInView ? 6840 : 0);
-  const usersCount = useSmoothCounter(statsInView ? 12500 : 0);
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-hidden">
-      {/* Hero Section with enhanced animations */}
-      <section ref={heroRef} className="relative min-h-[90vh] flex items-center overflow-hidden">
-        {/* Animated background with particles */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-background dark:from-primary/5 dark:via-background/80 dark:to-background">
-          <div className="absolute inset-0 overflow-hidden">
-            {/* Animated particles */}
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div 
-                key={i}
-                className="absolute bg-primary/20 rounded-full blur-xl"
-                style={{
-                  width: `${Math.random() * 200 + 50}px`,
-                  height: `${Math.random() * 200 + 50}px`,
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  opacity: Math.random() * 0.5,
-                  animation: `float ${Math.random() * 10 + 10}s infinite linear`,
-                  animationDelay: `-${Math.random() * 10}s`,
-                  transform: `scale(${Math.random() * 0.6 + 0.4})`,
-                }}
-              />
-            ))}
-          </div>
-          
-          <style dangerouslySetInnerHTML={{
-            __html: `
-              @keyframes float {
-                0%, 100% { transform: translate(0, 0); }
-                25% { transform: translate(5%, 10%); }
-                50% { transform: translate(10%, 5%); }
-                75% { transform: translate(5%, 15%); }
-              }
-              
-              @keyframes shimmer {
-                0% { background-position: -200% 0; }
-                100% { background-position: 200% 0; }
-              }
-            `
-          }} />
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Hero Section with better light/dark mode support */}
+      <section className="relative min-h-[80vh] flex items-center overflow-hidden">
+        {/* Background with better light/dark mode compatibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-background dark:from-primary/5 dark:via-background/80 dark:to-background"></div>
+        
+        {/* Decorative elements with better visibility in light mode */}
+        <div className="absolute inset-0 overflow-hidden opacity-30 dark:opacity-20">
+          <div className="absolute top-10 left-10 w-64 h-64 bg-primary/30 rounded-full filter blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-80 h-80 bg-primary/30 rounded-full filter blur-3xl"></div>
         </div>
         
-        {/* Main hero content */}
         <div className="container max-w-screen-xl mx-auto px-4 relative z-10 py-16">
-          <AnimatedSection delay={200} className="mb-16">
-            <div className="flex flex-col lg:flex-row items-center gap-10">
-              {/* Left content - Text and CTA */}
-              <div className="flex-1 text-center lg:text-left space-y-6">
-                <AnimatedSection direction="right" delay={400}>
-                  <div className="inline-block mb-4">
-                    <span className="inline-flex items-center px-4 py-1.5 text-sm font-medium rounded-full bg-primary/20 text-primary border border-primary/20 shadow-sm animate-pulse-soft">
-                      <Cat className="w-4 h-4 mr-2" />
-                      Focus better with a feline friend
-                    </span>
-                  </div>
-                </AnimatedSection>
-                
-                <AnimatedSection direction="right" delay={600}>
-                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                    Stay focused with
-                    <InteractiveAppName className="block mt-2" />
-                  </h1>
-                </AnimatedSection>
-                
-                <AnimatedSection direction="right" delay={800}>
-                  <p className="text-lg md:text-xl max-w-2xl mx-auto lg:mx-0 text-foreground/90 dark:text-muted-foreground">
-                    A purr-fectly delightful cat-themed productivity app that helps you maintain focus and accomplish more.
-                  </p>
-                </AnimatedSection>
-                
-                <AnimatedSection direction="right" delay={1000}>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-8">
-                    <Button 
-                      onClick={handleGetStarted}
-                      size="lg" 
-                      className="rounded-full px-8 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/20
-                        transition-all hover:scale-105 hover:shadow-lg group"
-                    >
-                      Get Started
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      size="lg" 
-                      className="rounded-full px-8 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary backdrop-blur-sm
-                        transition-all hover:scale-105 hover:border-primary"
-                      onClick={() => setShowLearnMoreDialog(true)}
-                    >
-                      <BookOpen className="mr-2 h-5 w-5" />
-                      Learn More
-                    </Button>
-                  </div>
-                </AnimatedSection>
-                
-                <AnimatedSection direction="right" delay={1200}>
-                  <div className="mt-4 sm:mt-4">
-                    <Button 
-                      variant="ghost" 
-                      size="lg" 
-                      className="rounded-full px-8 text-primary hover:bg-primary/10
-                        transition-all hover:scale-105"
-                      onClick={() => setShowPricingDialog(true)}
-                    >
-                      <ArrowRight className="mr-2 h-4 w-4 fill-current" />
-                      See plans and pricing
-                    </Button>
-                  </div>
-                </AnimatedSection>
+          <div className="flex flex-col lg:flex-row items-center gap-10">
+            {/* Left content - Text and CTA */}
+            <div className="flex-1 text-center lg:text-left space-y-6">
+              <div className="inline-block mb-4">
+                <span className="inline-flex items-center px-4 py-1.5 text-sm font-medium rounded-full bg-primary/20 text-primary border border-primary/20 shadow-sm">
+                  <Cat className="w-4 h-4 mr-2" />
+                  Focus better with a feline friend
+                </span>
               </div>
               
-              {/* Right content - Enhanced Water Bubble Logo */}
-              <AnimatedSection delay={700} className="flex-1">
-                <div className="flex justify-center items-center">
-                  <WaterBubbleLogo 
-                    imageUrl="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
-                    className="cursor-pointer transition-all"
-                  />
-                </div>
-              </AnimatedSection>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                Stay focused with
+                <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-primary/80 font-extrabold">Meowdoro</span>
+              </h1>
+              
+              <p className="text-lg md:text-xl max-w-2xl mx-auto lg:mx-0 text-foreground/90 dark:text-muted-foreground">
+                A purr-fectly delightful cat-themed productivity app that helps you maintain focus and accomplish more.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-8">
+                <Button 
+                  onClick={handleGetStarted}
+                  size="lg" 
+                  className="rounded-full px-8 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/20"
+                >
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="rounded-full px-8 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary backdrop-blur-sm"
+                  onClick={() => setShowLearnMoreDialog(true)}
+                >
+                  <BookOpen className="mr-2 h-5 w-5" />
+                  Learn More
+                </Button>
+              </div>
+              
+              <div className="mt-4 sm:mt-4">
+                <Button 
+                  variant="ghost" 
+                  size="lg" 
+                  className="rounded-full px-8 text-primary hover:bg-primary/10"
+                  onClick={() => setShowPricingDialog(true)}
+                >
+                  <ArrowRight className="mr-2 h-4 w-4 fill-current" />
+                  See plans and pricing
+                </Button>
+              </div>
             </div>
-          </AnimatedSection>
-          
-          {/* Scroll indicator */}
-          <div className="absolute bottom-10 left-0 right-0 flex justify-center animate-bounce">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/80"
-              onClick={scrollToFeatures}
-            >
-              <ChevronDown className="h-6 w-6 text-primary" />
-            </Button>
+            
+            {/* Right content - Enhanced Meowdoro Logo */}
+            <div className="flex-1 flex justify-center items-center">
+              <div className="relative group">
+                {/* Multiple glow layers with different animations and better light mode visibility */}
+                <div className="absolute inset-0 bg-primary/40 dark:bg-primary/30 rounded-full blur-3xl animate-pulse-soft"></div>
+                <div className="absolute inset-0 bg-primary/30 dark:bg-primary/20 rounded-full blur-2xl animate-pulse-soft" style={{ animationDelay: '0.3s' }}></div>
+                <div className="absolute inset-0 bg-primary/20 dark:bg-primary/10 rounded-full blur-xl animate-pulse-soft" style={{ animationDelay: '0.6s' }}></div>
+                
+                {/* Logo image with hover animation */}
+                <img 
+                  src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
+                  alt="Meowdoro Logo" 
+                  className="w-56 h-56 md:w-72 md:h-72 relative z-10 transition-all duration-500 
+                  group-hover:scale-110 group-hover:rotate-3 cursor-pointer drop-shadow-lg"
+                  onClick={() => navigate('/timer')}
+                />
+                
+                {/* Shimmer effect on hover with better light mode visibility */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 dark:via-primary/20 to-transparent 
+                  z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-shimmer" 
+                  style={{ backgroundSize: '200% 100%' }}></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
       
-      {/* Features section with improved animations */}
-      <section id="features-section" className="py-20 relative overflow-hidden">
-        {/* Animated background grid with parallax effect */}
+      {/* Features section with improved light mode visibility */}
+      <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 dark:opacity-5">
           <div className="absolute inset-0 bg-grid"></div>
         </div>
-        
-        {/* Floating shapes */}
-        {!isMobile && (
-          <>
-            <FloatingElement 
-              className="absolute -left-16 top-20 w-32 h-32 bg-primary/10 rounded-full blur-xl z-0" 
-              amplitude={20}
-              duration={8}
-            >
-              <div className="w-full h-full" />
-            </FloatingElement>
-            <FloatingElement 
-              className="absolute right-10 bottom-40 w-64 h-64 bg-primary/10 rounded-full blur-2xl z-0" 
-              amplitude={30}
-              duration={12}
-              delay={2}
-            >
-              <div className="w-full h-full" />
-            </FloatingElement>
-            <FloatingElement 
-              className="absolute left-1/4 bottom-10 w-24 h-24 bg-primary/15 rounded-full blur-lg z-0" 
-              amplitude={15}
-              duration={7}
-              delay={1}
-            >
-              <div className="w-full h-full" />
-            </FloatingElement>
-          </>
-        )}
-        
         <div className="container max-w-6xl mx-auto px-4 relative z-10">
-          <AnimatedSection className="text-center mb-16">
+          <div className="text-center mb-16">
             <h2 className="text-3xl font-bold inline-block relative">
               Purr-sonal Productivity Tools
               <span className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/60 dark:bg-primary/50 rounded-full"></span>
@@ -268,162 +169,112 @@ const Landing: React.FC = () => {
             <p className="text-foreground/80 dark:text-muted-foreground max-w-2xl mx-auto mt-4">
               Tools designed to boost your productivity with a touch of feline charm
             </p>
-          </AnimatedSection>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <AnimatedSection delay={200}>
-              <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-500 hover:shadow-md hover:-translate-y-2 group">
-                <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center transform transition-transform duration-500 group-hover:scale-110 group-hover:bg-primary/25">
-                    <Clock className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold">Pomodoro Timer</h3>
-                  <p className="text-foreground/70 dark:text-muted-foreground">
-                    Customizable focus sessions with smart breaks to maximize productivity
-                  </p>
-                </CardContent>
-              </Card>
-            </AnimatedSection>
+            <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Pomodoro Timer</h3>
+                <p className="text-foreground/70 dark:text-muted-foreground">
+                  Customizable focus sessions with smart breaks to maximize productivity
+                </p>
+              </CardContent>
+            </Card>
             
-            <AnimatedSection delay={400}>
-              <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-500 hover:shadow-md hover:-translate-y-2 group">
-                <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center transform transition-transform duration-500 group-hover:scale-110 group-hover:bg-primary/25">
-                    <ListTodo className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold">Task Management</h3>
-                  <p className="text-foreground/70 dark:text-muted-foreground">
-                    Organize your tasks and notes with our minimalist interface
-                  </p>
-                </CardContent>
-              </Card>
-            </AnimatedSection>
+            <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
+                  <ListTodo className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Task Management</h3>
+                <p className="text-foreground/70 dark:text-muted-foreground">
+                  Organize your tasks and notes with our minimalist interface
+                </p>
+              </CardContent>
+            </Card>
             
-            <AnimatedSection delay={600}>
-              <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-500 hover:shadow-md hover:-translate-y-2 group">
-                <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center transform transition-transform duration-500 group-hover:scale-110 group-hover:bg-primary/25">
-                    <Users className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold">Study Party</h3>
-                  <p className="text-foreground/70 dark:text-muted-foreground">
-                    Join virtual study sessions with friends to stay motivated together
-                  </p>
-                </CardContent>
-              </Card>
-            </AnimatedSection>
+            <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Study Party</h3>
+                <p className="text-foreground/70 dark:text-muted-foreground">
+                  Join virtual study sessions with friends to stay motivated together
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
       
-      {/* Statistics section with animations */}
-      <section className="py-16 relative overflow-hidden bg-gradient-to-r from-primary/5 to-background">
-        <div ref={statsRef} className="container max-w-4xl mx-auto px-4">
-          <AnimatedSection className="text-center mb-12">
-            <h2 className="text-3xl font-bold">The Purr-fect Productivity Partner</h2>
-            <p className="text-muted-foreground mt-2">Join thousands of users who have improved their focus with Meowdoro</p>
-          </AnimatedSection>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <AnimatedSection delay={200} direction="up">
-              <div className="bg-card/60 backdrop-blur-sm rounded-lg p-6 text-center border border-primary/10 hover:border-primary/30 transition-all hover:shadow-md">
-                <Clock className="h-8 w-8 text-primary mx-auto mb-3" />
-                <div className="text-3xl font-bold mb-1">{focusHours.toLocaleString()}</div>
-                <p className="text-muted-foreground">Focus minutes logged</p>
-              </div>
-            </AnimatedSection>
-            
-            <AnimatedSection delay={400} direction="up">
-              <div className="bg-card/60 backdrop-blur-sm rounded-lg p-6 text-center border border-primary/10 hover:border-primary/30 transition-all hover:shadow-md">
-                <ListTodo className="h-8 w-8 text-green-500 mx-auto mb-3" />
-                <div className="text-3xl font-bold mb-1">{tasksCompleted.toLocaleString()}</div>
-                <p className="text-muted-foreground">Tasks completed</p>
-              </div>
-            </AnimatedSection>
-            
-            <AnimatedSection delay={600} direction="up">
-              <div className="bg-card/60 backdrop-blur-sm rounded-lg p-6 text-center border border-primary/10 hover:border-primary/30 transition-all hover:shadow-md">
-                <Users className="h-8 w-8 text-blue-500 mx-auto mb-3" />
-                <div className="text-3xl font-bold mb-1">{usersCount.toLocaleString()}+</div>
-                <p className="text-muted-foreground">Happy users</p>
-              </div>
-            </AnimatedSection>
-          </div>
-        </div>
-      </section>
-      
-      {/* Download Options Section - with enhanced animations */}
+      {/* Download Options Section - replacing login/signup section */}
       <section className="py-20 bg-gradient-to-br from-background to-accent/10 dark:to-accent/5 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 dark:opacity-5">
           <div className="absolute inset-0 bg-dots"></div>
         </div>
         
         {/* Cat Logo with Enhanced Animation and Glow */}
-        <AnimatedSection className="relative max-w-xs mx-auto mb-12">
-          <FloatingElement amplitude={10} duration={5}>
-            <div className="absolute inset-0 bg-primary/30 dark:bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
-            <div className="absolute inset-0 bg-primary/20 dark:bg-primary/10 rounded-full blur-lg animate-pulse-soft" style={{ animationDelay: '0.5s' }}></div>
-            <img 
-              src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
-              alt="Meowdoro Logo" 
-              className="w-32 h-32 mx-auto relative z-10 drop-shadow-lg" 
-            />
-          </FloatingElement>
-        </AnimatedSection>
+        <div className="relative max-w-xs mx-auto mb-12">
+          <div className="absolute inset-0 bg-primary/30 dark:bg-primary/20 rounded-full blur-xl animate-pulse-soft"></div>
+          <div className="absolute inset-0 bg-primary/20 dark:bg-primary/10 rounded-full blur-lg animate-pulse-soft" style={{ animationDelay: '0.5s' }}></div>
+          <img 
+            src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
+            alt="Meowdoro Logo" 
+            className="w-32 h-32 mx-auto relative z-10 animate-float drop-shadow-lg" 
+          />
+        </div>
         
         <div className="container max-w-4xl mx-auto px-4 text-center relative z-10">
-          <AnimatedSection>
-            <h2 className="text-3xl font-bold mb-6">Access Meowdoro Anywhere</h2>
-            <p className="text-foreground/80 dark:text-muted-foreground max-w-2xl mx-auto mb-10">
-              Choose how you want to use Meowdoro - download our Android app or use the online version on any device
-            </p>
-          </AnimatedSection>
+          <h2 className="text-3xl font-bold mb-6">Access Meowdoro Anywhere</h2>
+          <p className="text-foreground/80 dark:text-muted-foreground max-w-2xl mx-auto mb-10">
+            Choose how you want to use Meowdoro - download our Android app or use the online version on any device
+          </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Android App Option */}
-            <AnimatedSection delay={300} direction="left">
-              <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border border-primary/20 rounded-lg p-6 transition-all hover:shadow-lg hover:-translate-y-1 hover:border-primary/40 group">
-                <div className="flex items-center justify-center mb-4">
-                  <div className="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center transform transition-transform duration-500 group-hover:scale-110 group-hover:bg-primary/25">
-                    <Smartphone className="h-8 w-8 text-primary" />
-                  </div>
+            <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border border-primary/20 rounded-lg p-6 transition-all hover:shadow-lg hover:-translate-y-1">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center">
+                  <Smartphone className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Android App</h3>
-                <p className="text-foreground/70 dark:text-muted-foreground mb-6">
-                  Download the APK file directly to your Android device for the best mobile experience with offline support
-                </p>
-                <Button
-                  onClick={handleDownloadApk}
-                  className="w-full flex items-center justify-center gap-2 group-hover:bg-primary/90 transition-all"
-                >
-                  <Download className="h-5 w-5" />
-                  Download APK
-                </Button>
               </div>
-            </AnimatedSection>
+              <h3 className="text-xl font-bold mb-3">Android App</h3>
+              <p className="text-foreground/70 dark:text-muted-foreground mb-6">
+                Download the APK file directly to your Android device for the best mobile experience with offline support
+              </p>
+              <Button
+                onClick={handleDownloadApk}
+                className="w-full flex items-center justify-center gap-2"
+              >
+                <Download className="h-5 w-5" />
+                Download APK
+              </Button>
+            </div>
             
             {/* Online App Option */}
-            <AnimatedSection delay={500} direction="right">
-              <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border border-primary/20 rounded-lg p-6 transition-all hover:shadow-lg hover:-translate-y-1 hover:border-primary/40 group">
-                <div className="flex items-center justify-center mb-4">
-                  <div className="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center transform transition-transform duration-500 group-hover:scale-110 group-hover:bg-primary/25">
-                    <Laptop className="h-8 w-8 text-primary" />
-                  </div>
+            <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border border-primary/20 rounded-lg p-6 transition-all hover:shadow-lg hover:-translate-y-1">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center">
+                  <Laptop className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Web App</h3>
-                <p className="text-foreground/70 dark:text-muted-foreground mb-6">
-                  Use Meowdoro directly in your browser on any device without installation, perfect for desktop and quick access
-                </p>
-                <Button
-                  onClick={handleGetStarted}
-                  className="w-full flex items-center justify-center gap-2"
-                  variant="outline"
-                >
-                  <ExternalLink className="h-5 w-5" />
-                  Use Online
-                </Button>
               </div>
-            </AnimatedSection>
+              <h3 className="text-xl font-bold mb-3">Web App</h3>
+              <p className="text-foreground/70 dark:text-muted-foreground mb-6">
+                Use Meowdoro directly in your browser on any device without installation, perfect for desktop and quick access
+              </p>
+              <Button
+                onClick={handleGetStarted}
+                className="w-full flex items-center justify-center gap-2"
+                variant="outline"
+              >
+                <ExternalLink className="h-5 w-5" />
+                Use Online
+              </Button>
+            </div>
           </div>
         </div>
       </section>
