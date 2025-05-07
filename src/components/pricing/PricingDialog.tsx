@@ -2,6 +2,7 @@
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Check, X, ArrowRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -74,31 +75,29 @@ export const PricingDialog: React.FC<PricingDialogProps> = ({ open, onClose }) =
         </DialogHeader>
         
         <div className="py-4">
-          {/* Billing cycle toggle */}
+          {/* Billing cycle toggle - Now using a proper Switch component */}
           <div className="flex justify-center mb-6">
-            <div className="bg-muted/50 p-1 rounded-full inline-flex">
-              <button
-                onClick={() => setBillingCycle("monthly")}
-                className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium transition-colors",
-                  billingCycle === "monthly" 
-                    ? "bg-primary text-primary-foreground" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
+            <div className="flex items-center gap-3">
+              <span className={cn(
+                "text-sm font-medium transition-colors",
+                billingCycle === "monthly" ? "text-foreground" : "text-muted-foreground"
+              )}>
                 Monthly
-              </button>
-              <button
-                onClick={() => setBillingCycle("yearly")}
-                className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium transition-colors",
-                  billingCycle === "yearly" 
-                    ? "bg-primary text-primary-foreground" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                Yearly <span className="text-xs opacity-80">Save 20%</span>
-              </button>
+              </span>
+              
+              <Switch 
+                checked={billingCycle === "yearly"}
+                onCheckedChange={(checked) => setBillingCycle(checked ? "yearly" : "monthly")}
+                className="data-[state=checked]:bg-primary"
+              />
+              
+              <span className={cn(
+                "text-sm font-medium transition-colors flex items-center gap-1",
+                billingCycle === "yearly" ? "text-foreground" : "text-muted-foreground"
+              )}>
+                Yearly
+                <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">Save 20%</span>
+              </span>
             </div>
           </div>
           

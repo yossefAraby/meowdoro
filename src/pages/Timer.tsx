@@ -1,8 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { TimerCircle } from "@/components/timer/TimerCircle";
 import { ProgressBar } from "@/components/timer/ProgressBar";
-import { CatCompanion } from "@/components/timer/CatCompanion";
 import { AudioControls, useBackgroundSounds } from "@/components/timer/AudioControls";
 import { TimerSettings } from "@/components/timer/TimerSettings";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +9,7 @@ import { Users, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PartyTimer } from "@/components/timer/PartyTimer";
+import MeowAIButton from "@/components/ai/MeowAIButton";
 
 const Timer: React.FC = () => {
   // Timer state - whether countdown or count-up
@@ -35,7 +34,6 @@ const Timer: React.FC = () => {
   
   // Timer state
   const [currentSeconds, setCurrentSeconds] = useState(0);
-  const [catStatus, setCatStatus] = useState<"sleeping" | "idle" | "happy" | "focused">("idle");
   const [timerCompleted, setTimerCompleted] = useState(false);
   const [currentMode, setCurrentMode] = useState<"focus" | "break" | "longBreak">("focus");
   const [activeTab, setActiveTab] = useState('personal');
@@ -119,27 +117,6 @@ const Timer: React.FC = () => {
     }
   };
   
-  // Update cat status based on timer state
-  useEffect(() => {
-    if (timerCompleted) {
-      setCatStatus("happy");
-    } else if (currentMode === "break" || currentMode === "longBreak") {
-      setCatStatus("idle");
-    } else if (currentSeconds > 0 && isCountdown && currentMode === "focus") {
-      setCatStatus("focused");
-    } else {
-      setCatStatus("idle");
-    }
-    
-    // Celebrate at milestone achievement
-    if (totalFocusMinutes === 30 || totalFocusMinutes === 60 || totalFocusMinutes === 90) {
-      setCatStatus("happy");
-      setTimeout(() => {
-        setCatStatus(currentMode === "focus" ? "focused" : "idle");
-      }, 3000);
-    }
-  }, [timerCompleted, isCountdown, currentSeconds, totalFocusMinutes, currentMode]);
-  
   // Handle timer completion
   const handleTimerComplete = () => {
     setTimerCompleted(true);
@@ -168,12 +145,6 @@ const Timer: React.FC = () => {
         description: "Ready for another productive focus session?",
       });
     }
-    
-    setCatStatus("happy");
-    
-    setTimeout(() => {
-      setCatStatus(currentMode === "focus" ? "sleeping" : "idle");
-    }, 5000);
   };
   
   // Handle timer updates
@@ -288,9 +259,9 @@ const Timer: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Cat companion */}
+      {/* AI Chat button */}
       <div className="fixed bottom-6 right-6">
-        <CatCompanion status={catStatus} />
+        <MeowAIButton />
       </div>
     </div>
   );
