@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { TimerCircle } from "@/components/timer/TimerCircle";
 import { ProgressBar } from "@/components/timer/ProgressBar";
@@ -153,7 +154,7 @@ const Timer: React.FC = () => {
           description: `You've focused for ${newTotal} minutes today.`,
         });
         
-        // Also show a sonner toast for fish
+        // Show a sonner toast for fish - using the correct format for sonner
         toast(`You earned ${fishEarned} fish! 🐟`, {
           description: "Use them in the Shop to customize your experience."
         });
@@ -214,9 +215,8 @@ const Timer: React.FC = () => {
     localStorage.setItem("meowdoro-completion-sound", completionSound);
     localStorage.setItem("meowdoro-youtube-sound", customYoutubeUrl);
     
-    toast({
-      title: "Timer settings saved",
-      description: "Your Pomodoro settings have been updated.",
+    toast("Timer settings saved", {
+      description: "Your Pomodoro settings have been updated."
     });
   };
   
