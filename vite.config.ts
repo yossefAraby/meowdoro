@@ -19,4 +19,12 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    include: ['@google/generative-ai'],
+  },
+  build: {
+    commonjsOptions: {
+      include: [/@google\/generative-ai/, /node_modules/],
+    },
+  },
 }));
