@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Play, Pause, RotateCcw, Coffee, FastForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import {
   TooltipTrigger 
 } from "@/components/ui/tooltip";
 import { useShop } from "@/contexts/ShopContext";
+import { useTimer } from '@/contexts/TimerContext';
 
 // This component handles the circular timer display and controls
 interface TimerCircleProps {
@@ -21,6 +22,13 @@ interface TimerCircleProps {
   onTimerUpdate?: (seconds: number) => void; // Function to call on each second
   onModeChange?: (mode: "focus" | "break" | "longBreak") => void; // Function to call when mode changes
   soundUrl?: string;                // Custom sound to play when timer completes
+  timeRemaining: number;
+  isActive: boolean;
+  isCompleted: boolean;
+  currentMode: "focus" | "break" | "longBreak";
+  completedSessions: number;
+  onTimeUpdate?: (seconds: number) => void;
+  onSessionComplete?: () => void;
 }
 
 export const TimerCircle: React.FC<TimerCircleProps> = ({
@@ -33,148 +41,170 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   onTimerUpdate,
   onModeChange,
   soundUrl,
+  timeRemaining: propTimeRemaining,
+  isActive: propIsActive,
+  isCompleted: propIsCompleted,
+  currentMode: propCurrentMode,
+  completedSessions: propCompletedSessions,
+  onTimeUpdate,
+  onSessionComplete,
 }) => {
-  // Timer state
-  const [timeRemaining, setTimeRemaining] = useState(isCountdown ? initialMinutes * 60 : 0);
-  const [initialTime, setInitialTime] = useState(isCountdown ? initialMinutes * 60 : 0);
-  const [isActive, setIsActive] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [currentMode, setCurrentMode] = useState<"focus" | "break" | "longBreak">("focus");
-  const [completedSessions, setCompletedSessions] = useState(0);
-  
-  // References
-  const intervalRef = useRef<number | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const {
+    timeRemaining,
+    isActive,
+    isCompleted,
+    currentMode,
+    completedSessions,
+    setTimeRemaining,
+    setIsActive,
+    setIsCompleted,
+    setCurrentMode,
+    setCompletedSessions,
+  } = useTimer();
+
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTickRef = useRef<number>(Date.now());
   
   // Add shop context
   const { addFish } = useShop();
   
-  // Initialize audio for completion sound
+  // Update context when props change
   useEffect(() => {
-    // Default completion sound
-    audioRef.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-back-2575.mp3");
-    
-    // Cleanup function to stop audio when component unmounts
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
-  
-  // Update initial time when mode changes
-  useEffect(() => {
-    // Set appropriate time based on current mode
-    if (currentMode === "focus") {
-      setInitialTime(initialMinutes * 60);
-      setTimeRemaining(initialMinutes * 60);
-    } else if (currentMode === "break") {
-      setInitialTime(breakMinutes * 60);
-      setTimeRemaining(breakMinutes * 60);
-    } else if (currentMode === "longBreak") {
-      setInitialTime(longBreakMinutes * 60);
-      setTimeRemaining(longBreakMinutes * 60);
-    }
-    
-    // Notify parent components of updates
-    if (onTimerUpdate) onTimerUpdate(timeRemaining);
-    if (onModeChange) onModeChange(currentMode);
-  }, [currentMode, initialMinutes, breakMinutes, longBreakMinutes]);
-  
-  // Reset timer when countdown mode changes
-  useEffect(() => {
-    resetTimer();
-  }, [isCountdown]);
+    setTimeRemaining(propTimeRemaining);
+    setIsActive(propIsActive);
+    setIsCompleted(propIsCompleted);
+    setCurrentMode(propCurrentMode);
+    setCompletedSessions(propCompletedSessions);
+  }, [propTimeRemaining, propIsActive, propIsCompleted, propCurrentMode, propCompletedSessions]);
   
   // Timer logic
   useEffect(() => {
-    if (isActive) {
-      // Start interval for timer
-      intervalRef.current = window.setInterval(() => {
-        setTimeRemaining(prev => {
-          // For countdown timer
-          if (isCountdown) {
-            const newTime = prev - 1;
-            
-            // Check if timer is completed
+    let lastTickTime = Date.now();
+    let animationFrameId: number;
+
+    const tick = () => {
+      const now = Date.now();
+      const delta = now - lastTickTime;
+      lastTickTime = now;
+
+      if (isActive) {
+        if (isCountdown) {
+          const newTime = Math.max(0, timeRemaining - delta / 1000);
+          if (!isNaN(newTime)) {
+            setTimeRemaining(newTime);
+            onTimeUpdate?.(newTime);
+
             if (newTime <= 0) {
-              clearInterval(intervalRef.current!);
               setIsActive(false);
               setIsCompleted(true);
-              
-              // Play completion sound
-              if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-                audioRef.current.play().catch(err => console.log("Audio play error:", err));
+              if (soundUrl && soundUrl.trim() !== "") {
+                // Skip YouTube URLs (handled elsewhere)
+                if (!soundUrl.includes("youtube.com") && !soundUrl.includes("youtu.be")) {
+                  const audio = new Audio(soundUrl);
+                  audio.play().catch(console.error);
+                }
               }
-              
-              // Handle session completion based on current mode
+              onSessionComplete?.();
+
+              // Handle session completion
               if (currentMode === "focus") {
                 const newCompletedSessions = completedSessions + 1;
                 setCompletedSessions(newCompletedSessions);
-                
-                // Reward fish for completing a focus session
-                // Check if the focus time was at least 25 minutes
                 if (initialMinutes >= 25) {
-                  addFish(1); // Add 1 fish per completed focus session
+                  addFish(1);
                 }
-                
-                // Determine if next break should be a long break
                 if (newCompletedSessions % sessionsBeforeLongBreak === 0) {
                   setCurrentMode("longBreak");
                 } else {
                   setCurrentMode("break");
                 }
               } else {
-                // After break or long break, go back to focus mode
                 setCurrentMode("focus");
               }
-              
-              // Call completion callback if provided
-              if (onTimerComplete) onTimerComplete();
-              return 0;
             }
-            
-            // Update parent component with new time
-            if (onTimerUpdate) onTimerUpdate(newTime);
-            return newTime;
-          } 
-          // For stopwatch (counts up)
-          else {
-            const newTime = prev + 1;
-            if (onTimerUpdate) onTimerUpdate(newTime);
-            return newTime;
           }
-        });
-      }, 1000);
-    } 
-    // Clear interval if timer is paused
-    else if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+        } else {
+          const newTime = timeRemaining + delta / 1000;
+          if (!isNaN(newTime)) {
+            setTimeRemaining(newTime);
+            onTimeUpdate?.(newTime);
+          }
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(tick);
+    };
+
+    if (isActive) {
+      animationFrameId = requestAnimationFrame(tick);
     }
-    
-    // Cleanup function to clear interval when component unmounts or dependencies change
+
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [isActive, isCountdown, currentMode, completedSessions, onTimerComplete, onTimerUpdate, initialMinutes, addFish]);
-  
-  // Update sound URL if provided
+  }, [isActive, isCountdown, timeRemaining, currentMode, completedSessions, onTimeUpdate, onTimerComplete, addFish]);
+
+  // Initialize audio
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
-    if (soundUrl && soundUrl.trim() !== "") {
-      // Skip YouTube URLs (handled elsewhere)
-      if (!soundUrl.includes("youtube.com") && !soundUrl.includes("youtu.be")) {
-        audioRef.current = new Audio(soundUrl);
+    audioRef.current = new Audio(soundUrl || "https://assets.mixkit.co/sfx/preview/mixkit-software-interface-back-2575.mp3");
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [soundUrl]);
+  
+  // Update initial time when mode changes
+  useEffect(() => {
+    if (!isActive) {
+      // Set appropriate time based on current mode
+      if (isCountdown) {
+        let newTime = 0;
+        if (currentMode === "focus") {
+          newTime = initialMinutes * 60;
+        } else if (currentMode === "break") {
+          newTime = breakMinutes * 60;
+        } else if (currentMode === "longBreak") {
+          newTime = longBreakMinutes * 60;
+        }
+        if (!isNaN(newTime)) {
+          setTimeRemaining(newTime);
+        }
+      } else {
+        // In stopwatch mode, always set to zero
+        setTimeRemaining(0);
+        setCompletedSessions(0);
+        setCurrentMode("focus");
+      }
+    }
+    
+    // Notify parent components of updates
+    if (onTimerUpdate) onTimerUpdate(timeRemaining);
+    if (onModeChange) onModeChange(currentMode);
+  }, [currentMode, initialMinutes, breakMinutes, longBreakMinutes, isCountdown, isActive]);
+  
+  // Reset timer when countdown mode changes
+  useEffect(() => {
+    if (isCountdown) {
+      // Reset to default values for countdown mode
+      if (currentMode === "focus") {
+        setTimeRemaining(initialMinutes * 60);
+      } else if (currentMode === "break") {
+        setTimeRemaining(breakMinutes * 60);
+      } else if (currentMode === "longBreak") {
+        setTimeRemaining(longBreakMinutes * 60);
       }
     } else {
-      // Use default sound if none provided
-      audioRef.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-back-2575.mp3");
+      // Reset everything to zero for stopwatch mode
+      setTimeRemaining(0);
+      setCompletedSessions(0);
+      setCurrentMode("focus");
     }
-  }, [soundUrl]);
+  }, [isCountdown]);
   
   // Start/pause the timer
   const toggleTimer = () => {
@@ -190,7 +220,7 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     if (currentMode === "focus") {
       // Skip the current focus session and move to break
       setIsActive(false);
-      clearInterval(intervalRef.current!);
+      clearInterval(timerRef.current!);
       
       // Determine if we should take a long break
       const newCompletedSessions = completedSessions + 1;
@@ -204,7 +234,7 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     } else {
       // Skip the current break and go back to focus
       setIsActive(false);
-      clearInterval(intervalRef.current!);
+      clearInterval(timerRef.current!);
       setCurrentMode("focus");
     }
   };
@@ -214,13 +244,18 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
     setIsActive(false);
     setIsCompleted(false);
     
-    // Reset time based on current mode
-    if (currentMode === "focus") {
-      setTimeRemaining(isCountdown ? initialMinutes * 60 : 0);
-    } else if (currentMode === "break") {
-      setTimeRemaining(breakMinutes * 60);
-    } else if (currentMode === "longBreak") {
-      setTimeRemaining(longBreakMinutes * 60);
+    if (isCountdown) {
+      // Reset time based on current mode for countdown
+      if (currentMode === "focus") {
+        setTimeRemaining(initialMinutes * 60);
+      } else if (currentMode === "break") {
+        setTimeRemaining(breakMinutes * 60);
+      } else if (currentMode === "longBreak") {
+        setTimeRemaining(longBreakMinutes * 60);
+      }
+    } else {
+      // Always set to zero in stopwatch mode
+      setTimeRemaining(0);
     }
     
     // Update parent component
@@ -234,14 +269,17 @@ export const TimerCircle: React.FC<TimerCircleProps> = ({
   
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    if (isNaN(seconds) || !isFinite(seconds)) {
+      return "00:00";
+    }
+    const mins = Math.floor(Math.abs(seconds) / 60);
+    const secs = Math.floor(Math.abs(seconds) % 60);
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
   
   // Calculate progress percentage for the circle
   const progress = isCountdown 
-    ? ((initialTime - timeRemaining) / initialTime) * 100
+    ? ((initialMinutes * 60 - timeRemaining) / (initialMinutes * 60)) * 100
     : 0; // For stopwatch, we don't show progress in the circle
   
   // Calculate the SVG arc path for the progress circle

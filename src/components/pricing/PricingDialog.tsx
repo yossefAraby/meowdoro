@@ -1,12 +1,11 @@
-
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Check, X, ArrowRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type PricingTier = {
   name: string;
@@ -37,7 +36,7 @@ export const PricingDialog: React.FC<PricingDialogProps> = ({ open, onClose }) =
         "Full access to Pomodoro timer",
         "Full access to tasks/notes",
         "Limited to only one active party",
-        "AI-Ready prompts linked to external LLMs",
+        "Free limited Gemini model",
       ],
       buttonText: user ? "Current Plan" : "Get Started",
     },
@@ -49,7 +48,7 @@ export const PricingDialog: React.FC<PricingDialogProps> = ({ open, onClose }) =
       features: [
         "Everything in Free plan",
         "Unlimited party access",
-        "Monthly Meowdoro AI requests with tasks and study session analysis",
+        "Unlimited Gemini + Deepseek access",
       ],
       buttonText: "Upgrade",
       highlighted: true,
@@ -75,30 +74,23 @@ export const PricingDialog: React.FC<PricingDialogProps> = ({ open, onClose }) =
         </DialogHeader>
         
         <div className="py-4">
-          {/* Billing cycle toggle - Now using a proper Switch component */}
+          {/* Billing cycle tabs */}
           <div className="flex justify-center mb-6">
-            <div className="flex items-center gap-3">
-              <span className={cn(
-                "text-sm font-medium transition-colors",
-                billingCycle === "monthly" ? "text-foreground" : "text-muted-foreground"
-              )}>
-                Monthly
-              </span>
-              
-              <Switch 
-                checked={billingCycle === "yearly"}
-                onCheckedChange={(checked) => setBillingCycle(checked ? "yearly" : "monthly")}
-                className="data-[state=checked]:bg-primary"
-              />
-              
-              <span className={cn(
-                "text-sm font-medium transition-colors flex items-center gap-1",
-                billingCycle === "yearly" ? "text-foreground" : "text-muted-foreground"
-              )}>
-                Yearly
-                <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">Save 20%</span>
-              </span>
-            </div>
+            <Tabs 
+              value={billingCycle} 
+              onValueChange={(value) => setBillingCycle(value as "monthly" | "yearly")}
+              className="w-[400px]"
+            >
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="monthly">Monthly</TabsTrigger>
+                <TabsTrigger value="yearly" className="relative">
+                  Yearly
+                  <span className="absolute -top-2 -right-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                    Save 20%
+                  </span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
           
           {/* Pricing cards */}

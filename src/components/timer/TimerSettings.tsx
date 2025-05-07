@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -117,137 +116,75 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({
           </SettingsDescription>
         </SettingsHeader>
         
-        <Tabs defaultValue="timer" className="w-full">
-          <TabsList className="w-full grid grid-cols-2">
-            <TabsTrigger value="timer">Timer</TabsTrigger>
-            <TabsTrigger value="sounds">Sounds</TabsTrigger>
-          </TabsList>
-          
-          {/* Timer settings tab */}
-          <TabsContent value="timer" className="space-y-6 mt-4 px-1">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label htmlFor="focus-time">Focus Time: {focusMinutes} minutes</label>
-              </div>
-              <Slider
-                id="focus-time"
-                defaultValue={[focusMinutes]}
-                max={60}
-                min={5}
-                step={5}
-                onValueChange={(value) => setFocusMinutes(value[0])}
-              />
+        <div className="space-y-6 mt-4 px-1">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label htmlFor="focus-time">Focus Time: {focusMinutes} minutes</label>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label htmlFor="break-time">Short Break: {breakMinutes} minutes</label>
-              </div>
-              <Slider
-                id="break-time"
-                defaultValue={[breakMinutes]}
-                max={15}
-                min={1}
-                step={1}
-                onValueChange={(value) => setBreakMinutes(value[0])}
-              />
+            <Slider
+              id="focus-time"
+              defaultValue={[focusMinutes]}
+              max={60}
+              min={5}
+              step={5}
+              onValueChange={(value) => setFocusMinutes(value[0])}
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label htmlFor="break-time">Short Break: {breakMinutes} minutes</label>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label htmlFor="long-break-time">Long Break: {longBreakMinutes} minutes</label>
-              </div>
-              <Slider
-                id="long-break-time"
-                defaultValue={[longBreakMinutes]}
-                max={30}
-                min={5}
-                step={5}
-                onValueChange={(value) => setLongBreakMinutes(value[0])}
-              />
+            <Slider
+              id="break-time"
+              defaultValue={[breakMinutes]}
+              max={15}
+              min={1}
+              step={1}
+              onValueChange={(value) => setBreakMinutes(value[0])}
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label htmlFor="long-break-time">Long Break: {longBreakMinutes} minutes</label>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label htmlFor="sessions-before-long-break">
-                  Sessions before long break: {sessionsBeforeLongBreak}
-                </label>
-              </div>
-              <Slider
-                id="sessions-before-long-break"
-                defaultValue={[sessionsBeforeLongBreak]}
-                max={8}
-                min={2}
-                step={1}
-                onValueChange={(value) => setSessionsBeforeLongBreak(value[0])}
-              />
+            <Slider
+              id="long-break-time"
+              defaultValue={[longBreakMinutes]}
+              max={30}
+              min={5}
+              step={5}
+              onValueChange={(value) => setLongBreakMinutes(value[0])}
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label htmlFor="sessions-before-long-break">
+                Sessions before long break: {sessionsBeforeLongBreak}
+              </label>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label htmlFor="daily-goal">Daily Goal: {dailyGoal} minutes</label>
-              </div>
-              <Slider
-                id="daily-goal"
-                defaultValue={[dailyGoal]}
-                max={180}
-                min={30}
-                step={30}
-                onValueChange={(value) => setDailyGoal(value[0])}
-              />
+            <Slider
+              id="sessions-before-long-break"
+              defaultValue={[sessionsBeforeLongBreak]}
+              max={8}
+              min={2}
+              step={1}
+              onValueChange={(value) => setSessionsBeforeLongBreak(value[0])}
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label htmlFor="daily-goal">Daily Goal: {dailyGoal} minutes</label>
             </div>
-          </TabsContent>
-          
-          {/* Sounds settings tab */}
-          <TabsContent value="sounds" className="space-y-6 mt-4 px-1">
-            <div className="space-y-3">
-              <label className="text-sm font-medium">Completion Sound URL</label>
-              <div className="flex space-x-2">
-                <Input 
-                  placeholder="Enter sound URL" 
-                  value={completionSound}
-                  onChange={(e) => setCompletionSound(e.target.value)}
-                />
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  onClick={testCustomSound}
-                  title="Test Sound"
-                >
-                  <Volume2 className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Enter a URL to an audio file that will play when the timer completes.
-              </p>
-            </div>
-            
-            <div className="space-y-3">
-              <label className="text-sm font-medium">YouTube Sound URL</label>
-              <Input 
-                placeholder="Enter YouTube video URL" 
-                value={customYoutubeUrl}
-                onChange={(e) => setCustomYoutubeUrl(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                Enter a YouTube URL for background sound or completion notifications.
-              </p>
-            </div>
-            
-            {/* YouTube preview */}
-            {customYoutubeUrl && customYoutubeUrl.includes("youtube.com") && (
-              <div className="pt-2">
-                <p className="text-sm font-medium mb-2">YouTube Preview:</p>
-                <div className="aspect-video w-full rounded-md overflow-hidden">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    src={`https://www.youtube.com/embed/${customYoutubeUrl.split("v=")[1]?.split("&")[0]}`}
-                    title="YouTube video player"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                </div>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+            <Slider
+              id="daily-goal"
+              defaultValue={[dailyGoal]}
+              max={180}
+              min={30}
+              step={30}
+              onValueChange={(value) => setDailyGoal(value[0])}
+            />
+          </div>
+        </div>
         
         <SettingsFooter>
           <Button onClick={saveSettings}>Save Settings</Button>

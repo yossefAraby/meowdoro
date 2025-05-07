@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { CustomizableCat } from "@/components/shop/CustomizableCat";
+import { cn } from "@/lib/utils";
 
 // Study tips for the cat to share
 const studyTips = [

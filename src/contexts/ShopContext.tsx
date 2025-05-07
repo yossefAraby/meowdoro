@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,9 +50,11 @@ export const availableIconPacks = [
 interface ShopContextType {
   fishCount: number;
   addFish: (amount: number) => void;
-  spendFish: (amount: number) => boolean;
+  spendFish: (amount: number) => Promise<boolean>;
   purchasedItems: CustomizationItem[];
   purchaseItem: (item: CustomizationItem) => Promise<boolean>;
+  loadSavedItem: (item: CustomizationItem) => void; // New function to load items without spending fish
+  sellItem: (item: CustomizationItem) => Promise<boolean>;
   activateItem: (item: CustomizationItem) => Promise<boolean>;
   activeSiteColor: string;
   activeCatColor: string;
@@ -68,12 +69,14 @@ interface ShopContextType {
 const ShopContext = createContext<ShopContextType>({
   fishCount: 0,
   addFish: () => {},
-  spendFish: () => false,
+  spendFish: async () => false,
   purchasedItems: [],
   purchaseItem: async () => false,
+  loadSavedItem: () => {}, // Initialize the new function
+  sellItem: async () => false,
   activateItem: async () => false,
   activeSiteColor: "cyan",
-  activeCatColor: "cyan",
+  activeCatColor: "reset",
   activeBackground: "none",
   activeIconPack: "default",
   backgroundOpacity: 0.5,
@@ -88,7 +91,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [fishCount, setFishCount] = useState(0);
   const [purchasedItems, setPurchasedItems] = useState<CustomizationItem[]>([]);
   const [activeSiteColor, setActiveSiteColor] = useState("cyan");
-  const [activeCatColor, setActiveCatColor] = useState("cyan");
+  const [activeCatColor, setActiveCatColor] = useState("reset");
   const [activeBackground, setActiveBackground] = useState("none");
   const [activeIconPack, setActiveIconPack] = useState("default");
   const [backgroundOpacity, setBackgroundOpacity] = useState(0.5);
@@ -103,7 +106,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setFishCount(0);
       setPurchasedItems([]);
       setActiveSiteColor("cyan");
-      setActiveCatColor("cyan");
+      setActiveCatColor("reset");
       setActiveBackground("none");
       setActiveIconPack("default");
       setIsLoading(false);
@@ -137,6 +140,20 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const storedOpacity = localStorage.getItem("meowdoro-background-opacity");
       if (storedOpacity) {
         setBackgroundOpacity(parseFloat(storedOpacity));
+      }
+      
+      // Load custom colors from localStorage
+      const storedCustomColors = localStorage.getItem('meowdoro-custom-colors');
+      if (storedCustomColors) {
+        try {
+          const customColors = JSON.parse(storedCustomColors) as CustomizationItem[];
+          customColors.forEach(color => {
+            // Use loadSavedItem instead of purchaseItem to avoid spending fish
+            loadSavedItem(color);
+          });
+        } catch (error) {
+          console.error("Error loading custom colors from localStorage:", error);
+        }
       }
     }
   }, [user]);
@@ -354,6 +371,69 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   };
 
+  // Load a saved item without spending fish (for items loaded from localStorage)
+  const loadSavedItem = (item: CustomizationItem) => {
+    // Check if already in purchased items
+    if (purchasedItems.some(i => i.category === item.category && i.id === item.id)) {
+      return; // Already loaded, do nothing
+    }
+    
+    // Add to purchased items without spending fish
+    const newItem = { ...item, isPurchased: true };
+    setPurchasedItems(prevItems => [...prevItems, newItem]);
+  };
+
+  // Sell item
+  const sellItem = async (item: CustomizationItem): Promise<boolean> => {
+    // Check if item is active
+    let isActive = false;
+    switch (item.category) {
+      case 'site_color':
+        isActive = activeSiteColor === item.value;
+        break;
+      case 'cat_color':
+        isActive = activeCatColor === item.value;
+        break;
+      case 'background':
+        isActive = activeBackground === item.value;
+        break;
+      case 'icon_pack':
+        isActive = activeIconPack === item.value;
+        break;
+    }
+
+    if (isActive) {
+      toast.error("Can't sell an active color!");
+      return false;
+    }
+
+    // Check if item is owned
+    if (!purchasedItems.some(i => i.category === item.category && i.id === item.id)) {
+      toast.error("You don't own this item!");
+      return false;
+    }
+
+    // Add fish
+    addFish(1);
+
+    // Remove from purchased items
+    setPurchasedItems(prevItems => 
+      prevItems.filter(i => !(i.category === item.category && i.id === item.id))
+    );
+
+    // Update localStorage
+    if (!user) {
+      const guestPurchases = JSON.parse(localStorage.getItem("meowdoro-purchases") || "[]");
+      const updatedPurchases = guestPurchases.filter((p: any) => 
+        !(p.category === item.category && p.item_id === item.id)
+      );
+      localStorage.setItem("meowdoro-purchases", JSON.stringify(updatedPurchases));
+    }
+
+    toast.success(`Sold ${item.name} for 1 fish!`);
+    return true;
+  };
+
   // Purchase item
   const purchaseItem = async (item: CustomizationItem): Promise<boolean> => {
     // Check if already purchased
@@ -410,7 +490,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check if item is purchased
     const isPurchased = purchasedItems.some(i => i.category === item.category && i.id === item.id);
     
-    if (!isPurchased && item.category !== 'site_color' && item.id !== 'cyan') {
+    // Allow reset color without purchase
+    if (!isPurchased && item.category !== 'site_color' && item.id !== 'cyan' && item.id !== 'reset') {
       toast.error("You need to purchase this item first!");
       return false;
     }
@@ -494,6 +575,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       spendFish,
       purchasedItems,
       purchaseItem,
+      loadSavedItem,
+      sellItem,
       activateItem,
       activeSiteColor,
       activeCatColor,

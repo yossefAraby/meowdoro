@@ -1,4 +1,3 @@
-
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useShop } from "@/contexts/ShopContext";
@@ -7,12 +6,14 @@ interface CustomizableCatProps {
   size?: "sm" | "md" | "lg";
   className?: string;
   onClick?: () => void;
+  previewColor?: string;
 }
 
 export const CustomizableCat: React.FC<CustomizableCatProps> = ({
   size = "md",
   className,
-  onClick
+  onClick,
+  previewColor
 }) => {
   const { activeCatColor } = useShop();
   
@@ -25,19 +26,65 @@ export const CustomizableCat: React.FC<CustomizableCatProps> = ({
   
   // Get the correct color
   const getColorStyle = () => {
+    // Use preview color if provided
+    const colorToUse = previewColor || activeCatColor;
+
+    // For reset color
+    if (colorToUse === "reset") {
+      return {}; // No filter for reset color
+    }
+
     // For named themes
-    if (['cyan', 'green', 'yellow', 'lavender', 'peach', 'mint', 'rose'].includes(activeCatColor)) {
+    if (['cyan', 'green', 'yellow', 'lavender', 'peach', 'mint', 'rose'].includes(colorToUse)) {
       return {
-        filter: `hue-rotate(var(--${activeCatColor}-hue, 0deg)) saturate(var(--${activeCatColor}-saturation, 100%))`,
-        mixBlendMode: "screen" as const
+        filter: `brightness(0) saturate(100%) invert(67%) sepia(72%) saturate(380%) hue-rotate(var(--${colorToUse}-hue, 165deg)) brightness(97%) contrast(88%)`
       };
     }
     
-    // For custom colors, use CSS filter to apply the color
-    return {
-      filter: `opacity(0.8) brightness(1.2) drop-shadow(0 0 0 ${activeCatColor})`,
-      mixBlendMode: "screen" as const
-    };
+    // For custom colors (hex values)
+    if (colorToUse.startsWith('#')) {
+      return {
+        filter: `brightness(0) saturate(100%) invert(67%) sepia(72%) saturate(380%) hue-rotate(${getHueFromHex(colorToUse)}deg) brightness(97%) contrast(88%)`
+      };
+    }
+
+    // Default to no filter if no valid color is set
+    return {};
+  };
+
+  // Helper function to convert hex to hue
+  const getHueFromHex = (hex: string) => {
+    // Remove the # if present
+    hex = hex.replace('#', '');
+    
+    // Convert hex to RGB
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+    
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0;
+    
+    if (max === min) {
+      h = 0; // achromatic
+    } else {
+      const d = max - min;
+      switch (max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / d + 2;
+          break;
+        case b:
+          h = (r - g) / d + 4;
+          break;
+      }
+      h = h * 60;
+    }
+    
+    return h;
   };
 
   return (
@@ -49,7 +96,7 @@ export const CustomizableCat: React.FC<CustomizableCatProps> = ({
       onClick={onClick}
     >
       <img 
-        src="/lovable-uploads/c70a5d9a-116f-4c19-914e-3f6bbdc78bd6.png" 
+        src="/cat images/idle.png" 
         alt="Meowdoro Cat" 
         className={cn("object-contain", sizeClasses[size])}
         style={getColorStyle()}

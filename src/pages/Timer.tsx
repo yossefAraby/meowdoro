@@ -173,6 +173,14 @@ const Timer: React.FC = () => {
   // Toggle between countdown and stopwatch modes
   const toggleTimerMode = () => {
     setIsCountdown(!isCountdown);
+    // Reset timer state when switching modes
+    setCurrentSeconds(0);
+    setTimerCompleted(false);
+    if (!isCountdown) {
+      // When switching to stopwatch, reset everything
+      setTotalFocusMinutes(0);
+      localStorage.setItem("meowdoro-focus-minutes", "0");
+    }
   };
   
   // Save timer settings to localStorage
@@ -184,6 +192,11 @@ const Timer: React.FC = () => {
     localStorage.setItem("meowdoro-daily-goal", dailyGoal.toString());
     localStorage.setItem("meowdoro-completion-sound", completionSound);
     localStorage.setItem("meowdoro-youtube-sound", customYoutubeUrl);
+    
+    // Reset timer with new settings if in countdown mode
+    if (isCountdown) {
+      setCurrentSeconds(focusMinutes * 60);
+    }
     
     toast({
       title: "Timer settings saved",
@@ -261,7 +274,7 @@ const Timer: React.FC = () => {
       
       {/* AI Chat button */}
       <div className="fixed bottom-6 right-6">
-        <MeowAIButton />
+        <MeowAIButton timerMode={currentMode} />
       </div>
     </div>
   );

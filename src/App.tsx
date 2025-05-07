@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +9,7 @@ import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ToastProvider } from "./hooks/use-toast";
 import { ShopProvider } from "./contexts/ShopContext";
+import { TimerProvider } from '@/contexts/TimerContext';
 
 // Import page components
 import Landing from "./pages/Landing";
@@ -62,7 +62,10 @@ const AppRoutes = () => {
       } />
       <Route path="/statistics" element={
         <ProtectedRoute>
-          <Statistics />
+          <div className="container max-w-6xl mx-auto px-4 py-8 page-transition">
+            <h1 className="text-3xl font-bold mb-4">Statistics</h1>
+            <p className="text-muted-foreground">Coming soon! We're working on bringing you detailed productivity insights.</p>
+          </div>
         </ProtectedRoute>
       } />
       <Route path="/shop" element={
@@ -86,17 +89,19 @@ const App = () => {
         <ToastProvider>
           <AuthProvider>
             <ShopProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                
-                <BrowserRouter>
-                  <Navbar />
-                  <main className="pt-20 min-h-screen">
-                    <AppRoutes />
-                  </main>
-                </BrowserRouter>
-              </TooltipProvider>
+              <TimerProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  
+                  <BrowserRouter>
+                    <Navbar />
+                    <main className="pt-20 min-h-screen">
+                      <AppRoutes />
+                    </main>
+                  </BrowserRouter>
+                </TooltipProvider>
+              </TimerProvider>
             </ShopProvider>
           </AuthProvider>
         </ToastProvider>

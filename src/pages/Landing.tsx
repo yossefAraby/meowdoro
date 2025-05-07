@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -14,12 +14,121 @@ import {
   Download,
   Smartphone,
   Laptop,
-  ExternalLink
+  ExternalLink,
+  BrainCircuit
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { PricingDialog } from "@/components/pricing/PricingDialog";
+
+const InteractiveLogo: React.FC<{ onClick: () => void }> = ({ onClick }) => {
+  const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
+  const [isHovered, setIsHovered] = useState(false);
+  const rafRef = useRef<number>();
+  const timeoutRef = useRef<NodeJS.Timeout>();
+  const lastUpdateRef = useRef<number>(0);
+  const THROTTLE_MS = 32; // Reduced to 30fps for better performance
+
+  // Memoized rotation calculations
+  const { rotationX, rotationY } = useMemo(() => ({
+    rotationX: (0.5 - mousePosition.y) * 50,
+    rotationY: (mousePosition.x - 0.5) * 50
+  }), [mousePosition.x, mousePosition.y]);
+
+  // Debounced and throttled mouse move handler
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const now = Date.now();
+    if (now - lastUpdateRef.current < THROTTLE_MS) {
+      return;
+    }
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+
+      rafRef.current = requestAnimationFrame(() => {
+        const heroSection = document.querySelector('.hero-section');
+        if (heroSection) {
+          const rect = heroSection.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width;
+          const y = (e.clientY - rect.top) / rect.height;
+          
+          // Only update if mouse is within hero section
+          if (x >= 0 && x <= 1 && y >= 0 && y <= 1) {
+            setMousePosition({ x, y });
+            setIsHovered(true);
+            lastUpdateRef.current = now;
+          } else {
+            setIsHovered(false);
+          }
+        }
+      });
+    }, 20); // Increased debounce to 20ms
+  }, []);
+
+  useEffect(() => {
+    const options = { passive: true };
+    window.addEventListener('mousemove', handleMouseMove, options);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [handleMouseMove]);
+
+  // Memoized transform style
+  const transformStyle = useMemo(() => ({
+    transform: isHovered 
+      ? `rotateY(${rotationY}deg) rotateX(${rotationX}deg)`
+      : 'rotateY(0deg) rotateX(0deg)',
+    transformStyle: 'preserve-3d',
+    willChange: 'transform',
+    backfaceVisibility: 'hidden',
+  }), [isHovered, rotationX, rotationY]);
+
+  return (
+    <div 
+      className="relative cursor-pointer perspective-1000"
+      onClick={onClick}
+      style={{ 
+        willChange: 'transform',
+        transform: 'translate3d(0,0,0)',
+        contain: 'layout style paint', // Performance optimization
+      }}
+    >
+      {/* Logo container with 3D transform */}
+      <div 
+        className="relative z-10 transition-transform duration-300 ease-out"
+        style={transformStyle}
+      >
+        <img 
+          src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
+          alt="Meowdoro Logo" 
+          className="w-56 h-56 md:w-72 md:h-72 drop-shadow-lg"
+          style={{
+            transform: 'translateZ(40px)',
+            transition: 'transform 0.3s ease-out',
+            willChange: 'transform',
+            backfaceVisibility: 'hidden',
+            contain: 'layout style paint', // Performance optimization
+          }}
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+    </div>
+  );
+};
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -64,7 +173,7 @@ const Landing: React.FC = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero Section with better light/dark mode support */}
-      <section className="relative min-h-[80vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[80vh] flex items-center overflow-hidden hero-section">
         {/* Background with better light/dark mode compatibility */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-background dark:from-primary/5 dark:via-background/80 dark:to-background"></div>
         
@@ -130,26 +239,7 @@ const Landing: React.FC = () => {
             
             {/* Right content - Enhanced Meowdoro Logo */}
             <div className="flex-1 flex justify-center items-center">
-              <div className="relative group">
-                {/* Multiple glow layers with different animations and better light mode visibility */}
-                <div className="absolute inset-0 bg-primary/40 dark:bg-primary/30 rounded-full blur-3xl animate-pulse-soft"></div>
-                <div className="absolute inset-0 bg-primary/30 dark:bg-primary/20 rounded-full blur-2xl animate-pulse-soft" style={{ animationDelay: '0.3s' }}></div>
-                <div className="absolute inset-0 bg-primary/20 dark:bg-primary/10 rounded-full blur-xl animate-pulse-soft" style={{ animationDelay: '0.6s' }}></div>
-                
-                {/* Logo image with hover animation */}
-                <img 
-                  src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
-                  alt="Meowdoro Logo" 
-                  className="w-56 h-56 md:w-72 md:h-72 relative z-10 transition-all duration-500 
-                  group-hover:scale-110 group-hover:rotate-3 cursor-pointer drop-shadow-lg"
-                  onClick={() => navigate('/timer')}
-                />
-                
-                {/* Shimmer effect on hover with better light mode visibility */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 dark:via-primary/20 to-transparent 
-                  z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-shimmer" 
-                  style={{ backgroundSize: '200% 100%' }}></div>
-              </div>
+              <InteractiveLogo onClick={() => navigate('/timer')} />
             </div>
           </div>
         </div>
@@ -171,7 +261,7 @@ const Landing: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
                 <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
@@ -187,11 +277,11 @@ const Landing: React.FC = () => {
             <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
                 <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
-                  <ListTodo className="h-6 w-6 text-primary" />
+                  <BrainCircuit className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold">Task Management</h3>
+                <h3 className="text-xl font-semibold">AI Cat Companion</h3>
                 <p className="text-foreground/70 dark:text-muted-foreground">
-                  Organize your tasks and notes with our minimalist interface
+                  Chat with your AI cat friend for study tips, motivation, and productivity advice
                 </p>
               </CardContent>
             </Card>
@@ -199,14 +289,40 @@ const Landing: React.FC = () => {
             <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
                 <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-primary" />
+                  <Sparkles className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold">Study Party</h3>
+                <h3 className="text-xl font-semibold">Cat Shop</h3>
                 <p className="text-foreground/70 dark:text-muted-foreground">
-                  Join virtual study sessions with friends to stay motivated together
+                  Customize your cat companion with unique colors, animations, and special effects
                 </p>
               </CardContent>
             </Card>
+
+            <div className="lg:col-span-3 flex justify-center gap-6">
+              <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1 w-full max-w-md">
+                <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
+                    <ListTodo className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold">Task Management</h3>
+                  <p className="text-foreground/70 dark:text-muted-foreground">
+                    Organize your tasks and notes with our minimalist interface
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card/60 dark:bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1 w-full max-w-md">
+                <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
+                    <Users className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold">Study Party</h3>
+                  <p className="text-foreground/70 dark:text-muted-foreground">
+                    Join virtual study sessions with friends to stay motivated together
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
@@ -281,133 +397,87 @@ const Landing: React.FC = () => {
       
       {/* Learn More dialog with updated content */}
       <Dialog open={showLearnMoreDialog} onOpenChange={setShowLearnMoreDialog}>
-        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto scrollbar-hide">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-primary" />
-              Learn More
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <Cat className="h-6 w-6 text-primary" />
+              About Meowdoro
             </DialogTitle>
             <DialogDescription>
-              Quick guide to getting the most out of Meowdoro
+              A delightful productivity app that combines the Pomodoro technique with a friendly cat companion
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="space-y-6 my-4 pr-2">
-            <div className="flex justify-between items-center">
-              <a 
-                href="https://drive.google.com/file/d/1c9SgZpXhoq9T3qp5Mg4Ab-X3ipe5HjQ_/view?usp=sharing" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-primary hover:underline"
-              >
-                <Button variant="outline" className="gap-2">
-                  <BookOpen className="h-4 w-4" />
-                  Project Overview PDF
-                </Button>
-              </a>
-            </div>
-            
+
+          <div className="space-y-6">
             <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                Getting Started
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Meowdoro helps you focus using the Pomodoro technique - alternating between focused work sessions and refreshing breaks.
+              <h3 className="text-xl font-bold mb-3">What is Meowdoro?</h3>
+              <p className="text-muted-foreground">
+                Meowdoro is a productivity app that helps you stay focused using the Pomodoro technique, enhanced with a friendly cat companion. Work in focused sessions, take breaks, and let your AI cat friend keep you motivated.
               </p>
-              
-              <div className="space-y-3 bg-card p-4 rounded-lg">
-                <h4 className="font-semibold text-base">Quick Start Guide:</h4>
-                <ol className="list-decimal list-inside space-y-2 ml-2">
-                  <li><strong>Create an account</strong> or join as a guest to get started</li>
-                  <li><strong>Timer Page:</strong> Use the focus timer with customizable durations</li>
-                  <li><strong>Tasks Page:</strong> Create and organize notes for your work</li>
-                  <li><strong>Party Page:</strong> Study with friends in virtual sessions</li>
+            </section>
+
+            <section>
+              <h3 className="text-xl font-bold mb-3">Key Features</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-card p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">Focus Timer</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                    <li>25-minute focus sessions</li>
+                    <li>5-minute short breaks</li>
+                    <li>15-minute long breaks</li>
+                    <li>Customizable durations</li>
+                  </ul>
+                </div>
+
+                <div className="bg-card p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">AI Cat Companion</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                    <li>Chat with your AI cat friend</li>
+                    <li>Get study tips and motivation</li>
+                    <li>Multi-language support</li>
+                    <li>Context-aware responses</li>
+                  </ul>
+                </div>
+
+                <div className="bg-card p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">Task Management</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                    <li>Create and organize notes</li>
+                    <li>Pin important tasks</li>
+                    <li>Color coding system</li>
+                    <li>Quick search function</li>
+                  </ul>
+                </div>
+
+                <div className="bg-card p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">Cat Shop</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                    <li>Customize your cat's appearance</li>
+                    <li>Unlock special animations</li>
+                    <li>Get unique color themes</li>
+                    <li>Premium effects and features</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h3 className="text-xl font-bold mb-3">Getting Started</h3>
+              <div className="bg-card p-4 rounded-lg">
+                <ol className="list-decimal list-inside space-y-2">
+                  <li>Click "Get Started" to begin</li>
+                  <li>Choose your preferred cat companion</li>
+                  <li>Set up your first focus session</li>
+                  <li>Start chatting with your AI cat friend</li>
                 </ol>
               </div>
             </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                Using the Timer
-              </h3>
-              <div className="space-y-3 bg-card p-4 rounded-lg">
-                <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong>Focus Session:</strong> Default 25 minutes of concentrated work</li>
-                  <li><strong>Short Break:</strong> Default 5 minutes to rest</li>
-                  <li><strong>Long Break:</strong> Default 15 minutes after completing several focus sessions</li>
-                  <li><strong>Controls:</strong> Play/pause, skip to next session, and adjust settings</li>
-                  <li><strong>Cat Companion:</strong> Click on the cat for study tips and motivation</li>
-                </ul>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <ListTodo className="h-5 w-5 text-primary" />
-                Task Management
-              </h3>
-              <div className="space-y-3 bg-card p-4 rounded-lg">
-                <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong>Create Notes:</strong> Add titles and content for your tasks</li>
-                  <li><strong>Organization:</strong> Pin important notes to the top</li>
-                  <li><strong>Color Coding:</strong> Use different colors to categorize your notes</li>
-                  <li><strong>Search:</strong> Quickly find notes with the search function</li>
-                </ul>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
-                Study Party
-              </h3>
-              <div className="space-y-3 bg-card p-4 rounded-lg">
-                <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong>Join Together:</strong> Create or join virtual study rooms</li>
-                  <li><strong>Stay Motivated:</strong> See when friends are focusing or taking breaks</li>
-                  <li><strong>Accountability:</strong> Increase productivity through group study</li>
-                  <li><strong>Cat Avatars:</strong> Each user gets a unique cat representation</li>
-                </ul>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Coffee className="h-5 w-5 text-primary" />
-                Productivity Tips
-              </h3>
-              <div className="space-y-3 bg-card p-4 rounded-lg">
-                <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong>One Task at a Time:</strong> Focus on a single task during each session</li>
-                  <li><strong>Take Real Breaks:</strong> Step away from the screen during break time</li>
-                  <li><strong>Set Daily Goals:</strong> Aim for 4-8 completed focus sessions per day</li>
-                  <li><strong>Minimize Distractions:</strong> Close unnecessary tabs and silence notifications</li>
-                  <li><strong>Hydrate:</strong> Keep water nearby during your study sessions</li>
-                </ul>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                <Cat className="h-5 w-5 text-primary" />
-                Cat Companion
-              </h3>
-              <div className="space-y-3 bg-card p-4 rounded-lg">
-                <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong>Interactive Friend:</strong> Your virtual cat changes mood based on timer state</li>
-                  <li><strong>Study Tips:</strong> Click on the cat for helpful productivity advice</li>
-                  <li><strong>Mood States:</strong> The cat appears focused during work, happy during breaks, and sleepy when paused</li>
-                </ul>
-              </div>
-            </section>
           </div>
-          
+
           <div className="flex justify-between items-center mt-6">
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <Cat className="h-4 w-4" />
-              <span>Meowdoro v1.0</span>
+              <span>Meowdoro v2.0</span>
             </div>
             
             <DialogClose asChild>

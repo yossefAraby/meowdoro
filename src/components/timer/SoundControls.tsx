@@ -1,8 +1,8 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Umbrella, Volume2, VolumeX, Coffee, Bird } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 
 interface SoundControlsProps {
   soundPlaying: string | null;
@@ -13,6 +13,8 @@ export const SoundControls: React.FC<SoundControlsProps> = ({
   soundPlaying,
   onPlaySound,
 }) => {
+  const [volume, setVolume] = useState(0.5);
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -65,6 +67,19 @@ export const SoundControls: React.FC<SoundControlsProps> = ({
                 Stop Sound
               </Button>
             )}
+          </div>
+          <div className="pt-2 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Volume</span>
+              <span className="text-xs text-muted-foreground">{Math.round(volume * 100)}%</span>
+            </div>
+            <Slider
+              value={[volume]}
+              onValueChange={(value) => setVolume(value[0])}
+              max={1}
+              step={0.01}
+              className="w-full"
+            />
           </div>
         </div>
       </PopoverContent>
