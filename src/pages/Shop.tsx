@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Fish, Palette, PaintBucket, ColorPicker, Star } from "lucide-react";
+import { Fish, Palette, PaintBucket, Star } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -343,7 +342,7 @@ export default function Shop() {
             <span>Backgrounds</span>
           </TabsTrigger>
           <TabsTrigger value="icons" className="flex items-center gap-2 px-2 py-2">
-            <ColorPicker className="h-4 w-4 hidden sm:inline" />
+            <Star className="h-4 w-4 hidden sm:inline" />
             <span>Icon Packs</span>
           </TabsTrigger>
           <TabsTrigger value="ai" className="flex items-center gap-2 px-2 py-2">
