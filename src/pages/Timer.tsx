@@ -71,7 +71,7 @@ const Timer: React.FC = () => {
     return parseInt(localStorage.getItem("meowdoro-daily-goal") || "90", 10);
   });
   
-  const { toast } = useToast();
+  const { toast: shadcnToast } = useToast();
   const { soundPlaying, playSound } = useBackgroundSounds();
   
   // Save user fish to localStorage
@@ -148,28 +148,28 @@ const Timer: React.FC = () => {
         const newFishCount = userFish + fishEarned;
         updateUserFish(newFishCount);
         
-        toast({
+        shadcnToast({
           title: `Focus session completed! +${fishEarned} fish`,
           description: `You've focused for ${newTotal} minutes today.`,
         });
         
         // Also show a sonner toast for fish
-        toast.success(`You earned ${fishEarned} fish! 🐟`, {
+        toast(`You earned ${fishEarned} fish! 🐟`, {
           description: "Use them in the Shop to customize your experience."
         });
       } else {
-        toast({
+        shadcnToast({
           title: "Focus session completed!",
           description: `You've focused for ${newTotal} minutes today.`,
         });
       }
     } else if (currentMode === "break") {
-      toast({
+      shadcnToast({
         title: "Break completed!",
         description: "Time to get back to focusing.",
       });
     } else if (currentMode === "longBreak") {
-      toast({
+      shadcnToast({
         title: "Long break completed!",
         description: "Ready for another productive focus session?",
       });
