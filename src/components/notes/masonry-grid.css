@@ -1,0 +1,62 @@
+/* Base masonry styles for Google Keep-style grid */
+.my-masonry-grid {
+  display: flex;
+  margin-left: -16px; /* gutter size offset */
+  width: auto;
+  flex-direction: row; /* Ensure horizontal flow */
+}
+
+.my-masonry-grid_column {
+  padding-left: 16px; /* gutter size */
+  background-clip: padding-box;
+}
+
+/* Force items to flow horizontally instead of vertically */
+@supports (grid-template-rows: masonry) {
+  .my-masonry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-gap: 16px;
+    grid-auto-flow: row dense; /* Force left-to-right priority */
+    margin-left: 0;
+  }
+  
+  .my-masonry-grid_column {
+    display: contents;
+  }
+}
+
+/* Animation for note items */
+.note-enter {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.note-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 200ms, transform 200ms;
+}
+
+.note-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.note-exit-active {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 200ms, transform 200ms;
+}
+
+/* Style for note cards */
+.note-card {
+  break-inside: avoid;
+  margin-bottom: 16px;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.note-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+} 

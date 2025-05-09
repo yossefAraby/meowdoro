@@ -110,14 +110,22 @@
     @apply bg-background text-foreground;
   }
 
-  /* Improved focus styles for accessibility */
-  a:focus, button:focus, input:focus, select:focus, textarea:focus {
+  /* Improved focus styles for accessibility - only for keyboard navigation */
+  a:focus-visible, button:focus-visible, select:focus-visible {
     @apply outline-2 outline-primary outline-offset-2 ring-2 ring-primary/30;
   }
 
-  /* Hide selection rectangle only while typing in a note/task */
-  input:focus, textarea:focus {
-    outline: none !important;
+  /* Remove ALL focus indicators for inputs and textareas */
+  input, textarea {
+    @apply focus:outline-none focus:ring-0 !important;
+  }
+  
+  /* Additional specific removal for note editing */
+  .note-editor input,
+  .note-editor textarea,
+  input:focus,
+  textarea:focus {
+    @apply ring-0 outline-none shadow-none !important;
   }
 
   /* Improved text readability */
@@ -128,6 +136,42 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold tracking-tight;
   }
+}
+
+/* Custom scrollbar styling */
+/* Light mode scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.5);
+  border-radius: 5px;
+  border: 2px solid hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.7);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border: 2px solid hsl(var(--muted));
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
 }
 
 /* Animation Utilities */

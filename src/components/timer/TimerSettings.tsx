@@ -1,5 +1,5 @@
 import React from "react";
-import { Settings } from "lucide-react";
+import { Settings, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
@@ -27,6 +27,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 interface TimerSettingsProps {
   // Timer settings
@@ -37,15 +39,19 @@ interface TimerSettingsProps {
   dailyGoal: number;
   completionSound: string;
   customYoutubeUrl: string;
+  showFocusBar?: boolean;
+  showFishBar?: boolean;
   
   // Setter functions
-  setFocusMinutes: (value: number) => void;
-  setBreakMinutes: (value: number) => void;
-  setLongBreakMinutes: (value: number) => void;
-  setSessionsBeforeLongBreak: (value: number) => void;
-  setDailyGoal: (value: number) => void;
-  setCompletionSound: (value: string) => void;
-  setCustomYoutubeUrl: (value: string) => void;
+  setFocusMinutes: (minutes: number) => void;
+  setBreakMinutes: (minutes: number) => void;
+  setLongBreakMinutes: (minutes: number) => void;
+  setSessionsBeforeLongBreak: (sessions: number) => void;
+  setDailyGoal: (minutes: number) => void;
+  setCompletionSound: (url: string) => void;
+  setCustomYoutubeUrl: (url: string) => void;
+  setShowFocusBar?: (show: boolean) => void;
+  setShowFishBar?: (show: boolean) => void;
   
   // Save settings function
   saveSettings: () => void;
@@ -59,6 +65,8 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({
   dailyGoal,
   completionSound,
   customYoutubeUrl,
+  showFocusBar = true,
+  showFishBar = true,
   setFocusMinutes,
   setBreakMinutes,
   setLongBreakMinutes,
@@ -66,6 +74,8 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({
   setDailyGoal,
   setCompletionSound,
   setCustomYoutubeUrl,
+  setShowFocusBar,
+  setShowFishBar,
   saveSettings
 }) => {
   const { toast } = useToast();
@@ -105,7 +115,7 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({
     <SettingsContainer>
       <SettingsTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
-          <Settings className="w-5 h-5" />
+          <Settings2 className="h-5 w-5" />
         </Button>
       </SettingsTrigger>
       <SettingsContent className="max-w-md">
@@ -183,6 +193,35 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({
               step={30}
               onValueChange={(value) => setDailyGoal(value[0])}
             />
+          </div>
+          
+          {/* Individual Progress Bar Toggles */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Progress Bar Settings</h3>
+            
+            {/* Today's Focus Bar Toggle */}
+            {setShowFocusBar && (
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-focus-bar">Show Today's Focus Bar</Label>
+                <Switch
+                  id="show-focus-bar"
+                  checked={showFocusBar}
+                  onCheckedChange={setShowFocusBar}
+                />
+              </div>
+            )}
+            
+            {/* Fish Progress Bar Toggle */}
+            {setShowFishBar && (
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-fish-bar">Show Fish Progress Bar</Label>
+                <Switch
+                  id="show-fish-bar"
+                  checked={showFishBar}
+                  onCheckedChange={setShowFishBar}
+                />
+              </div>
+            )}
           </div>
         </div>
         

@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ToastProvider } from "./hooks/use-toast";
 import { ShopProvider } from "./contexts/ShopContext";
 import { TimerProvider } from '@/contexts/TimerContext';
+import { BackgroundSoundProvider } from './contexts/BackgroundSoundContext';
 
 // Import page components
 import Landing from "./pages/Landing";
@@ -19,6 +20,7 @@ import Tasks from "./pages/Tasks";
 import Party from "./pages/Party";
 import Statistics from "./pages/Statistics";
 import Shop from "./pages/Shop";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,7 +54,14 @@ const AppRoutes = () => {
       } />
       <Route path="/tasks" element={
         <ProtectedRoute>
-          <Tasks />
+          <div className="h-full">
+            <Tasks />
+          </div>
+        </ProtectedRoute>
+      } />
+      <Route path="/chat" element={
+        <ProtectedRoute>
+          <Chat />
         </ProtectedRoute>
       } />
       <Route path="/party" element={
@@ -93,13 +102,14 @@ const App = () => {
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
-                  
-                  <BrowserRouter>
-                    <Navbar />
-                    <main className="pt-20 min-h-screen">
-                      <AppRoutes />
-                    </main>
-                  </BrowserRouter>
+                  <BackgroundSoundProvider>
+                    <BrowserRouter>
+                      <Navbar />
+                      <main className="pt-20 min-h-screen">
+                        <AppRoutes />
+                      </main>
+                    </BrowserRouter>
+                  </BackgroundSoundProvider>
                 </TooltipProvider>
               </TimerProvider>
             </ShopProvider>

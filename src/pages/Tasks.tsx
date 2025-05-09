@@ -1,75 +1,20 @@
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 import { 
-  Plus, 
-  Trash, 
-  Edit, 
-  PinIcon,
   Search, 
-  CheckSquare, 
-  ListPlus,
-  Palette,
-  Users,
-  Archive,
-  MoreVertical,
-  Bell
+  Plus,
+  Menu
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import PartyTasks from "@/components/tasks/PartyTasks";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-// Types
-type Task = {
-  id: string;
-  text: string;
-  completed: boolean;
-};
-
-type NoteType = 'note' | 'checklist';
-
-type Note = {
-  id: string;
-  title: string;
-  content: string;
-  type: NoteType;
-  tasks: Task[];
-  color: string;
-  pinned: boolean;
-  archived: boolean;
-  trashed: boolean;
-  labels: Label[];
-  createdAt: Date;
-};
-
-type Label = {
-  id: string;
-  name: string;
-  added: boolean;
-};
-
-// Color options
-const colorOptions = [
-  { name: 'Default', value: 'default', class: 'bg-card' },
-  { name: 'Red', value: 'red', class: 'bg-red-100 dark:bg-red-900/40' },
-  { name: 'Green', value: 'green', class: 'bg-green-100 dark:bg-green-900/40' },
-  { name: 'Blue', value: 'blue', class: 'bg-blue-100 dark:bg-blue-900/40' },
-  { name: 'Yellow', value: 'yellow', class: 'bg-yellow-100 dark:bg-yellow-900/40' },
-  { name: 'Purple', value: 'purple', class: 'bg-purple-100 dark:bg-purple-900/40' }
-];
+// Import our components
+import NoteSidebar from "@/components/notes/NoteSidebar";
+import NoteEditor from "@/components/notes/NoteEditor";
+import MasonryGrid from "@/components/notes/MasonryGrid";
+import EditLabelsDialog from "@/components/notes/EditLabelsDialog";
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component<
@@ -113,10 +58,29 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-const Tasks: React.FC = () => {
-  console.log('Tasks component rendering'); // Debug log
+interface Note {
+  id: string;
+  title: string;
+  content: string;
+  type: 'note' | 'checklist';
+  tasks: { id: string; text: string; completed: boolean }[];
+  color: string;
+  pinned: boolean;
+  archived: boolean;
+  trashed: boolean;
+  labels: { id: string; name: string; added: boolean }[];
+  createdAt: Date;
+  attachments?: { 
+    id: string;
+    name: string;
+    type: string;
+    size: number;
+    data: string;
+  }[];
+}
 
-  // State for notes and search
+const Tasks: React.FC = () => {
+  // State for notes
   const [notes, setNotes] = useState<Note[]>(() => {
     try {
       const savedNotes = localStorage.getItem('notes');
@@ -126,25 +90,29 @@ const Tasks: React.FC = () => {
       return [];
     }
   });
+
+  // Labels state
+  const [labels, setLabels] = useState<{ id: string; name: string; added: boolean }[]>(() => {
+    try {
+      const savedLabels = localStorage.getItem('labels');
+      return savedLabels ? JSON.parse(savedLabels) : [];
+    } catch (error) {
+      console.error('Error loading labels from localStorage:', error);
+      return [];
+    }
+  });
+  
+  // UI state
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('personal');
-  const [hasActiveParty, setHasActiveParty] = useState(false);
-  const { user } = useAuth();
-  
-  // State for creating new notes
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [noteType, setNoteType] = useState<NoteType>('note');
-  const [newTitle, setNewTitle] = useState('');
-  const [newContent, setNewContent] = useState('');
-  const [newTasks, setNewTasks] = useState<Task[]>([]);
-  const [newTaskText, setNewTaskText] = useState('');
-  const [selectedColor, setSelectedColor] = useState('default');
-  const [isPinned, setIsPinned] = useState(false);
-  const [selectedLabels, setSelectedLabels] = useState<Label[]>([]);
-  
-  // Refs
-  const editorRef = useRef<HTMLDivElement>(null);
-  const taskInputRef = useRef<HTMLInputElement>(null);
+  const [editingNote, setEditingNote] = useState<Note | undefined>();
+  const [activeView, setActiveView] = useState('notes');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isEditLabelsOpen, setIsEditLabelsOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
+  const [selectionMode, setSelectionMode] = useState(false);
+
   const { toast } = useToast();
 
   // Save notes to localStorage
@@ -161,24 +129,58 @@ const Tasks: React.FC = () => {
     }
   }, [notes, toast]);
   
-  // Handle clicking outside the editor
+  // Save labels to localStorage
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (editorRef.current && !editorRef.current.contains(event.target as Node)) {
-        if (newTitle || newContent || newTasks.length > 0) {
-          saveNote();
-        } else {
-          setIsEditorOpen(false);
-        }
-      }
+    try {
+      localStorage.setItem('labels', JSON.stringify(labels));
+    } catch (error) {
+      console.error('Error saving labels to localStorage:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save labels",
+        variant: "destructive",
+      });
     }
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [newTitle, newContent, newTasks]);
+  }, [labels, toast]);
 
-  // Filter and sort notes
-  const filteredNotes = notes
+  // Handle view changes
+  const handleViewChange = (view: string) => {
+    if (view === 'edit-labels') {
+      setIsEditLabelsOpen(true);
+        } else {
+      setActiveView(view);
+      setIsSidebarOpen(false);
+    }
+  };
+
+  // Handle sidebar collapse
+  const handleSidebarCollapse = (collapsed: boolean) => {
+    setIsSidebarCollapsed(collapsed);
+  };
+
+  // Filter notes based on active view and search query
+  const getFilteredNotes = () => {
+    // Check if we have an active label from the URL (format: "labels/labelId")
+    const activeLabel = activeView.startsWith('labels/') ? activeView.split('/')[1] : undefined;
+    
+    return notes
+      .filter(note => {
+        // Filter by view type
+        if (activeView === 'archive') return note.archived && !note.trashed;
+        if (activeView === 'trash') return note.trashed;
+        if (activeView === 'notes') return !note.archived && !note.trashed;
+        if (activeView === 'labels') {
+          return !note.archived && !note.trashed && note.labels.some(nl => 
+            labels.some(l => l.added && nl.added)
+          );
+        }
+        if (activeView.startsWith('labels/') && activeLabel) {
+          return !note.archived && !note.trashed && note.labels.some(nl => 
+            nl.id === activeLabel && nl.added
+          );
+        }
+        return true;
+      })
     .filter(note => {
       if (!searchQuery) return true;
       
@@ -186,62 +188,37 @@ const Tasks: React.FC = () => {
       const inTitle = note.title.toLowerCase().includes(query);
       const inContent = note.content.toLowerCase().includes(query);
       const inTasks = note.tasks.some(task => task.text.toLowerCase().includes(query));
-      
-      return inTitle || inContent || inTasks;
-    })
-    .sort((a, b) => {
-      // Pinned notes first
-      if (a.pinned && !b.pinned) return -1;
-      if (!a.pinned && b.pinned) return 1;
-      
-      // Then by date (newest first)
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+        const inLabels = note.labels.some(label => label.name.toLowerCase().includes(query));
+        
+        return inTitle || inContent || inTasks || inLabels;
+      });
+  };
 
-  // Create a new task
-  const addTask = () => {
-    if (!newTaskText.trim()) return;
-    
-    const newTask: Task = {
-      id: Date.now().toString(),
-      text: newTaskText.trim(),
-      completed: false
-    };
-    
-    setNewTasks([...newTasks, newTask]);
-    setNewTaskText('');
-    if (taskInputRef.current) taskInputRef.current.focus();
-  };
-  
-  // Handle delete task
-  const deleteTask = (id: string) => {
-    setNewTasks(newTasks.filter(task => task.id !== id));
-  };
-  
-  // Save the current note
-  const saveNote = () => {
-    if (!newTitle && !newContent && newTasks.length === 0) {
-      setIsEditorOpen(false);
-      resetEditor();
-      return;
-    }
-    
+  const filteredNotes = getFilteredNotes();
+  const pinnedNotes = filteredNotes.filter(note => note.pinned);
+  const unpinnedNotes = filteredNotes.filter(note => !note.pinned);
+
+  // Handle note creation
+  const handleCreateNote = (noteData: { 
+    title: string; 
+    content: string; 
+    type: 'note' | 'checklist'; 
+    tasks: { id: string; text: string; completed: boolean }[]; 
+    color: string; 
+    pinned: boolean;
+    labels: { id: string; name: string; added: boolean }[];
+    attachments?: { id: string; name: string; type: string; size: number; data: string; }[];
+  }) => {
     const newNote: Note = {
       id: Date.now().toString(),
-      title: newTitle,
-      content: noteType === 'note' ? newContent : '',
-      type: noteType,
-      tasks: noteType === 'checklist' ? newTasks : [],
-      color: selectedColor,
-      pinned: isPinned,
+      ...noteData,
       archived: false,
       trashed: false,
-      labels: selectedLabels,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
     
-    setNotes([newNote, ...notes]);
-    resetEditor();
+    setNotes(prev => [newNote, ...prev]);
+    setIsEditorOpen(false);
     
     toast({
       title: "Note created",
@@ -249,71 +226,83 @@ const Tasks: React.FC = () => {
     });
   };
   
-  // Reset editor state
-  const resetEditor = () => {
-    setNewTitle('');
-    setNewContent('');
-    setNewTasks([]);
-    setNewTaskText('');
-    setSelectedColor('default');
-    setIsPinned(false);
-    setSelectedLabels([]);
-    setIsEditorOpen(false);
+  // Handle note updates
+  const handleUpdateNote = (noteData: { 
+    title: string; 
+    content: string; 
+    type: 'note' | 'checklist'; 
+    tasks: { id: string; text: string; completed: boolean }[]; 
+    color: string; 
+    pinned: boolean;
+    labels: { id: string; name: string; added: boolean }[];
+    attachments?: { id: string; name: string; type: string; size: number; data: string; }[];
+  }) => {
+    if (!editingNote) return;
+    
+    setNotes(prev => prev.map(note => 
+      note.id === editingNote.id
+        ? { ...note, ...noteData }
+        : note
+    ));
+    
+    setEditingNote(undefined);
+    
+    toast({
+      title: "Note updated",
+      description: "Your note has been updated successfully."
+    });
   };
   
   // Toggle pin status
-  const togglePin = (id: string) => {
-    setNotes(notes.map(note => 
+  const handlePinNote = (id: string) => {
+    setNotes(prev => prev.map(note => 
       note.id === id ? { ...note, pinned: !note.pinned } : note
     ));
   };
   
   // Change note color
-  const changeColor = (id: string, color: string) => {
-    setNotes(notes.map(note => 
+  const handleColorChange = (id: string, color: string) => {
+    setNotes(prev => prev.map(note => 
       note.id === id ? { ...note, color } : note
     ));
   };
   
-  // Delete note
-  const deleteNote = (id: string) => {
-    setNotes(notes.map(note => 
+  // Delete/Restore note
+  const handleDeleteNote = (id: string) => {
+    if (activeView === 'trash') {
+      // Permanently delete if already in trash
+      setNotes(prev => prev.filter(note => note.id !== id));
+      toast({
+        title: "Note deleted",
+        description: "The note has been permanently deleted."
+      });
+    } else {
+      // Move to trash
+      setNotes(prev => prev.map(note => 
       note.id === id ? { ...note, trashed: true } : note
     ));
-    
     toast({
       title: "Note moved to trash",
-      description: "You can restore it from the trash later."
+        description: "The note has been moved to trash."
     });
+    }
   };
   
-  // Restore note
-  const restoreNote = (id: string) => {
-    setNotes(notes.map(note => 
-      note.id === id ? { ...note, trashed: false } : note
-    ));
-    
-    toast({
-      title: "Note restored",
-      description: "Your note has been restored."
-    });
-  };
-  
-  // Archive note
-  const archiveNote = (id: string) => {
-    setNotes(notes.map(note => 
+  // Toggle archive status
+  const handleArchiveNote = (id: string) => {
+    setNotes(prev => prev.map(note => 
       note.id === id ? { ...note, archived: !note.archived } : note
     ));
     
     toast({
       title: "Note archived",
-      description: "You can find it in the archive."
+      description: "The note has been archived."
     });
   };
   
   // Toggle task completion
-  const toggleTaskCompletion = (noteId: string, taskId: string) => {
-    setNotes(notes.map(note => {
+  const handleToggleTask = (noteId: string, taskId: string) => {
+    setNotes(prev => prev.map(note => {
       if (note.id !== noteId) return note;
       
       return {
@@ -325,386 +314,312 @@ const Tasks: React.FC = () => {
     }));
   };
   
-  // Get color class
-  const getColorClass = (color: string) => {
-    const option = colorOptions.find(opt => opt.value === color);
-    return option ? option.class : 'bg-card';
+  // Restore from trash
+  const handleRestoreNote = (id: string) => {
+    setNotes(prev => prev.map(note => 
+      note.id === id ? { ...note, trashed: false } : note
+    ));
+    
+    toast({
+      title: "Note restored",
+      description: "The note has been restored."
+    });
+  };
+
+  // Update labels (used by the EditLabelsDialog)
+  const handleLabelsUpdate = (updatedLabels: { id: string; name: string; added: boolean }[]) => {
+    setLabels(updatedLabels);
+
+    // Also update all notes that use any of the labels that were changed
+    setNotes(prevNotes => prevNotes.map(note => {
+      // Check if any of the note's labels have been updated/deleted
+      const updatedNoteLabels = note.labels.filter(noteLabel => 
+        updatedLabels.some(updatedLabel => updatedLabel.id === noteLabel.id)
+      );
+      
+      // If the note's labels changed, update the note
+      if (updatedNoteLabels.length !== note.labels.length) {
+        return {
+          ...note,
+          labels: updatedNoteLabels
+        };
+      }
+      return note;
+    }));
+
+    toast({
+      title: "Labels updated",
+      description: "Your labels have been updated successfully."
+    });
+  };
+
+  // Empty trash
+  const handleEmptyTrash = () => {
+    setNotes(prev => prev.filter(note => !note.trashed));
+    
+    toast({
+      title: "Trash emptied",
+      description: "All notes in trash have been permanently deleted."
+    });
+  };
+
+  // Get page title based on active view
+  const getPageTitle = () => {
+    switch (activeView) {
+      case 'notes': return 'Notes';
+      case 'archive': return 'Archive';
+      case 'trash': return 'Trash';
+      case 'labels': return 'Labels';
+      default: return 'Notes';
+    }
+  };
+
+  // Render content based on active view
+  const renderContent = () => {
+    if (filteredNotes.length === 0) {
+      return (
+        <motion.div 
+          className="text-center py-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            {activeView === 'notes' ? (
+              <Search className="h-8 w-8 text-primary" />
+            ) : activeView === 'archive' ? (
+              <Search className="h-8 w-8 text-primary" />
+            ) : (
+              <Search className="h-8 w-8 text-primary" />
+            )}
+          </div>
+          <h3 className="text-xl font-medium mb-2">
+            {activeView === 'notes' 
+              ? searchQuery ? 'No matching notes' : 'No notes yet'
+              : activeView === 'archive'
+              ? 'No archived notes'
+              : activeView === 'labels'
+              ? 'No labeled notes' 
+              : 'No notes in trash'
+            }
+          </h3>
+          {searchQuery && (
+            <Button variant="outline" onClick={() => setSearchQuery('')} className="mt-4">
+              Clear Search
+            </Button>
+          )}
+        </motion.div>
+      );
+    }
+
+    return (
+      <>
+        {/* Pinned Notes */}
+        {pinnedNotes.length > 0 && (
+          <MasonryGrid
+            notes={pinnedNotes}
+            title="PINNED"
+            onNoteClick={setEditingNote}
+            onNotePin={handlePinNote}
+            onNoteDelete={activeView === 'trash' ? handleRestoreNote : handleDeleteNote}
+            onNoteArchive={handleArchiveNote}
+            onNoteColorChange={handleColorChange}
+            onTaskToggle={handleToggleTask}
+            onNoteSelect={handleNoteSelect}
+            selectedNotes={selectedNotes}
+            selectionMode={selectionMode}
+          />
+        )}
+
+        {/* Other Notes */}
+        {unpinnedNotes.length > 0 && (
+          <MasonryGrid
+            notes={unpinnedNotes}
+            title={pinnedNotes.length > 0 ? "OTHERS" : undefined}
+            onNoteClick={setEditingNote}
+            onNotePin={handlePinNote}
+            onNoteDelete={activeView === 'trash' ? handleRestoreNote : handleDeleteNote}
+            onNoteArchive={handleArchiveNote}
+            onNoteColorChange={handleColorChange}
+            onTaskToggle={handleToggleTask}
+            onNoteSelect={handleNoteSelect}
+            selectedNotes={selectedNotes}
+            selectionMode={selectionMode}
+          />
+        )}
+      </>
+    );
+  };
+
+  // Handle note selection
+  const handleNoteSelect = (id: string, selected: boolean) => {
+    setSelectedNotes(prev => {
+      if (selected) {
+        return [...prev, id];
+      } else {
+        return prev.filter(noteId => noteId !== id);
+      }
+    });
+  };
+
+  // Toggle selection mode
+  const toggleSelectionMode = () => {
+    setSelectionMode(prev => !prev);
+    if (selectionMode) {
+      setSelectedNotes([]);
+    }
+  };
+
+  // Bulk operations on selected notes
+  const deleteSelectedNotes = () => {
+    if (selectedNotes.length === 0) return;
+    
+    if (activeView === 'trash') {
+      // Permanently delete
+      setNotes(prev => prev.filter(note => !selectedNotes.includes(note.id)));
+      toast({
+        title: `${selectedNotes.length} notes deleted`,
+        description: "Selected notes have been permanently deleted."
+      });
+    } else {
+      // Move to trash
+      setNotes(prev => prev.map(note => 
+        selectedNotes.includes(note.id) ? { ...note, trashed: true } : note
+      ));
+      toast({
+        title: `${selectedNotes.length} notes moved to trash`,
+        description: "Selected notes have been moved to trash."
+      });
+    }
+    
+    setSelectedNotes([]);
+    setSelectionMode(false);
+  };
+
+  const archiveSelectedNotes = () => {
+    if (selectedNotes.length === 0) return;
+    
+    setNotes(prev => prev.map(note => 
+      selectedNotes.includes(note.id) ? { ...note, archived: true } : note
+    ));
+    
+    toast({
+      title: `${selectedNotes.length} notes archived`,
+      description: "Selected notes have been archived."
+    });
+    
+    setSelectedNotes([]);
+    setSelectionMode(false);
   };
 
   return (
     <ErrorBoundary>
-      <div className="container max-w-7xl mx-auto py-8 px-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-            <TabsTrigger value="personal" className="gap-2">
-              <CheckSquare className="h-4 w-4" />
-              Personal Notes
-            </TabsTrigger>
-            <TabsTrigger value="party" disabled={!hasActiveParty} className="gap-2">
-              <Users className="h-4 w-4" />
-              Party Tasks
-            </TabsTrigger>
-          </TabsList>
+      <div className="flex h-screen">
+        {/* Sidebar */}
+        <div className={cn(
+          "h-full transition-all duration-300 md:block",
+          isSidebarOpen ? "block" : "hidden md:block",
+          isSidebarCollapsed ? "w-16" : "w-64"
+        )}>
+          <NoteSidebar
+            activeView={activeView}
+            onViewChange={handleViewChange}
+            onCollapse={handleSidebarCollapse}
+            onToggleSelection={toggleSelectionMode}
+            isSelectionMode={selectionMode}
+            labels={labels}
+            activeLabel={activeView.startsWith('labels/') ? activeView.split('/')[1] : undefined}
+          />
+        </div>
         
-          <TabsContent value="personal" className="space-y-6">
-            {/* Search bar */}
-            <div className="max-w-lg mx-auto mb-6 relative">
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col h-full overflow-hidden">
+          {/* Header */}
+          <header className="flex items-center justify-center p-4">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="md:hidden absolute left-4"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            
+            <div className="w-full max-w-xl relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search notes"
-                className="pl-10"
+                placeholder="Search"
+                className="pl-10 shadow-sm"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            
-            {/* Note editor */}
-            <motion.div 
-              ref={editorRef}
-              className={cn(
-                "max-w-lg mx-auto mb-8 rounded-lg border shadow transition-all",
-                getColorClass(selectedColor),
-                isPinned && "ring-1 ring-primary",
-                isEditorOpen ? "p-4" : "hover:shadow-md cursor-pointer min-h-12"
-              )}
-              onClick={() => !isEditorOpen && setIsEditorOpen(true)}
-              layout
-            >
-              <AnimatePresence mode="wait">
-                {isEditorOpen ? (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <Input
-                        type="text"
-                        placeholder="Title"
-                        className="flex-1 border-none px-0 text-lg font-medium focus-visible:ring-0 bg-transparent"
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
-                      />
+          </header>
+
+          {/* Selection actions when in selection mode */}
+          {selectionMode && selectedNotes.length > 0 && (
+            <div className="flex items-center justify-center gap-2 pb-2">
+              <span className="text-sm">{selectedNotes.length} selected</span>
+              
+              {activeView !== 'archive' && (
                       <Button
-                        variant="ghost"
+                  variant="outline"
                         size="sm"
-                        className={cn("h-8 w-8 p-0", isPinned && "text-primary")}
-                        onClick={() => setIsPinned(!isPinned)}
-                      >
-                        <PinIcon className={cn("h-4 w-4", isPinned && "fill-primary")} />
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <Palette className="h-4 w-4" />
+                  onClick={archiveSelectedNotes}
+                >
+                  Archive
                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-auto flex p-1 gap-1">
-                          {colorOptions.map(color => (
-                            <button
-                              key={color.value}
-                              className={cn(
-                                "w-6 h-6 rounded-full border hover:scale-110 transition-transform",
-                                color.class,
-                                selectedColor === color.value && "ring-2 ring-primary"
-                              )}
-                              onClick={() => setSelectedColor(color.value)}
-                              title={color.name}
-                            />
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                    
-                    {noteType === 'note' ? (
-                      <Textarea
-                        placeholder="Take a note..."
-                        className="w-full resize-none border-none px-0 focus-visible:ring-0 min-h-[100px] bg-transparent"
-                        value={newContent}
-                        onChange={(e) => setNewContent(e.target.value)}
-                      />
-                    ) : (
-                      <div className="space-y-2 mb-3">
-                        {newTasks.map(task => (
-                          <motion.div 
-                            key={task.id} 
-                            className="flex items-center gap-2"
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 10 }}
-                          >
-                            <Checkbox 
-                              checked={task.completed}
-                              onCheckedChange={() => {
-                                setNewTasks(newTasks.map(t => 
-                                  t.id === task.id ? { ...t, completed: !t.completed } : t
-                                ));
-                              }}
-                            />
-                            <span className={cn(
-                              "flex-1",
-                              task.completed && "line-through text-muted-foreground"
-                            )}>
-                              {task.text}
-                            </span>
+              )}
+              
                             <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 opacity-50 hover:opacity-100"
-                              onClick={() => deleteTask(task.id)}
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </motion.div>
-                        ))}
-                        
-                        <div className="flex items-center gap-2">
-                          <Input
-                            ref={taskInputRef}
-                            type="text"
-                            placeholder="Add item..."
-                            className="border-none focus-visible:ring-0 px-0 bg-transparent"
-                            value={newTaskText}
-                            onChange={(e) => setNewTaskText(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && addTask()}
-                          />
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8"
-                            onClick={addTask}
-                          >
-                            <Plus className="h-4 w-4" />
+                variant="outline"
+                size="sm"
+                onClick={deleteSelectedNotes}
+              >
+                {activeView === 'trash' ? "Delete permanently" : "Delete"}
                           </Button>
-                        </div>
                       </div>
                     )}
                     
-                    <div className="flex justify-between items-center mt-4 pt-2 border-t">
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className={cn(noteType === 'note' && "bg-primary/10")}
-                          onClick={() => setNoteType('note')}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Note
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className={cn(noteType === 'checklist' && "bg-primary/10")}
-                          onClick={() => setNoteType('checklist')}
-                        >
-                          <CheckSquare className="h-4 w-4 mr-2" />
-                          Checklist
-                        </Button>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={resetEditor}>
-                          Cancel
-                        </Button>
-                        <Button variant="default" size="sm" onClick={saveNote}>
-                          Save
-                        </Button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div 
-                    className="p-4 text-muted-foreground"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    Click to add a note...
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+          {/* Main content area */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {/* Note editor - only render if editing or creating */}
+            {(isEditorOpen || editingNote) && (
+              <NoteEditor
+                isOpen={true}
+                initialNote={editingNote}
+                onSave={editingNote ? handleUpdateNote : handleCreateNote}
+                onClose={() => {
+                  setIsEditorOpen(false);
+                  setEditingNote(undefined);
+                }}
+              />
+            )}
             
             {/* Notes grid */}
-            <div className="grid gap-4 auto-rows-auto">
-              <AnimatePresence mode="popLayout">
-                {filteredNotes.map(note => (
-                  <motion.div 
-                    key={note.id} 
-                    className={cn(
-                      "rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow relative p-4 flex flex-col min-h-[100px] h-full group",
-                      getColorClass(note.color)
-                    )}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {note.pinned && (
-                      <div className="absolute top-2 right-2">
-                        <PinIcon className="h-4 w-4 text-primary fill-primary" />
+            {renderContent()}
                       </div>
-                    )}
-                    
-                    <div className="flex-1 mb-2">
-                      {note.title && (
-                        <h3 className="font-medium text-lg mb-2 pr-6">{note.title}</h3>
-                      )}
-                      
-                      {note.type === 'note' ? (
-                        <div className="whitespace-pre-wrap break-words">
-                          {note.content}
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          {note.tasks.map(task => (
-                            <motion.div 
-                              key={task.id} 
-                              className="flex items-start gap-2"
-                              layout
-                            >
-                              <Checkbox 
-                                checked={task.completed}
-                                id={`task-${task.id}`}
-                                onCheckedChange={() => toggleTaskCompletion(note.id, task.id)}
-                                className="mt-0.5"
-                              />
-                              <label 
-                                htmlFor={`task-${task.id}`}
-                                className={cn(
-                                  "flex-1",
-                                  task.completed && "line-through text-muted-foreground"
-                                )}
-                              >
-                                {task.text}
-                              </label>
-                            </motion.div>
-                          ))}
-                        </div>
+
+          {/* Floating action button */}
+          {!isEditorOpen && !editingNote && activeView === 'notes' && (
+            <Button
+              className="fixed right-6 bottom-6 h-14 w-14 rounded-full shadow-lg"
+              onClick={() => setIsEditorOpen(true)}
+            >
+              <Plus className="h-6 w-6" />
+              <span className="sr-only">Create note</span>
+            </Button>
                       )}
                     </div>
                     
-                    {/* Labels */}
-                    {note.labels.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {note.labels.map(label => (
-                          <span 
-                            key={label.id}
-                            className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary"
-                          >
-                            {label.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    
-                    <div className="flex justify-end mt-auto space-x-1 opacity-0 group-hover:opacity-100 hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 p-0"
-                        onClick={() => togglePin(note.id)}
-                      >
-                        <PinIcon className={cn("h-4 w-4", note.pinned && "fill-primary")} />
-                      </Button>
-                      
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 p-0"
-                        onClick={() => archiveNote(note.id)}
-                      >
-                        <Archive className="h-4 w-4" />
-                      </Button>
-                      
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => changeColor(note.id, 'default')}>
-                            <Palette className="h-4 w-4 mr-2" />
-                            Change Color
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Bell className="h-4 w-4 mr-2" />
-                            Add Reminder
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <ImageIcon className="h-4 w-4 mr-2" />
-                            Add Image
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Copy className="h-4 w-4 mr-2" />
-                            Make a Copy
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Tag className="h-4 w-4 mr-2" />
-                            Add Label
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            className="text-destructive focus:text-destructive"
-                            onClick={() => deleteNote(note.id)}
-                          >
-                            <Trash className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-            
-            {notes.length === 0 && (
-              <motion.div 
-                className="text-center py-12"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                  <ListPlus className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-medium mb-2">No notes yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Click the input above to create your first note
-                </p>
-              </motion.div>
-            )}
-            
-            {notes.length > 0 && filteredNotes.length === 0 && (
-              <motion.div 
-                className="text-center py-12"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                  <Search className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-medium mb-2">No matching notes</h3>
-                <p className="text-muted-foreground mb-4">
-                  Try a different search term
-                </p>
-                <Button variant="outline" onClick={() => setSearchQuery('')}>
-                  Clear Search
-                </Button>
-              </motion.div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="party">
-            <PartyTasks />
-          </TabsContent>
-        </Tabs>
+        {/* Edit Labels Dialog */}
+        <EditLabelsDialog
+          open={isEditLabelsOpen}
+          onClose={() => setIsEditLabelsOpen(false)}
+          labels={labels}
+          onLabelsChange={handleLabelsUpdate}
+        />
       </div>
     </ErrorBoundary>
   );

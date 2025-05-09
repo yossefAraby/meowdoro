@@ -7,14 +7,16 @@ import { Slider } from "@/components/ui/slider";
 interface SoundControlsProps {
   soundPlaying: string | null;
   onPlaySound: (soundType: string) => void;
+  volume: number;
+  onVolumeChange: (value: number) => void;
 }
 
 export const SoundControls: React.FC<SoundControlsProps> = ({
   soundPlaying,
   onPlaySound,
+  volume,
+  onVolumeChange
 }) => {
-  const [volume, setVolume] = useState(0.5);
-
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -75,7 +77,9 @@ export const SoundControls: React.FC<SoundControlsProps> = ({
             </div>
             <Slider
               value={[volume]}
-              onValueChange={(value) => setVolume(value[0])}
+              onValueChange={(value) => onVolumeChange(value[0])}
+              onValueCommit={(value) => onVolumeChange(value[0])}
+              defaultValue={[0.5]}
               max={1}
               step={0.01}
               className="w-full"

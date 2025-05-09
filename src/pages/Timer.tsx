@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PartyTimer } from "@/components/timer/PartyTimer";
 import MeowAIButton from "@/components/ai/MeowAIButton";
+import { useShop } from "@/contexts/ShopContext";
 
 const Timer: React.FC = () => {
   // Timer state - whether countdown or count-up
@@ -32,13 +33,33 @@ const Timer: React.FC = () => {
     }
   });
   
-  // Timer state
-  const [currentSeconds, setCurrentSeconds] = useState(0);
+  // Timer state for countdown mode
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerActive, setTimerActive] = useState(false);
   const [timerCompleted, setTimerCompleted] = useState(false);
-  const [currentMode, setCurrentMode] = useState<"focus" | "break" | "longBreak">("focus");
+  const [timerMode, setTimerMode] = useState<"focus" | "break" | "longBreak">("focus");
+  
+  // Stopwatch state - completely separate from timer
+  const [stopwatchSeconds, setStopwatchSeconds] = useState(0);
+  const [stopwatchActive, setStopwatchActive] = useState(false);
+  
+  // Session tracking
+  const [completedSessions, setCompletedSessions] = useState(0);
+  const [currentSessionProgress, setCurrentSessionProgress] = useState(0);
+  
+  // UI state
   const [activeTab, setActiveTab] = useState('personal');
   const [hasActiveParty, setHasActiveParty] = useState(false);
   const { user } = useAuth();
+  
+  // Progress bar visibility
+  const [showFocusBar, setShowFocusBar] = useState(() => {
+    return localStorage.getItem("meowdoro-show-focus-bar") !== "false";
+  });
+  
+  const [showFishBar, setShowFishBar] = useState(() => {
+    return localStorage.getItem("meowdoro-show-fish-bar") !== "false";
+  });
   
   // Settings from localStorage
   const [completionSound, setCompletionSound] = useState(() => {
@@ -66,7 +87,17 @@ const Timer: React.FC = () => {
   });
   
   const { toast } = useToast();
-  const { soundPlaying, playSound } = useBackgroundSounds();
+  const { soundPlaying, playSound, volume, setVolume } = useBackgroundSounds();
+  const { addFish } = useShop();
+  
+  // Save progress bar visibility settings
+  useEffect(() => {
+    localStorage.setItem("meowdoro-show-focus-bar", showFocusBar.toString());
+  }, [showFocusBar]);
+  
+  useEffect(() => {
+    localStorage.setItem("meowdoro-show-fish-bar", showFishBar.toString());
+  }, [showFishBar]);
   
   // Check if user is in a party
   useEffect(() => {
@@ -99,6 +130,19 @@ const Timer: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  // Initialize timer on mount and when settings change
+  useEffect(() => {
+    if (isCountdown && !timerActive) {
+      if (timerMode === "focus") {
+        setTimerSeconds(focusMinutes * 60);
+      } else if (timerMode === "break") {
+        setTimerSeconds(breakMinutes * 60);
+      } else {
+        setTimerSeconds(longBreakMinutes * 60);
+      }
+    }
+  }, [isCountdown, focusMinutes, breakMinutes, longBreakMinutes, timerMode]);
+
   const checkPartyStatus = async () => {
     if (!user) return;
     
@@ -116,70 +160,205 @@ const Timer: React.FC = () => {
       console.error("Error checking party status:", error);
     }
   };
+
+  // Handle timer updates for countdown mode
+  const handleTimerUpdate = (seconds: number) => {
+    setTimerSeconds(seconds);
+    
+    // Only track progress in focus mode
+    if (timerMode === "focus") {
+      // Calculate elapsed minutes
+      const elapsedSeconds = (focusMinutes * 60) - seconds;
+      const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+      
+      // Always save the current session progress
+      setCurrentSessionProgress(elapsedMinutes);
+      
+      // If any time was spent, add it to the total (never subtract)
+      if (elapsedMinutes > 0) {
+        setTotalFocusMinutes(prevTotal => {
+          // Only update if the new time is higher than what we've tracked before
+          const newTotal = Math.max(prevTotal, totalFocusMinutes + elapsedMinutes);
+          localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
+          localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
+          return newTotal;
+        });
+      }
+    }
+    
+    setTimerCompleted(false);
+  };
+  
+  // Handle stopwatch updates
+  const handleStopwatchUpdate = (seconds: number) => {
+    setStopwatchSeconds(seconds);
+    
+    // Calculate elapsed minutes
+    const elapsedMinutes = Math.floor(seconds / 60);
+    setCurrentSessionProgress(elapsedMinutes);
+    
+    // Update total focus time in real-time for stopwatch
+    if (elapsedMinutes > 0) {
+      setTotalFocusMinutes(prev => {
+        const newTotal = Math.max(prev, elapsedMinutes);
+        localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
+        localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
+        return newTotal;
+      });
+    }
+  };
   
   // Handle timer completion
   const handleTimerComplete = () => {
     setTimerCompleted(true);
     
     // Only increment total focus minutes when a focus session completes
-    if (currentMode === "focus") {
-      const newTotal = totalFocusMinutes + focusMinutes;
+    // (but only for the difference not already counted)
+    if (timerMode === "focus") {
+      // Calculate how much to add (only what wasn't already counted from real-time updates)
+      const additionalMinutes = Math.max(0, focusMinutes - currentSessionProgress);
+      const newTotal = totalFocusMinutes + additionalMinutes;
+      
       setTotalFocusMinutes(newTotal);
       
       // Save the focus minutes along with the current date
       localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
       localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
+      
+      // Update completed sessions
+      const newCompletedSessions = completedSessions + 1;
+      setCompletedSessions(newCompletedSessions);
+      
+      // Determine next mode
+      if (newCompletedSessions % sessionsBeforeLongBreak === 0) {
+        setTimerMode("longBreak");
+        setTimerSeconds(longBreakMinutes * 60);
+      } else {
+        setTimerMode("break");
+        setTimerSeconds(breakMinutes * 60);
+      }
       
       toast({
         title: "Focus session completed!",
         description: `You've focused for ${newTotal} minutes today.`,
       });
-    } else if (currentMode === "break") {
+    } else if (timerMode === "break") {
+      setTimerMode("focus");
+      setTimerSeconds(focusMinutes * 60);
+      
       toast({
         title: "Break completed!",
         description: "Time to get back to focusing.",
       });
-    } else if (currentMode === "longBreak") {
+    } else if (timerMode === "longBreak") {
+      setTimerMode("focus");
+      setTimerSeconds(focusMinutes * 60);
+      
       toast({
         title: "Long break completed!",
         description: "Ready for another productive focus session?",
       });
     }
+    
+    // Reset current session progress
+    setCurrentSessionProgress(0);
   };
   
-  // Handle timer updates
-  const handleTimerUpdate = (seconds: number) => {
-    setCurrentSeconds(seconds);
+  // Timer animation logic - MOVED HERE AFTER FUNCTION DEFINITIONS
+  useEffect(() => {
+    let animationFrameId: number;
+    let lastTickTime = Date.now();
     
-    // For stopwatch, increment focus time every minute
-    if (!isCountdown && seconds % 60 === 0 && seconds > 0) {
-      const additionalMinute = 1;
-      const newTotal = totalFocusMinutes + additionalMinute;
-      setTotalFocusMinutes(newTotal);
+    const animate = () => {
+      const now = Date.now();
+      const delta = now - lastTickTime;
+      lastTickTime = now;
       
-      // Save the focus minutes along with the current date
-      localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
-      localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
+      if (isCountdown && timerActive) {
+        // Countdown timer logic
+        const newTime = Math.max(0, timerSeconds - delta / 1000);
+        setTimerSeconds(newTime);
+        handleTimerUpdate(newTime);
+        
+        // Check if timer completed
+        if (newTime <= 0) {
+          setTimerActive(false);
+          setTimerCompleted(true);
+          handleTimerComplete();
+          
+          // Play completion sound
+          if (completionSound && completionSound.trim() !== "") {
+            const audio = new Audio(completionSound);
+            audio.play().catch(console.error);
+          }
+        }
+      } else if (!isCountdown && stopwatchActive) {
+        // Stopwatch logic
+        const newTime = stopwatchSeconds + delta / 1000;
+        setStopwatchSeconds(newTime);
+        handleStopwatchUpdate(newTime);
+        
+        // Give a fish every 25 minutes of stopwatch time
+        const minutes = Math.floor(newTime / 60);
+        if (minutes % 25 === 0 && minutes > 0 && Math.floor(newTime) % 60 === 0) {
+          // Only trigger once per minute
+          addFish?.(1);
+        }
+      }
+      
+      animationFrameId = requestAnimationFrame(animate);
+    };
+    
+    if ((isCountdown && timerActive) || (!isCountdown && stopwatchActive)) {
+      animationFrameId = requestAnimationFrame(animate);
     }
     
-    setTimerCompleted(false);
-  };
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [
+    isCountdown, timerActive, stopwatchActive, 
+    timerSeconds, stopwatchSeconds, 
+    handleTimerUpdate, handleStopwatchUpdate, handleTimerComplete,
+    completionSound, addFish, focusMinutes
+  ]);
   
-  // Handle mode changes (focus, break, long break)
+  // Handle timer mode changes (focus, break, long break)
   const handleModeChange = (mode: "focus" | "break" | "longBreak") => {
-    setCurrentMode(mode);
+    setTimerMode(mode);
   };
   
   // Toggle between countdown and stopwatch modes
   const toggleTimerMode = () => {
+    // If switching from timer to stopwatch in focus mode, save progress
+    if (isCountdown && timerMode === "focus") {
+      // Save current progress to total
+      const newTotal = totalFocusMinutes + currentSessionProgress;
+      setTotalFocusMinutes(newTotal);
+      localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
+    }
+    
+    // Reset current session progress
+    setCurrentSessionProgress(0);
+    
+    // Stop all timers
+    setTimerActive(false);
+    setStopwatchActive(false);
+    
+    // Switch modes
     setIsCountdown(!isCountdown);
-    // Reset timer state when switching modes
-    setCurrentSeconds(0);
     setTimerCompleted(false);
-    if (!isCountdown) {
-      // When switching to stopwatch, reset everything
-      setTotalFocusMinutes(0);
-      localStorage.setItem("meowdoro-focus-minutes", "0");
+    
+    // Reset appropriate timer
+    if (isCountdown) {
+      // Switching to stopwatch
+      setStopwatchSeconds(0);
+    } else {
+      // Switching to timer - reset to focus mode
+      setTimerMode("focus");
+      setTimerSeconds(focusMinutes * 60);
     }
   };
   
@@ -192,10 +371,12 @@ const Timer: React.FC = () => {
     localStorage.setItem("meowdoro-daily-goal", dailyGoal.toString());
     localStorage.setItem("meowdoro-completion-sound", completionSound);
     localStorage.setItem("meowdoro-youtube-sound", customYoutubeUrl);
+    localStorage.setItem("meowdoro-show-focus-bar", showFocusBar.toString());
+    localStorage.setItem("meowdoro-show-fish-bar", showFishBar.toString());
     
     // Reset timer with new settings if in countdown mode
     if (isCountdown) {
-      setCurrentSeconds(focusMinutes * 60);
+      setTimerSeconds(focusMinutes * 60);
     }
     
     toast({
@@ -203,6 +384,12 @@ const Timer: React.FC = () => {
       description: "Your Pomodoro settings have been updated.",
     });
   };
+  
+  // Use the appropriate timer state based on mode
+  const seconds = isCountdown ? timerSeconds : stopwatchSeconds;
+  const isActive = isCountdown ? timerActive : stopwatchActive;
+  const setIsActive = isCountdown ? setTimerActive : setStopwatchActive;
+  const onTimerUpdate = isCountdown ? handleTimerUpdate : handleStopwatchUpdate;
   
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 page-transition">
@@ -236,6 +423,8 @@ const Timer: React.FC = () => {
                 dailyGoal={dailyGoal}
                 completionSound={completionSound}
                 customYoutubeUrl={customYoutubeUrl}
+                showFocusBar={showFocusBar}
+                showFishBar={showFishBar}
                 setFocusMinutes={setFocusMinutes}
                 setBreakMinutes={setBreakMinutes}
                 setLongBreakMinutes={setLongBreakMinutes}
@@ -243,6 +432,8 @@ const Timer: React.FC = () => {
                 setDailyGoal={setDailyGoal}
                 setCompletionSound={setCompletionSound}
                 setCustomYoutubeUrl={setCustomYoutubeUrl}
+                setShowFocusBar={setShowFocusBar}
+                setShowFishBar={setShowFishBar}
                 saveSettings={saveTimerSettings}
               />
             </AudioControls>
@@ -255,14 +446,33 @@ const Timer: React.FC = () => {
               sessionsBeforeLongBreak={sessionsBeforeLongBreak}
               isCountdown={isCountdown}
               onTimerComplete={handleTimerComplete}
-              onTimerUpdate={handleTimerUpdate}
+              onTimerUpdate={onTimerUpdate}
               onModeChange={handleModeChange}
               soundUrl={completionSound}
+              timeRemaining={seconds}
+              isActive={isActive}
+              isCompleted={timerCompleted}
+              currentMode={timerMode}
+              completedSessions={completedSessions}
+              setTimeRemaining={isCountdown ? setTimerSeconds : setStopwatchSeconds}
+              setIsActive={setIsActive}
+              setIsCompleted={setTimerCompleted}
+              setCurrentMode={setTimerMode}
+              setCompletedSessions={setCompletedSessions}
             />
             
-            {/* Progress bar */}
+            {/* Progress bars */}
             <div className="mt-12 w-full max-w-lg mx-auto">
-              <ProgressBar currentMinutes={totalFocusMinutes} goalMinutes={dailyGoal} />
+              {(showFocusBar || showFishBar) && (
+                <ProgressBar 
+                  currentMinutes={totalFocusMinutes} 
+                  goalMinutes={dailyGoal}
+                  fishProgress={totalFocusMinutes + currentSessionProgress}
+                  showFocusBar={showFocusBar}
+                  showFishBar={showFishBar}
+                  currentMode={timerMode}
+                />
+              )}
             </div>
           </div>
         </TabsContent>
@@ -274,7 +484,7 @@ const Timer: React.FC = () => {
       
       {/* AI Chat button */}
       <div className="fixed bottom-6 right-6">
-        <MeowAIButton timerMode={currentMode} />
+        <MeowAIButton timerMode={timerMode} />
       </div>
     </div>
   );

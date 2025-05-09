@@ -18,9 +18,11 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useShop } from '@/contexts/ShopContext';
+import { PricingDialog } from "@/components/pricing/PricingDialog";
 
 // Type for chat messages
 interface ChatMessage {
+  id: string;
   text: string;
   sender: "user" | "ai";
   timestamp: Date;
@@ -33,6 +35,14 @@ interface AIModel {
   name: string;
   description: string;
   isPremium: boolean;
+}
+
+interface Conversation {
+  id: string;
+  title: string;
+  lastMessage: string;
+  timestamp: Date;
+  messages: ChatMessage[];
 }
 
 const models: AIModel[] = [
@@ -55,13 +65,13 @@ interface MeowAIButtonProps {
 }
 
 const DEFAULT_API_KEY = "AIzaSyDTbR2SMAp2xlGCN3y0QGTNu58NKPEOC-k";
+const STORAGE_KEY = "meowdoro-chat-history";
 
 export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
   const { activeCatColor } = useShop();
   const [isOpen, setIsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [chatInput, setChatInput] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>("gemini");
   const [includeContextData, setIncludeContextData] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +80,35 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
   const { toast } = useToast();
   const geminiServiceRef = useRef<GeminiService | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const messageMemoryRef = useRef<ChatMessage[]>([]);
+  const [isPricingOpen, setIsPricingOpen] = useState(false);
+
+  // Get conversations from localStorage
+  const [conversations, setConversations] = useState<Conversation[]>(() => {
+    const savedConversations = localStorage.getItem(STORAGE_KEY);
+    if (savedConversations) {
+      const parsed = JSON.parse(savedConversations);
+      // Convert string timestamps back to Date objects
+      return parsed.map((conv: any) => ({
+        ...conv,
+        timestamp: new Date(conv.timestamp),
+        messages: conv.messages.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }))
+      }));
+    }
+    return [{
+      id: 'default',
+      title: 'New Chat',
+      lastMessage: 'Start a new conversation',
+      timestamp: new Date(),
+      messages: []
+    }];
+  });
+
+  const [activeConversation, setActiveConversation] = useState<string>(() => {
+    return conversations[0]?.id || 'default';
+  });
   
   // Initialize Gemini service with default API key
   useEffect(() => {
@@ -81,52 +119,50 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
     }
   }, []);
 
-  const initializeChat = async () => {
-    if (messages.length === 0) {
-      try {
-        const greeting = await geminiServiceRef.current!.generateResponse(
-          "Introduce yourself as a cat study companion",
-          { timerMode }
-        );
-        setMessages([{
-          text: greeting,
-          sender: "ai",
-          timestamp: new Date()
-        }]);
-      } catch (error) {
-        console.error("Error generating greeting:", error);
-        setMessages([{
-          text: "Hi there! I'm your Meowdoro AI assistant. How can I help with your productivity today?",
-          sender: "ai",
-          timestamp: new Date()
-        }]);
-      }
-    }
-  };
-
-  // Initialize chat with AI greeting
+  // Save conversations to localStorage whenever they change
   useEffect(() => {
-    initializeChat();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
+  }, [conversations]);
+
+  // Watch for changes in localStorage from other components
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        const parsed = JSON.parse(e.newValue);
+        setConversations(parsed.map((conv: any) => ({
+          ...conv,
+          timestamp: new Date(conv.timestamp),
+          messages: conv.messages.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }))
+        })));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  }, [messages]);
+  // Generate unique IDs
+  const generateMessageId = (): string => {
+    return Date.now().toString() + Math.random().toString(36).substring(2, 9);
+  };
 
-  // Update message memory with all messages
-  useEffect(() => {
-    if (messages.length > 0) {
-      messageMemoryRef.current = messages;
-    }
-  }, [messages]);
-
-  const handleNewChat = () => {
-    setMessages([]);
-    messageMemoryRef.current = [];
-    initializeChat();
+  // Update conversation messages
+  const updateConversation = (conversationId: string, newMessages: ChatMessage[]) => {
+    setConversations(prev => prev.map(conv => {
+      if (conv.id === conversationId) {
+        const updatedMessages = [...conv.messages, ...newMessages];
+        return {
+          ...conv,
+          messages: updatedMessages,
+          lastMessage: newMessages[newMessages.length - 1].text.substring(0, 50) + '...',
+          timestamp: new Date()
+        };
+      }
+      return conv;
+    }));
   };
 
   // Function to handle opening and closing the chat window
@@ -150,22 +186,24 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
     }, 2000);
     
     const userMessage: ChatMessage = {
+      id: generateMessageId(),
       text: chatInput,
       sender: "user",
       timestamp: new Date()
     };
     
-    setMessages(prev => [...prev, userMessage]);
+    updateConversation(activeConversation, [userMessage]);
     setChatInput('');
     
     const loadingMessage: ChatMessage = {
+      id: generateMessageId(),
       text: "...",
       sender: "ai",
       timestamp: new Date(),
       isLoading: true
     };
     
-    setMessages(prev => [...prev, loadingMessage]);
+    updateConversation(activeConversation, [loadingMessage]);
     setIsLoading(true);
 
     try {
@@ -188,48 +226,65 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
           };
         }
 
-        const messageContext = messageMemoryRef.current
+        const conversation = conversations.find(c => c.id === activeConversation);
+        const messageContext = conversation?.messages
           .map(msg => `${msg.sender === 'user' ? 'User' : 'Assistant'}: ${msg.text}`)
           .join('\n');
 
-        const languagePrompt = `Please respond in the same language as the user's message. User message: ${chatInput}`;
-
         const response = await geminiServiceRef.current!.generateResponse(
-          languagePrompt,
-          {
-            ...context,
-            messageHistory: messageContext
-          }
+          `Message history:\n${messageContext}\n\nUser: ${chatInput}\nAssistant:`,
+          context
         );
         
-        setMessages(prev => [
-          ...prev.filter(msg => !msg.isLoading),
-          {
-            text: response,
-            sender: "ai",
-            timestamp: new Date()
+        setConversations(prev => prev.map(conv => {
+          if (conv.id === activeConversation) {
+            const messages = conv.messages.filter(msg => !msg.isLoading);
+            return {
+              ...conv,
+              messages: [...messages, {
+                id: generateMessageId(),
+                text: response,
+                sender: "ai",
+                timestamp: new Date()
+              }]
+            };
           }
-        ]);
+          return conv;
+        }));
       } else if (selectedModel === "deepseek") {
-        setMessages(prev => [
-          ...prev.filter(msg => !msg.isLoading),
-          {
-            text: "This premium model requires a Pro subscription. Would you like to upgrade your plan?",
-            sender: "ai",
-            timestamp: new Date()
+        setConversations(prev => prev.map(conv => {
+          if (conv.id === activeConversation) {
+            const messages = conv.messages.filter(msg => !msg.isLoading);
+            return {
+              ...conv,
+              messages: [...messages, {
+                id: generateMessageId(),
+                text: "This premium model requires a Pro subscription. Would you like to upgrade your plan?",
+                sender: "ai",
+                timestamp: new Date()
+              }]
+            };
           }
-        ]);
+          return conv;
+        }));
       }
     } catch (error) {
       console.error("Error generating response:", error);
-      setMessages(prev => [
-        ...prev.filter(msg => !msg.isLoading),
-        {
-          text: error instanceof Error ? error.message : "Sorry, something went wrong. Please try again.",
-          sender: "ai",
-          timestamp: new Date()
+      setConversations(prev => prev.map(conv => {
+        if (conv.id === activeConversation) {
+          const messages = conv.messages.filter(msg => !msg.isLoading);
+          return {
+            ...conv,
+            messages: [...messages, {
+              id: generateMessageId(),
+              text: error instanceof Error ? error.message : "Sorry, something went wrong. Please try again.",
+              sender: "ai",
+              timestamp: new Date()
+            }]
+          };
         }
-      ]);
+        return conv;
+      }));
 
       if (error instanceof Error && error.message.includes("API key")) {
         toast({
@@ -245,10 +300,7 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
   
   const handleModelChange = (modelId: string) => {
     if (models.find(m => m.id === modelId)?.isPremium) {
-      toast({
-        title: "Premium Feature",
-        description: "Upgrade to Pro to access premium AI models",
-      });
+      setIsPricingOpen(true);
     } else {
       setSelectedModel(modelId);
     }
@@ -288,6 +340,7 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
     
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
+    
     let h = 0;
     
     if (max === min) {
@@ -311,253 +364,250 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
     return h;
   };
 
+  // Get current conversation
+  const currentConversation = conversations.find(c => c.id === activeConversation);
+
   return (
-    <div className="relative z-50">
-      {/* Pet Cat Image as Chat Button */}
-      <div 
-        className={cn(
-          "relative w-28 h-28 cursor-pointer group",
-          "transition-all duration-300 drop-shadow-lg",
-          "hover:scale-110 hover:rotate-2"
-        )}
-        onClick={toggleChat}
-      >
-        {/* Normal state image */}
-        <img
-          src={
-            isOpen
-              ? "/cat images/chat.png"
-              : (timerMode === 'break' ? "/cat images/break.png" : "/cat images/idle.png")
-          }
-          alt="Meowdoro Pet Cat"
+    <>
+      <div className="relative z-50">
+        {/* Pet Cat Image as Chat Button */}
+        <div 
           className={cn(
-            "w-full h-full object-contain transition-opacity duration-300",
-            "group-hover:opacity-0",
-            showHappySprite && "opacity-0"
+            "relative w-28 h-28 cursor-pointer group",
+            "transition-all duration-300 drop-shadow-lg",
+            "hover:scale-110 hover:rotate-2"
           )}
-          style={getColorStyle()}
-        />
-        
-        {/* Happy sprite with animation */}
-        <AnimatePresence mode="wait">
-          {showHappySprite && (
-            <motion.img
-              src="/cat images/happy.png"
-              alt="Meowdoro Pet Cat Happy"
-              className="absolute top-0 left-0 w-full h-full object-contain z-[60]"
-              style={getColorStyle()}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ 
-                opacity: 1, 
-                scale: 1,
-                rotate: [0, -5, 5, -5, 5, 0],
-              }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{
-                opacity: { duration: 0.4, ease: "easeInOut" },
-                scale: { duration: 0.4, ease: "easeOut" },
-                rotate: { 
-                  duration: 0.5,
-                  times: [0, 0.2, 0.4, 0.6, 0.8, 1],
-                  ease: "easeInOut"
-                }
-              }}
-            />
-          )}
-        </AnimatePresence>
-        
-        {/* Hover state image */}
-        <img
-          src="/cat images/cheer.png"
-          alt="Meowdoro Pet Cat Cheer"
-          className="absolute top-0 left-0 w-full h-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          style={getColorStyle()}
-        />
-      </div>
-      {/* Chat Window */}
-      
-      {/* Chat Window */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: 10, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
+          onClick={toggleChat}
+        >
+          <img
+            src={
+              isOpen
+                ? "/cat images/chat.png"
+                : (timerMode === 'break' ? "/cat images/break.png" : "/cat images/idle.png")
+            }
+            alt="Meowdoro Pet Cat"
             className={cn(
-              "absolute bottom-0 right-32 bg-card border rounded-lg shadow-lg overflow-hidden",
-              isFullscreen ? "w-[800px] h-[600px]" : "w-80 sm:w-96",
-              "transition-all duration-300"
+              "w-full h-full object-contain transition-opacity duration-300",
+              "group-hover:opacity-0",
+              showHappySprite && "opacity-0"
             )}
-            style={{ minHeight: isFullscreen ? '600px' : '24rem' }}
-          >
-            {/* Chat header */}
-            <div className="p-3 border-b bg-muted/50 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Cat className="w-5 h-5 text-primary" />
-                <span className="font-medium">Meowdoro AI</span>
-                <Badge 
-                  variant="outline"
-                  className="text-xs bg-primary/10 text-primary border-primary/20"
-                >
-                  <BrainCircuit className="h-3 w-3 mr-1" /> 2.0 Flash
-                </Badge>
+            style={getColorStyle()}
+          />
+          
+          {/* Happy sprite with animation */}
+          <AnimatePresence mode="wait">
+            {showHappySprite && (
+              <motion.img
+                src="/cat images/happy.png"
+                alt="Meowdoro Pet Cat Happy"
+                className="absolute top-0 left-0 w-full h-full object-contain z-[60]"
+                style={getColorStyle()}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ 
+                  opacity: 1, 
+                  scale: 1,
+                  rotate: [0, -5, 5, -5, 5, 0],
+                }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{
+                  opacity: { duration: 0.4, ease: "easeInOut" },
+                  scale: { duration: 0.4, ease: "easeOut" },
+                  rotate: { 
+                    duration: 0.5,
+                    times: [0, 0.2, 0.4, 0.6, 0.8, 1],
+                    ease: "easeInOut"
+                  }
+                }}
+              />
+            )}
+          </AnimatePresence>
+          
+          {/* Hover state image */}
+          <img
+            src="/cat images/cheer.png"
+            alt="Meowdoro Pet Cat Cheer"
+            className="absolute top-0 left-0 w-full h-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={getColorStyle()}
+          />
+        </div>
+
+        {/* Chat Window */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, x: 10, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 10, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className={cn(
+                "absolute bottom-0 right-32 bg-card border rounded-lg shadow-lg overflow-hidden",
+                isFullscreen ? "w-[800px] h-[600px]" : "w-80 sm:w-96",
+                "transition-all duration-300"
+              )}
+              style={{ minHeight: isFullscreen ? '600px' : '24rem' }}
+            >
+              {/* Chat header */}
+              <div className="p-3 border-b bg-muted/50 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Cat className="w-5 h-5 text-primary" />
+                  <span className="font-medium">Meowdoro AI</span>
+                  <Badge 
+                    variant="outline"
+                    className="text-xs bg-primary/10 text-primary border-primary/20"
+                  >
+                    <BrainCircuit className="h-3 w-3 mr-1" /> 2.0 Flash
+                  </Badge>
+                </div>
+                
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setIsFullscreen(!isFullscreen)}
+                  >
+                    {isFullscreen ? (
+                      <Minimize2 className="h-4 w-4" />
+                    ) : (
+                      <Maximize2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-60" align="end">
+                      <div className="space-y-4">
+                        <h4 className="font-medium text-sm">AI Settings</h4>
+                        
+                        {/* Model selection */}
+                        <div className="space-y-2">
+                          <div className="space-y-2">
+                            {models.map((model) => (
+                              <div 
+                                key={model.id}
+                                className={cn(
+                                  "flex items-center justify-between p-2 rounded-md cursor-pointer",
+                                  selectedModel === model.id ? "bg-primary/10" : "hover:bg-muted"
+                                )}
+                                onClick={() => handleModelChange(model.id)}
+                              >
+                                <div>
+                                  <div className="text-sm font-medium flex items-center gap-1">
+                                    {model.name}
+                                    {model.isPremium && (
+                                      <Badge className="ml-1 text-xs" variant="secondary">PRO</Badge>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">{model.description}</div>
+                                </div>
+                                <div className={cn(
+                                  "w-3 h-3 rounded-full", 
+                                  selectedModel === model.id ? "bg-primary" : "bg-muted-foreground/30"
+                                )} />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* Include context toggle */}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-sm font-medium">Include context</div>
+                            <div className="text-xs text-muted-foreground">Add notes and tasks to AI context</div>
+                          </div>
+                          <Switch 
+                            checked={includeContextData}
+                            onCheckedChange={setIncludeContextData}
+                          />
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleChat}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setIsFullscreen(!isFullscreen)}
-                >
-                  {isFullscreen ? (
-                    <Minimize2 className="h-4 w-4" />
-                  ) : (
-                    <Maximize2 className="h-4 w-4" />
-                  )}
-                </Button>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-60" align="end">
-                    <div className="space-y-4">
-                      <h4 className="font-medium text-sm">AI Settings</h4>
-                      
-                      {/* Model selection */}
-                      <div className="space-y-2">
-                        <h5 className="text-xs font-medium text-muted-foreground">Model</h5>
-                        <div className="space-y-2">
-                          {models.map((model) => (
-                            <div 
-                              key={model.id}
-                              className={cn(
-                                "flex items-center justify-between p-2 rounded-md cursor-pointer",
-                                selectedModel === model.id ? "bg-primary/10" : "hover:bg-muted"
-                              )}
-                              onClick={() => handleModelChange(model.id)}
-                            >
-                              <div>
-                                <div className="text-sm font-medium flex items-center gap-1">
-                                  {model.name}
-                                  {model.isPremium && (
-                                    <Badge className="ml-1 text-xs" variant="secondary">PRO</Badge>
-                                  )}
-                                </div>
-                                <div className="text-xs text-muted-foreground">{model.description}</div>
-                              </div>
-                              <div className={cn(
-                                "w-3 h-3 rounded-full", 
-                                selectedModel === model.id ? "bg-primary" : "bg-muted-foreground/30"
-                              )} />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      {/* Include context toggle */}
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-sm font-medium">Include context</div>
-                          <div className="text-xs text-muted-foreground">Add notes and tasks to AI context</div>
-                        </div>
-                        <Switch 
-                          checked={includeContextData} 
-                          onCheckedChange={setIncludeContextData}
-                        />
-                      </div>
-
-                      {/* New Chat Button */}
-                      <Button
-                        variant="outline"
-                        className="w-full flex items-center justify-center gap-2"
-                        onClick={handleNewChat}
-                      >
-                        <Plus className="h-4 w-4" />
-                        New Chat
-                      </Button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleChat}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            
-            {/* Chat messages */}
-            <div 
-              ref={chatContainerRef}
-              className={cn(
-                "overflow-y-auto p-3 flex flex-col gap-3",
-                isFullscreen ? "h-[calc(600px-8rem)]" : "h-96",
-                "scrollbar-hide"
-              )}
-            >
-              {messages.map((message, index) => (
-                <div 
-                  key={index} 
-                  className={cn(
-                    "flex",
-                    message.sender === "user" ? "justify-end" : "justify-start",
-                  )}
-                >
+              {/* Chat messages */}
+              <div 
+                ref={chatContainerRef}
+                className={cn(
+                  "overflow-y-auto p-3 flex flex-col gap-3",
+                  isFullscreen ? "h-[calc(600px-8rem)]" : "h-96",
+                  "scrollbar-hide"
+                )}
+              >
+                {currentConversation?.messages.map((message) => (
                   <div 
+                    key={message.id} 
                     className={cn(
-                      "max-w-[85%] rounded-lg p-3",
-                      message.sender === "user" 
-                        ? "bg-primary" 
-                        : "bg-muted border",
-                      message.isLoading && "animate-pulse"
+                      "flex",
+                      message.sender === "user" ? "justify-end" : "justify-start",
                     )}
                   >
-                    {message.isLoading ? (
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 rounded-full bg-current animate-bounce"></div>
-                        <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                        <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0.4s" }}></div>
-                      </div>
-                    ) : (
-                      <>
-                        <div className={cn(
-                          "prose prose-sm max-w-none",
-                          message.sender === "user" ? "text-black dark:text-black" : "dark:prose-invert"
-                        )}>
-                          <ReactMarkdown>{message.text}</ReactMarkdown>
+                    <div 
+                      className={cn(
+                        "max-w-[85%] rounded-lg p-3",
+                        message.sender === "user" 
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted border",
+                        message.isLoading && "animate-pulse"
+                      )}
+                    >
+                      {message.isLoading ? (
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 rounded-full bg-current animate-bounce"></div>
+                          <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                          <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0.4s" }}></div>
                         </div>
-                        <p className={cn(
-                          "text-xs opacity-70 mt-1",
-                          message.sender === "user" ? "text-black dark:text-black" : ""
-                        )}>
-                          {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                        </p>
-                      </>
-                    )}
+                      ) : (
+                        <>
+                          <div className={cn(
+                            "prose prose-sm max-w-none",
+                            message.sender === "user" ? "text-primary-foreground" : "dark:prose-invert"
+                          )}>
+                            <ReactMarkdown>{message.text}</ReactMarkdown>
+                          </div>
+                          <p className={cn(
+                            "text-xs opacity-70 mt-1",
+                            message.sender === "user" ? "text-primary-foreground" : ""
+                          )}>
+                            {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </p>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            
-            {/* Chat input */}
-            <form onSubmit={handleSendMessage} className="border-t p-3 flex gap-2 bg-card/80">
-              <Input
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                placeholder="Ask anything..."
-                className="flex-1"
-              />
-              <Button type="submit" size="icon" disabled={!chatInput.trim()}>
-                <Send className="h-4 w-4" />
-              </Button>
-            </form>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+                ))}
+              </div>
+              
+              {/* Chat input */}
+              <form onSubmit={handleSendMessage} className="border-t p-3 flex gap-2 bg-card/80">
+                <Input
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Ask anything..."
+                  className="flex-1"
+                  disabled={isLoading}
+                />
+                <Button type="submit" size="icon" disabled={isLoading || !chatInput.trim()}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      <PricingDialog 
+        open={isPricingOpen} 
+        onClose={() => setIsPricingOpen(false)} 
+      />
+    </>
   );
 };
 
