@@ -424,15 +424,15 @@ const Landing: React.FC = () => {
             </section>
 
             <section>
-              <h3 className="text-xl font-bold mb-3">Key Features</h3>
+              <h3 className="text-xl font-bold mb-3">Implemented Features</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-card p-4 rounded-lg">
                   <h4 className="font-semibold mb-2">Focus Timer</h4>
                   <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                    <li>25-minute focus sessions</li>
-                    <li>5-minute short breaks</li>
-                    <li>15-minute long breaks</li>
-                    <li>Customizable durations</li>
+                    <li>Customizable focus sessions</li>
+                    <li>Short and long breaks</li>
+                    <li>Daily focus tracking</li>
+                    <li>Background sounds</li>
                   </ul>
                 </div>
 
@@ -440,43 +440,84 @@ const Landing: React.FC = () => {
                   <h4 className="font-semibold mb-2">AI Cat Companion</h4>
                   <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                     <li>Chat with your AI cat friend</li>
-                    <li>Get study tips and motivation</li>
-                    <li>Multi-language support</li>
-                    <li>Context-aware responses</li>
+                    <li>Productivity advice</li>
+                    <li>Study tips</li>
+                    <li>Notes integration</li>
                   </ul>
                 </div>
 
                 <div className="bg-card p-4 rounded-lg">
                   <h4 className="font-semibold mb-2">Task Management</h4>
                   <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                    <li>Create and organize notes</li>
+                    <li>Create notes and checklists</li>
                     <li>Pin important tasks</li>
                     <li>Color coding system</li>
-                    <li>Quick search function</li>
+                    <li>Archive and trash feature</li>
                   </ul>
                 </div>
 
                 <div className="bg-card p-4 rounded-lg">
-                  <h4 className="font-semibold mb-2">Cat Shop</h4>
+                  <h4 className="font-semibold mb-2">Cat Shop & Party Mode</h4>
                   <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                     <li>Customize your cat's appearance</li>
-                    <li>Unlock special animations</li>
-                    <li>Get unique color themes</li>
-                    <li>Premium effects and features</li>
+                    <li>Create study parties with friends</li>
+                    <li>Shared party timer</li>
+                    <li>Party task management</li>
                   </ul>
                 </div>
               </div>
             </section>
 
             <section>
-              <h3 className="text-xl font-bold mb-3">Getting Started</h3>
-              <div className="bg-card p-4 rounded-lg">
-                <ol className="list-decimal list-inside space-y-2">
-                  <li>Click "Get Started" to begin</li>
-                  <li>Choose your preferred cat companion</li>
-                  <li>Set up your first focus session</li>
-                  <li>Start chatting with your AI cat friend</li>
-                </ol>
+              <h3 className="text-xl font-bold mb-3">Project Resources</h3>
+              <div className="flex flex-col gap-3">
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-between"
+                  onClick={() => window.open("https://github.com/yossefAraby/meowdoro", "_blank")}
+                >
+                  <span className="flex items-center">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    GitHub Repository
+                  </span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-between"
+                  onClick={() => window.open("https://drive.google.com/file/d/1DJyIQpF7Uqw6z4upBb_eW_fu-9EgYSte/view?usp=sharing", "_blank")}
+                >
+                  <span className="flex items-center">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Features Overview (PDF)
+                  </span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-between"
+                  onClick={() => window.open("https://drive.google.com/file/d/1c9SgZpXhoq9T3qp5Mg4Ab-X3ipe5HjQ_/view?usp=sharing", "_blank")}
+                >
+                  <span className="flex items-center">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Business Overview (PDF)
+                  </span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-between"
+                  onClick={() => window.open("https://drive.google.com/drive/folders/1PSlfA4CEFicqDzLigzNABTCdHp-F_dfv?usp=sharing", "_blank")}
+                >
+                  <span className="flex items-center">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    User Research & Wireframes
+                  </span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </div>
             </section>
           </div>

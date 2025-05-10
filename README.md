@@ -1,8 +1,8 @@
 # Meowdoro
 
 <div align="center">
-  <img src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" alt="Meowdoro Logo" width="120" />
-  <img src="/cat images/idle.png" alt="Meowdoro Idle Cat" width="120" style="filter: brightness(0) saturate(100%) invert(67%) sepia(72%) saturate(380%) hue-rotate(165deg) brightness(97%) contrast(88%);" />
+  <img src="https://media.discordapp.net/attachments/719250727981023292/1370837389429440703/2025-05-10_21-57-removebg-preview.png?ex=6820f34e&is=681fa1ce&hm=4ee615e154289853f12ec55717a5b6063c7c4233355c94887fc5f2452e463629&=&format=webp&quality=lossless" alt="Meowdoro Logo" width="120" />
+  <img src="https://media.discordapp.net/attachments/719250727981023292/1370837389794082867/2025-05-10_21-56-removebg-preview.png?ex=6820f34e&is=681fa1ce&hm=ed4dd68a2107a8e9f06f492a7a8489ab2bbc8a56fa6b0ee7cf23035a3315b98f&=&format=webp&quality=lossless" alt="Meowdoro Idle Cat" width="120" />
 </div>
 
 ## 🐱 About Meowdoro
@@ -17,6 +17,10 @@ Key features:
 - 🛍️ Virtual shop with customization options
 - 🌙 Light and dark mode support
 - 📱 Fully responsive design for desktop and mobile
+
+## 🎓 Project Origin
+
+This project is the implementation of a business idea created for MOT at the Business Management Information Systems (MIS) department of Alexandria University, Egypt. The unique aspect of Meowdoro is that it was fully developed through "vibe coding" - a collaborative AI-driven development approach where AI tools handled code generation, design decisions, and problem-solving while guided by human direction.
 
 ## 🛠️ Technologies Used
 
@@ -68,7 +72,7 @@ The development of Meowdoro was assisted by several AI tools:
 
 4. Open your browser and navigate to:
    ```
-   http://localhost:5173
+   http://localhost:8000
    ```
 
 ## 📱 Mobile Support
@@ -80,7 +84,7 @@ Meowdoro is fully responsive and works great on mobile devices, with a dedicated
 For an immersive web app experience on Android devices, we provide a dedicated APK file that wraps Meowdoro in a Full-screen immersive experience
 
 
-Download the APK from the releases section.
+Download the APK from the landing page.
 
 ## 📝 License
 
