@@ -1,69 +1,87 @@
-# Welcome to your Lovable project
+# Meowdoro
 
-## Project info
+<div align="center">
+  <img src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" alt="Meowdoro Logo" width="120" />
+  <img src="/cat images/idle.png" alt="Meowdoro Idle Cat" width="120" style="filter: brightness(0) saturate(100%) invert(67%) sepia(72%) saturate(380%) hue-rotate(165deg) brightness(97%) contrast(88%);" />
+</div>
 
-**URL**: https://lovable.dev/projects/a058d99b-22e7-4199-bdc1-fa7c51c29bbf
+## 🐱 About Meowdoro
 
-## How can I edit this code?
+Meowdoro is a delightful productivity web app that combines the Pomodoro technique with a virtual cat companion. It helps you stay focused, manage tasks, and maintain a healthy work-life balance with timed work sessions and breaks.
 
-There are several ways of editing your application.
+Key features:
+- 🕒 Pomodoro timer with customizable work, break, and long break durations
+- 📝 Integrated notes and task management system
+- 🤖 AI assistant for productivity advice
+- 👥 Social features including party mode for group productivity (Concept)
+- 🛍️ Virtual shop with customization options
+- 🌙 Light and dark mode support
+- 📱 Fully responsive design for desktop and mobile
 
-**Use Lovable**
+## 🛠️ Technologies Used
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a058d99b-22e7-4199-bdc1-fa7c51c29bbf) and start prompting.
+### Frontend
+- **React** - UI library for building the app interface
+- **TypeScript** - Type-safe JavaScript
+- **Vite** - Fast build tooling
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - Reusable UI components
+- **Framer Motion** - Animations and transitions
+- **React Router** - Client-side routing
+- **React Query** - Data fetching and state management
+- **Supabase** - Backend-as-a-service for authentication and database (Concept)
+- **Google Generative AI** - AI integration with Gemini model
+- **Three.js** - 3D graphics for interactive elements
+- **Sonner** - Toast notifications
+- **Zod** - Schema validation
+- **Lucide React** - Icon library
 
-Changes made via Lovable will be committed automatically to this repo.
+### Backend Integration
+- **Supabase** - Authentication and database (Concept)
+- **Google Generative AI** - AI assistant capabilities
 
-**Use your preferred IDE**
+## 🤖 AI Development Tools
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+The development of Meowdoro was assisted by several AI tools:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **Cursor** - AI-powered code editor (+400 prompts)
+- **Lovable** - Visual design and component generation (+100 prompts)
+- **Windsurf** - AI-powered code editor (about 50 prompts)
+- **Roo Cline** - vscode integration used for Debugging and fixes (about 10 prompts)
 
-Follow these steps:
+## 🚀 Getting Started
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Clone the repository:
+   ```
+   git clone <repository-url>
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. Start the development server:
+   ```
+   npm run dev
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+4. Open your browser and navigate to:
+   ```
+   http://localhost:5173
+   ```
 
-**Edit a file directly in GitHub**
+## 📱 Mobile Support
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Meowdoro is fully responsive and works great on mobile devices, with a dedicated mobile navigation and optimized UI for touch screens.
 
-**Use GitHub Codespaces**
+### Android APK
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+For an immersive web app experience on Android devices, we provide a dedicated APK file that wraps Meowdoro in a Full-screen immersive experience
 
-## What technologies are used for this project?
 
-This project is built with .
+Download the APK from the releases section.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📝 License
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/a058d99b-22e7-4199-bdc1-fa7c51c29bbf) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+This project is open source with no restrictions. You are free to use, modify, and distribute the code for any purpose, including commercial use, without any limitations.

@@ -1,0 +1,119 @@
+Create Database Meowdoro ;
+
+Use Meowdoro ;
+
+
+
+Create Table Members (
+    UserID INT IDENTITY(1, 1) NOT NULL,
+    UserName NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(100) NOT NULL,
+    PRIMARY KEY (UserID)
+);
+
+
+
+
+Create Table Party (
+    PartyCode NVARCHAR(100) NOT NULL,
+    CreateDate DATETIME DEFAULT SYSDATETIME() NOT NULL,
+    UserID INT REFERENCES Members(UserID) NOT NULL,
+    PRIMARY KEY (PartyCode)
+);
+
+
+
+CREATE TABLE Notes (
+    NoteNumber INT IDENTITY(1, 1) NOT NULL,
+    AddDate Datetime DEFAULT SYSDATETIME() NOT NULL,
+    UserID INT REFERENCES Members(UserID) NOT NULL,
+    PartyCode NVARCHAR(100) REFERENCES Party(PartyCode) NOT NULL,
+    PRIMARY KEY (NoteNumber)
+);
+
+
+
+Create Table Joining (
+    JoinID INT IDENTITY(1,1) NOT NULL,
+    JoinDate Datetime DEFAULT SYSDATETIME() NOT NULL,
+    UserID INT REFERENCES Members(UserID) NOT NULL,
+    PartyCode NVARCHAR(100) REFERENCES Party(PartyCode) NOT NULL,
+    PRIMARY KEY (JoinID)
+);
+
+
+
+INSERT into Members 
+VALUES 
+('EL-Araby', 'Elarby@gmail.com'),
+('Gahnem', 'gahnemBatMan@gmail.com'),
+('Fares', 'FaresAccounting@gmail.com'),
+('Alamodi', '3omdaEl-Admoon@gmail.com'),
+('Hamo', 'Gemawy@gmail.com'),
+('Aly', 'OurBackBone@gmail.com'),
+('AbdelSalam', 'GamerMan@gmail.com'),
+('Abou-3eed', 'AbouHoudaEl7lo@gmail.com'),
+('Yehia', 'UiUxDesigner@gmail.com'),
+('Haithm', 'MeshHaithamSeurity@gmail.com'),
+('Samak', 'StrongMemory@gmail.com');
+
+
+INSERT into Party 
+VALUES 
+('lncjosd684dscds', '2025-01-04', 5),
+('awdsa545c6asccdas', '2025-01-04', 8),
+('adad5s7das57das', '2025-01-04', 6),
+('68797ascdsacasdds', '2025-01-04', 2),
+('leqweqwwdAS864846XS', '2025-01-04', 11);
+
+
+
+
+INSERT into Notes 
+VALUES 
+('2025-01-02', 5, 'lncjosd684dscds'),
+('2025-01-02', 10, 'lncjosd684dscds'),
+('2025-01-02', 1, 'awdsa545c6asccdas'),
+('2025-01-02', 3, 'adad5s7das57das'),
+('2025-01-02', 7, 'leqweqwwdAS864846XS');
+
+
+
+
+INSERT into Joining (JoinDate, UserID, PartyCode)
+VALUES 
+('2025-01-04', 11, '68797ascdsacasdds'),
+('2025-01-04', 9, 'leqweqwwdAS864846XS'),
+('2025-01-04', 1, 'lncjosd684dscds'),
+('2025-01-04', 2, 'adad5s7das57das'),
+('2025-01-04', 4, 'awdsa545c6asccdas');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
