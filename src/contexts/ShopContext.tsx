@@ -191,7 +191,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Process site colors
         availableSiteColors.forEach(color => {
-          const purchased = customizationsData.some(
+          const isPurchased = customizationsData.some(
             item => item.category === 'site_color' && item.item_id === color.id
           );
           
@@ -203,7 +203,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setActiveSiteColor(color.value);
           }
           
-          if (purchased) {
+          if (isPurchased) {
             purchased.push({
               id: color.id,
               name: color.name,
@@ -218,7 +218,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Process cat colors
         availableSiteColors.forEach(color => {
-          const purchased = customizationsData.some(
+          const isPurchased = customizationsData.some(
             item => item.category === 'cat_color' && item.item_id === color.id
           );
           
@@ -230,7 +230,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setActiveCatColor(color.value);
           }
           
-          if (purchased) {
+          if (isPurchased) {
             purchased.push({
               id: color.id,
               name: color.name,
@@ -245,7 +245,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Process backgrounds
         availableBackgrounds.forEach(bg => {
-          const purchased = customizationsData.some(
+          const isPurchased = customizationsData.some(
             item => item.category === 'background' && item.item_id === bg.id
           );
           
@@ -257,7 +257,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setActiveBackground(bg.value);
           }
           
-          if (purchased) {
+          if (isPurchased) {
             purchased.push({
               id: bg.id,
               name: bg.name,
@@ -272,7 +272,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Process icon packs
         availableIconPacks.forEach(pack => {
-          const purchased = customizationsData.some(
+          const isPurchased = customizationsData.some(
             item => item.category === 'icon_pack' && item.item_id === pack.id
           );
           
@@ -284,7 +284,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setActiveIconPack(pack.value);
           }
           
-          if (purchased) {
+          if (isPurchased) {
             purchased.push({
               id: pack.id,
               name: pack.name,

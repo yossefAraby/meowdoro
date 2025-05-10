@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo, CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -87,14 +87,14 @@ const InteractiveLogo: React.FC<{ onClick: () => void }> = ({ onClick }) => {
   }, [handleMouseMove]);
 
   // Memoized transform style
-  const transformStyle = useMemo(() => ({
+  const transformStyle = useMemo<CSSProperties>(() => ({
     transform: isHovered 
       ? `rotateY(${rotationY}deg) rotateX(${rotationX}deg)`
       : 'rotateY(0deg) rotateX(0deg)',
     transformStyle: 'preserve-3d',
     willChange: 'transform',
     backfaceVisibility: 'hidden',
-  }), [isHovered, rotationX, rotationY]);
+  } as CSSProperties), [isHovered, rotationX, rotationY]);
 
   return (
     <div 
@@ -104,7 +104,7 @@ const InteractiveLogo: React.FC<{ onClick: () => void }> = ({ onClick }) => {
         willChange: 'transform',
         transform: 'translate3d(0,0,0)',
         contain: 'layout style paint', // Performance optimization
-      }}
+      } as CSSProperties}
     >
       {/* Logo container with 3D transform */}
       <div 
@@ -121,7 +121,7 @@ const InteractiveLogo: React.FC<{ onClick: () => void }> = ({ onClick }) => {
             willChange: 'transform',
             backfaceVisibility: 'hidden',
             contain: 'layout style paint', // Performance optimization
-          }}
+          } as CSSProperties}
           loading="eager"
           decoding="async"
         />
@@ -165,9 +165,19 @@ const Landing: React.FC = () => {
   const handleGetStarted = () => {
     // Check if user is signed in or guest
     const isGuest = localStorage.getItem("meowdoro-user") !== null;
-    const isSignedIn = !!localStorage.getItem("supabase.auth.token"); // or use a better check if available
+    const isSignedIn = !!localStorage.getItem("supabase.auth.token") || false;
+    
     if (isGuest || isSignedIn) {
+      // User is already authenticated or set as a guest
       navigate("/timer");
+      
+      // If automatically set as guest on first visit, show a welcome toast
+      if (isGuest && !isSignedIn) {
+        toast({
+          title: "Welcome to Meowdoro!",
+          description: "You've been set up as a guest automatically. You can create an account anytime to save your progress (coming soon).",
+        });
+      }
     } else {
       // This will trigger the auth dialog to open
       const authTrigger = document.querySelector('[data-auth-trigger="true"]');

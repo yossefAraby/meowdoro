@@ -32,10 +32,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
   const isGuest = localStorage.getItem("meowdoro-user") !== null;
   
+  // Show loading indicator while auth state is being determined
   if (isLoading) {
     return <div className="h-screen flex items-center justify-center">Loading...</div>;
   }
   
+  // Redirect to landing page if neither authenticated nor guest
   if (!user && !isGuest) {
     return <Navigate to="/" replace />;
   }

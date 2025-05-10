@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +40,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
+      
+      // If no session and no guest user already set, automatically set up as guest
+      if (!currentSession && !localStorage.getItem("meowdoro-user")) {
+        console.log("Auto-setting guest user on first visit");
+        localStorage.setItem("meowdoro-user", JSON.stringify({ isGuest: true }));
+        // Dispatch custom event to notify about auth change
+        window.dispatchEvent(new Event('auth-change'));
+      }
+      
       setIsLoading(false);
     });
 
