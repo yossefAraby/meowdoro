@@ -367,7 +367,7 @@ const Landing: React.FC = () => {
               </div>
               <h3 className="text-xl font-bold mb-3">Android App</h3>
               <p className="text-foreground/70 dark:text-muted-foreground mb-6">
-                Download the APK file directly to your Android device for the best mobile experience with offline support
+                Download our APK file directly to your Android device for the fullscreen mobile experience
               </p>
               <Button
                 onClick={handleDownloadApk}
