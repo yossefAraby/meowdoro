@@ -48,7 +48,7 @@ This project is the implementation of a business idea created for MOT at the Bus
 
 The development of Meowdoro was assisted by several AI tools:
 
-- **Cursor** - AI-powered code editor (+400 prompts)
+- **Cursor** - AI-powered code editor (+300 prompts)
 - **Lovable** - Visual design and component generation (+100 prompts)
 - **Windsurf** - AI-powered code editor (about 50 prompts)
 - **Roo Cline** - vscode integration used for Debugging and fixes (about 10 prompts)
