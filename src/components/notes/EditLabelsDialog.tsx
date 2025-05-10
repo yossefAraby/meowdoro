@@ -18,16 +18,16 @@ interface Label {
 
 interface EditLabelsDialogProps {
   open: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
   labels: Label[];
-  onLabelsChange: (labels: Label[]) => void;
+  onLabelsUpdate: (labels: Label[]) => void;
 }
 
 const EditLabelsDialog: React.FC<EditLabelsDialogProps> = ({
   open,
-  onClose,
+  onOpenChange,
   labels,
-  onLabelsChange,
+  onLabelsUpdate,
 }) => {
   const [localLabels, setLocalLabels] = useState<Label[]>(labels);
   const [newLabelText, setNewLabelText] = useState('');
@@ -58,7 +58,7 @@ const EditLabelsDialog: React.FC<EditLabelsDialogProps> = ({
 
     const updatedLabels = [...localLabels, newLabel];
     setLocalLabels(updatedLabels);
-    onLabelsChange(updatedLabels);
+    onLabelsUpdate(updatedLabels);
     setNewLabelText('');
     setError('');
   };
@@ -66,7 +66,7 @@ const EditLabelsDialog: React.FC<EditLabelsDialogProps> = ({
   const handleDeleteLabel = (id: string) => {
     const updatedLabels = localLabels.filter(label => label.id !== id);
     setLocalLabels(updatedLabels);
-    onLabelsChange(updatedLabels);
+    onLabelsUpdate(updatedLabels);
   };
 
   const handleUpdateLabel = (id: string, newName: string) => {
@@ -88,7 +88,7 @@ const EditLabelsDialog: React.FC<EditLabelsDialogProps> = ({
     );
     
     setLocalLabels(updatedLabels);
-    onLabelsChange(updatedLabels);
+    onLabelsUpdate(updatedLabels);
     setError('');
   };
 
@@ -100,8 +100,8 @@ const EditLabelsDialog: React.FC<EditLabelsDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => {
-      onClose();
+    <Dialog open={open} onOpenChange={(open) => {
+      onOpenChange(open);
       setError('');
     }}>
       <DialogContent className="sm:max-w-md">
@@ -188,7 +188,7 @@ const EditLabelsDialog: React.FC<EditLabelsDialogProps> = ({
         </div>
         
         <div className="flex justify-end">
-          <Button onClick={onClose}>Done</Button>
+          <Button onClick={() => onOpenChange(false)}>Done</Button>
         </div>
       </DialogContent>
     </Dialog>

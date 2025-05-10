@@ -1,41 +1,37 @@
 /* Base masonry styles for Google Keep-style grid */
 .my-masonry-grid {
-  display: flex;
-  margin-left: -16px; /* gutter size offset */
-  width: auto;
-  flex-direction: row; /* Ensure horizontal flow */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  width: 100%;
 }
 
-.my-masonry-grid_column {
-  padding-left: 16px; /* gutter size */
-  background-clip: padding-box;
-}
-
-/* Force items to flow horizontally instead of vertically */
-@supports (grid-template-rows: masonry) {
+/* Responsive grid adjustments */
+@media (max-width: 640px) {
   .my-masonry-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    grid-gap: 16px;
-    grid-auto-flow: row dense; /* Force left-to-right priority */
-    margin-left: 0;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    padding: 12px;
   }
-  
-  .my-masonry-grid_column {
-    display: contents;
+}
+
+@media (min-width: 1280px) {
+  .my-masonry-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
 }
 
 /* Animation for note items */
 .note-enter {
   opacity: 0;
-  transform: scale(0.9);
+  transform: scale(0.96);
 }
 
 .note-enter-active {
   opacity: 1;
   transform: scale(1);
-  transition: opacity 200ms, transform 200ms;
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
 }
 
 .note-exit {
@@ -45,18 +41,18 @@
 
 .note-exit-active {
   opacity: 0;
-  transform: scale(0.9);
-  transition: opacity 200ms, transform 200ms;
+  transform: scale(0.96);
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
 }
 
 /* Style for note cards */
 .note-card {
-  break-inside: avoid;
-  margin-bottom: 16px;
-  transition: box-shadow 0.2s, transform 0.2s;
+  width: 100%;
+  transition: transform 200ms ease-in-out, box-shadow 200ms ease-in-out;
+  will-change: transform;
 }
 
 .note-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 } 

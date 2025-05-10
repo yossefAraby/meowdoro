@@ -63,7 +63,7 @@ export const SoundControls: React.FC<SoundControlsProps> = ({
                 variant="outline" 
                 size="sm" 
                 className="justify-start gap-2 text-destructive hover:text-destructive" 
-                onClick={() => onPlaySound(soundPlaying)}
+                onClick={() => onPlaySound(null)}
               >
                 <VolumeX className="w-4 h-4" />
                 Stop Sound

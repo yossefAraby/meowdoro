@@ -1,12 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { AnimatePresence } from 'framer-motion';
 import NoteCard from './NoteCard';
 import './masonry-grid.css';
-
-// Import the Masonry layout from Masonry-based library
-// If not installed, we need to add this dependency
-// npm install react-masonry-css
-import Masonry from 'react-masonry-css';
 
 interface Task {
   id: string;
@@ -70,16 +65,7 @@ const MasonryGrid: React.FC<MasonryGridProps> = ({
   selectedNotes = [],
   selectionMode = false,
 }) => {
-  // Responsive breakpoints for the masonry grid
-  const breakpointColumns = {
-    default: 4,
-    1280: 3,
-    1024: 3,
-    768: 2,
-    640: 1
-  };
-
-  // Sort notes by creation date to ensure consistent left-to-right order
+  // Sort notes by creation date to ensure consistent order
   const sortedNotes = [...notes].sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime();
     const dateB = new Date(b.createdAt).getTime();
@@ -95,13 +81,9 @@ const MasonryGrid: React.FC<MasonryGridProps> = ({
   return (
     <div className="mb-8">
       {title && notes.length > 0 && (
-        <h2 className="text-sm font-medium text-muted-foreground mb-3">{title}</h2>
+        <h2 className="text-sm font-medium text-muted-foreground mb-3 px-4">{title}</h2>
       )}
-      <Masonry
-        breakpointCols={breakpointColumns}
-        className="my-masonry-grid"
-        columnClassName="my-masonry-grid_column"
-      >
+      <div className="my-masonry-grid">
         <AnimatePresence>
           {sortedNotes.map(note => (
             <div key={note.id} className="note-card">
@@ -127,7 +109,7 @@ const MasonryGrid: React.FC<MasonryGridProps> = ({
             </div>
           ))}
         </AnimatePresence>
-      </Masonry>
+      </div>
     </div>
   );
 };

@@ -5,12 +5,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./components/layout/ThemeProvider";
 import { Navbar } from "./components/layout/Navbar";
+import { MobileNavbar } from "./components/layout/MobileNavbar";
 import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ToastProvider } from "./hooks/use-toast";
 import { ShopProvider } from "./contexts/ShopContext";
 import { TimerProvider } from '@/contexts/TimerContext';
 import { BackgroundSoundProvider } from './contexts/BackgroundSoundContext';
+import { PageContainer } from "./components/layout/PageContainer";
 
 // Import page components
 import Landing from "./pages/Landing";
@@ -18,7 +20,6 @@ import Docs from "./pages/Docs";
 import Timer from "./pages/Timer";
 import Tasks from "./pages/Tasks";
 import Party from "./pages/Party";
-import Statistics from "./pages/Statistics";
 import Shop from "./pages/Shop";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
@@ -71,10 +72,10 @@ const AppRoutes = () => {
       } />
       <Route path="/statistics" element={
         <ProtectedRoute>
-          <div className="container max-w-6xl mx-auto px-4 py-8 page-transition">
+          <PageContainer className="max-w-6xl page-transition">
             <h1 className="text-3xl font-bold mb-4">Statistics</h1>
             <p className="text-muted-foreground">Coming soon! We're working on bringing you detailed productivity insights.</p>
-          </div>
+          </PageContainer>
         </ProtectedRoute>
       } />
       <Route path="/shop" element={
@@ -103,12 +104,15 @@ const App = () => {
                   <Toaster />
                   <Sonner />
                   <BackgroundSoundProvider>
-                    <BrowserRouter>
+                  <BrowserRouter>
+                    <div className="flex flex-col min-h-screen">
                       <Navbar />
-                      <main className="pt-20 min-h-screen">
+                      <main className="flex-1 pt-0 md:pt-20">
                         <AppRoutes />
                       </main>
-                    </BrowserRouter>
+                      <MobileNavbar />
+                    </div>
+                  </BrowserRouter>
                   </BackgroundSoundProvider>
                 </TooltipProvider>
               </TimerProvider>

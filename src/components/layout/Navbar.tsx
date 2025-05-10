@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Sun, Moon, Menu, LogOut, User, Sparkles } from "lucide-react";
@@ -48,7 +47,7 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 glass animate-fade-in">
+    <div className="fixed top-0 left-0 right-0 z-50 glass animate-fade-in hidden md:block">
       <div className="container mx-auto">
         <nav className="flex justify-between items-center py-4">
           <NavbarLogo />
@@ -140,7 +139,6 @@ export const Navbar: React.FC = () => {
                     className="gap-2"
                   >
                     <LogOut className="h-4 w-4" />
-                    Exit Guest Mode
                   </Button>
                 ) : (
                   <AuthDialog />
@@ -148,10 +146,10 @@ export const Navbar: React.FC = () => {
               )
             )}
             
-            {/* Mobile Menu */}
+            {/* Mobile Menu - Hide on all screen sizes as we'll use the new MobileNavbar instead */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="md:hidden">
+                <Button variant="outline" size="icon" className="hidden">
                   <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>

@@ -5,10 +5,15 @@ import { Button } from "@/components/ui/button";
 import { 
   Search, 
   Plus,
-  Menu
+  Menu,
+  Users,
+  FileText
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 // Import our components
 import NoteSidebar from "@/components/notes/NoteSidebar";
@@ -112,6 +117,9 @@ const Tasks: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
   const [selectionMode, setSelectionMode] = useState(false);
+  const [activeTab, setActiveTab] = useState('personal');
+  const [hasActiveParty, setHasActiveParty] = useState(false);
+  const { user } = useAuth();
 
   const { toast } = useToast();
 
@@ -142,6 +150,32 @@ const Tasks: React.FC = () => {
       });
     }
   }, [labels, toast]);
+
+  // Check if user is in a party
+  const checkPartyStatus = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('party_members')
+        .select('party_id')
+        .eq('user_id', user.id)
+        .limit(1);
+      
+      if (error) throw error;
+      
+      setHasActiveParty(data && data.length > 0);
+    } catch (error) {
+      console.error("Error checking party status:", error);
+    }
+  };
+
+  // Check party status when user changes
+  useEffect(() => {
+    if (user) {
+      checkPartyStatus();
+    }
+  }, [user]);
 
   // Handle view changes
   const handleViewChange = (view: string) => {
@@ -514,7 +548,7 @@ const Tasks: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div className="flex h-screen">
+      <div className="flex h-screen md:h-[calc(100vh-5rem)] mt-2 md:mt-0">
         {/* Sidebar */}
         <div className={cn(
           "h-full transition-all duration-300 md:block",
@@ -534,91 +568,127 @@ const Tasks: React.FC = () => {
         
         {/* Main Content */}
         <div className="flex-1 flex flex-col h-full overflow-hidden">
-          {/* Header */}
-          <header className="flex items-center justify-center p-4">
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="md:hidden absolute left-4"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-            
-            <div className="w-full max-w-xl relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search"
-                className="pl-10 shadow-sm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </header>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-0 mb-2">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
+              <TabsTrigger value="personal" className="gap-2">
+                <FileText className="h-4 w-4" />
+                Personal Notes
+              </TabsTrigger>
+              <TabsTrigger value="party" disabled={!hasActiveParty} className="gap-2">
+                <Users className="h-4 w-4" />
+                Party Notes
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Selection actions when in selection mode */}
-          {selectionMode && selectedNotes.length > 0 && (
-            <div className="flex items-center justify-center gap-2 pb-2">
-              <span className="text-sm">{selectedNotes.length} selected</span>
-              
-              {activeView !== 'archive' && (
-                      <Button
-                  variant="outline"
-                        size="sm"
-                  onClick={archiveSelectedNotes}
+            <TabsContent value="personal" className="space-y-4">
+              {/* Header */}
+              <header className="flex items-center justify-center p-2 md:p-4">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="md:hidden absolute left-2"
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 >
-                  Archive
-                          </Button>
-              )}
-              
-                            <Button 
-                variant="outline"
-                size="sm"
-                onClick={deleteSelectedNotes}
-              >
-                {activeView === 'trash' ? "Delete permanently" : "Delete"}
-                          </Button>
-                      </div>
-                    )}
-                    
-          {/* Main content area */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {/* Note editor - only render if editing or creating */}
-            {(isEditorOpen || editingNote) && (
-              <NoteEditor
-                isOpen={true}
-                initialNote={editingNote}
-                onSave={editingNote ? handleUpdateNote : handleCreateNote}
-                onClose={() => {
-                  setIsEditorOpen(false);
-                  setEditingNote(undefined);
-                }}
-              />
-            )}
-            
-            {/* Notes grid */}
-            {renderContent()}
-                      </div>
+                  <Menu className="h-5 w-5" />
+                </Button>
+                
+                <div className="w-full max-w-xl relative md:mx-0 mx-8">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search"
+                    className="pl-10 shadow-sm h-9 w-full"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </header>
 
-          {/* Floating action button */}
-          {!isEditorOpen && !editingNote && activeView === 'notes' && (
-            <Button
-              className="fixed right-6 bottom-6 h-14 w-14 rounded-full shadow-lg"
-              onClick={() => setIsEditorOpen(true)}
-            >
-              <Plus className="h-6 w-6" />
-              <span className="sr-only">Create note</span>
-            </Button>
-                      )}
-                    </div>
+              {/* Selection actions */}
+              {selectionMode && selectedNotes.length > 0 && (
+                <div className="flex items-center justify-center gap-2 pb-2">
+                  <span className="text-sm">{selectedNotes.length} selected</span>
+                  
+                  {activeView !== 'archive' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={archiveSelectedNotes}
+                    >
+                      Archive
+                    </Button>
+                  )}
+                  
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={deleteSelectedNotes}
+                  >
+                    {activeView === 'trash' ? "Delete permanently" : "Delete"}
+                  </Button>
+                </div>
+              )}
+                      
+              {/* Main content area */}
+              <div className="flex-1 overflow-y-auto p-4 pb-24 md:pb-4">
+                {/* Note editor - only render if editing or creating */}
+                {(isEditorOpen || editingNote) && (
+                  <NoteEditor
+                    isOpen={true}
+                    initialNote={editingNote}
+                    onSave={editingNote ? handleUpdateNote : handleCreateNote}
+                    onClose={() => {
+                      setIsEditorOpen(false);
+                      setEditingNote(undefined);
+                    }}
+                  />
+                )}
+                
+                {/* Notes grid */}
+                {renderContent()}
+              </div>
+
+              {/* Floating action button */}
+              {!isEditorOpen && !editingNote && activeView === 'notes' && (
+                <Button
+                  className="fixed right-6 bottom-24 md:bottom-6 h-14 w-14 rounded-full shadow-lg"
+                  onClick={() => setIsEditorOpen(true)}
+                >
+                  <Plus className="h-6 w-6" />
+                  <span className="sr-only">Create note</span>
+                </Button>
+              )}
+            </TabsContent>
+
+            <TabsContent value="party">
+              <div className="py-8 text-center">
+                {!hasActiveParty ? (
+                  <div className="mb-4">
+                    <Users className="h-16 w-16 mx-auto text-muted-foreground mb-2" />
+                    <h3 className="text-xl font-semibold mb-2">No Active Party</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Join a study party to access shared notes.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">Party Notes</h3>
+                    <p className="text-muted-foreground">
+                      Coming soon! You'll be able to share and collaborate on notes with your party members.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
                     
         {/* Edit Labels Dialog */}
         <EditLabelsDialog
           open={isEditLabelsOpen}
-          onClose={() => setIsEditLabelsOpen(false)}
+          onOpenChange={setIsEditLabelsOpen}
           labels={labels}
-          onLabelsChange={handleLabelsUpdate}
+          onLabelsUpdate={handleLabelsUpdate}
         />
       </div>
     </ErrorBoundary>

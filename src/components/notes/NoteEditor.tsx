@@ -619,7 +619,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 contentEditable
                 suppressContentEditableWarning
                 className={cn(
-                  "min-h-[200px] resize-none bg-transparent border-0 focus:outline-none text-sm leading-relaxed px-4 py-2 rounded-md prose prose-sm max-w-none empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50",
+                  "min-h-[200px] resize-none bg-transparent border-0 focus:outline-none text-sm leading-relaxed px-4 py-2 rounded-md prose prose-sm max-w-none text-foreground dark:prose-invert empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50",
                   isExpanded && "min-h-[400px]"
                 )}
                 onInput={handleContentChange}
@@ -638,7 +638,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                       value={task.text}
                       onChange={(e) => updateTaskText(task.id, e.target.value)}
                       className={cn(
-                        "border-none bg-transparent p-0 h-auto focus-visible:ring-0",
+                        "border-none bg-transparent p-0 h-auto focus-visible:ring-0 text-foreground",
                         task.completed && "line-through text-muted-foreground"
                       )}
                     />
@@ -662,7 +662,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                     value={newTaskText}
                     onChange={(e) => setNewTaskText(e.target.value)}
                     placeholder="List item"
-                    className="border-none bg-transparent p-0 h-auto focus-visible:ring-0"
+                    className="border-none bg-transparent p-0 h-auto focus-visible:ring-0 text-foreground"
                     onKeyDown={handleKeyDown}
                   />
                 </div>

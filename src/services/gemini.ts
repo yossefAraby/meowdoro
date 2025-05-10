@@ -86,11 +86,13 @@ You should:
       }
 
       if (context?.notes && context.notes.length > 0) {
-        fullPrompt += "Recent notes:\n" + context.notes.map(note => `- ${note}`).join("\n") + "\n";
+        fullPrompt += "Recent user notes (consider these in your response when relevant):\n" + 
+                      context.notes.map(note => `- ${note.trim()}`).join("\n") + "\n\n";
       }
 
       if (context?.tasks && context.tasks.length > 0) {
-        fullPrompt += "Current tasks:\n" + context.tasks.map(task => `- ${task}`).join("\n") + "\n";
+        fullPrompt += "Current user tasks (consider these in your response when relevant):\n" + 
+                      context.tasks.map(task => `- ${task.trim()}`).join("\n") + "\n\n";
       }
 
       fullPrompt += "\nUser message: " + prompt;

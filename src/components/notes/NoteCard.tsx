@@ -89,18 +89,21 @@ const NoteCard: React.FC<NoteCardProps> = ({
       const hasMore = tasks.length > 8;
       
       return (
-        <div className="space-y-1 mt-2">
+        <div className="space-y-1.5 mt-2">
           {displayTasks.map(task => (
-            <div key={task.id} className="flex items-start gap-2">
+            <div key={task.id} className="flex items-start gap-2 group">
               <Checkbox
                 checked={task.completed}
                 onClick={(e) => {
                   e.stopPropagation();
                   onTaskToggle?.(id, task.id);
                 }}
-                className="mt-0.5"
+                className="mt-0.5 h-4 w-4"
               />
-              <span className={task.completed ? "line-through text-muted-foreground text-sm" : "text-sm"}>
+              <span className={cn(
+                "text-sm leading-tight flex-1",
+                task.completed && "line-through text-muted-foreground"
+              )}>
                 {task.text}
               </span>
             </div>
@@ -115,20 +118,18 @@ const NoteCard: React.FC<NoteCardProps> = ({
     }
     
     if (content) {
-      // Process content to preserve line breaks and paragraphs
       const processedContent = DOMPurify.sanitize(content, {
         ALLOWED_TAGS: ['p', 'br', 'b', 'i', 'u', 'strong', 'em', 'mark', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote'],
         ALLOWED_ATTR: ['style', 'class']
       });
       
-      // Display a preview of the content with formatted line breaks preserved
       const trimmedContent = content.length > 300 
         ? processedContent.substring(0, 300) + '...' 
         : processedContent;
       
       return (
         <div 
-          className="text-sm text-foreground/90 prose-sm max-w-none whitespace-pre-line"
+          className="text-sm text-foreground/90 prose-sm max-w-none whitespace-pre-line leading-relaxed"
           dangerouslySetInnerHTML={{ __html: trimmedContent }}
         />
       );
@@ -140,12 +141,12 @@ const NoteCard: React.FC<NoteCardProps> = ({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+      exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.15 }}
       className={cn(
-        'group relative rounded-lg border p-4 shadow-sm transition-all',
+        'group relative rounded-lg border shadow-sm transition-all overflow-hidden',
         color,
         selected && 'ring-2 ring-primary',
         selectionMode && 'ring-1 ring-primary/20',
@@ -162,12 +163,12 @@ const NoteCard: React.FC<NoteCardProps> = ({
         onSelect(id, !selected);
       } : onClick}
     >
-      {/* Selection checkbox - visible during selection mode */}
+      {/* Selection checkbox */}
       {onSelect && selectionMode && (
         <div className="absolute left-2 top-2 z-20 transition-opacity">
           <div
             className={cn(
-              "h-6 w-6 rounded-full flex items-center justify-center",
+              "h-5 w-5 rounded-full flex items-center justify-center",
               selected ? "bg-primary text-primary-foreground" : "bg-background border-2 border-muted-foreground/30 hover:border-primary"
             )}
             onClick={(e) => {
@@ -175,18 +176,18 @@ const NoteCard: React.FC<NoteCardProps> = ({
               onSelect(id, !selected);
             }}
           >
-            {selected && <Check className="h-3.5 w-3.5" />}
+            {selected && <Check className="h-3 w-3" />}
           </div>
         </div>
       )}
 
-      {/* Pin button - always visible but more pronounced on hover */}
-      <div className="absolute right-2 top-2 flex items-center gap-1 z-10">
+      {/* Pin button */}
+      <div className="absolute right-1 top-1 z-10">
         <Button
           variant="ghost"
           size="icon"
           className={cn(
-            "h-8 w-8",
+            "h-7 w-7 rounded-full",
             pinned ? "opacity-100" : "opacity-0 group-hover:opacity-100"
           )}
           onClick={(e) => {
@@ -194,89 +195,93 @@ const NoteCard: React.FC<NoteCardProps> = ({
             onPin(id);
           }}
         >
-          <PinIcon className={cn("h-4 w-4", pinned && "fill-current text-amber-500")} />
+          <PinIcon className={cn("h-3.5 w-3.5", pinned && "fill-current text-amber-500")} />
         </Button>
       </div>
 
-      {/* Note content - wrapped in relative to be above the overlay */}
-      <div className={cn("pr-6", selectionMode && "pl-6", "relative z-10")}>
+      {/* Note content */}
+      <div className={cn(
+        "p-3.5",
+        selectionMode && "pl-9",
+        "relative z-10"
+      )}>
         {title && (
-          <h3 className="font-medium leading-tight mb-1">
+          <h3 className="font-medium leading-tight mb-1.5 pr-6">
             {title}
           </h3>
         )}
         
         {renderContent()}
-      </div>
-      
-      {/* Labels */}
-      {labels && labels.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-3 relative z-10">
-          {labels.filter(l => l.added).map(label => (
-            <span 
-              key={label.id} 
-              className="px-2 py-0.5 bg-background/50 text-xs rounded-full"
-            >
-              {label.name}
-            </span>
-          ))}
-        </div>
-      )}
 
-      {/* Action buttons - only visible when not in selection mode */}
+        {/* Labels */}
+        {labels && labels.filter(l => l.added).length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {labels.filter(l => l.added).map(label => (
+              <span 
+                key={label.id} 
+                className="px-2 py-0.5 bg-background/50 text-xs rounded-full"
+              >
+                {label.name}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Action buttons */}
       {!selectionMode && (
         <div 
           className={cn(
-            "absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1 px-2 transition-opacity z-10",
+            "absolute bottom-0 left-0 right-0 flex items-center justify-center gap-1 p-1.5 bg-gradient-to-t from-background/80 to-transparent transition-opacity z-10",
             showActions ? "opacity-100" : "opacity-0"
           )}
         >
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-full"
+            className="h-7 w-7 rounded-full"
             onClick={(e) => {
               e.stopPropagation();
               setShowColorPicker(!showColorPicker);
             }}
           >
-            <Palette className="h-4 w-4" />
+            <Palette className="h-3.5 w-3.5" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-full"
+            className="h-7 w-7 rounded-full"
             onClick={(e) => {
               e.stopPropagation();
               onArchive(id);
             }}
           >
-            <ArchiveIcon className="h-4 w-4" />
+            <ArchiveIcon className="h-3.5 w-3.5" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-full"
+            className="h-7 w-7 rounded-full"
             onClick={(e) => {
               e.stopPropagation();
               onDelete(id);
             }}
           >
-            <Trash2Icon className="h-4 w-4" />
+            <Trash2Icon className="h-3.5 w-3.5" />
           </Button>
         </div>
       )}
 
       {/* Color picker */}
-      {showColorPicker && !selectionMode && (
-        <div className="absolute bottom-full left-2 mb-2 rounded-lg border bg-background p-1 shadow-lg z-20">
+      {showColorPicker && (
+        <div className="absolute bottom-full left-2 mb-2 rounded-lg border bg-background p-1.5 shadow-lg z-20">
           <div className="grid grid-cols-4 gap-1">
             {colors.map((c) => (
               <button
                 key={c.value}
                 className={cn(
-                  'h-6 w-6 rounded-full border',
-                  c.value.split(' ')[0] // Just take first color class for the button
+                  'h-6 w-6 rounded-full border transition-transform hover:scale-110',
+                  c.value.split(' ')[0]
                 )}
                 onClick={(e) => {
                   e.stopPropagation();

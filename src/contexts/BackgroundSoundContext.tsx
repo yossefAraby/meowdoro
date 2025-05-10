@@ -9,7 +9,7 @@ let currentlyPlaying: string | null = null;
 
 interface BackgroundSoundContextType {
   soundPlaying: string | null;
-  playSound: (soundType: string) => void;
+  playSound: (soundType: string | null) => void;
   volume: number;
   setVolume: (v: number) => void;
 }
@@ -71,12 +71,12 @@ export const BackgroundSoundProvider: React.FC<{ children: React.ReactNode }> = 
     currentlyPlaying = null;
   };
   
-  const playSound = (soundType: string) => {
+  const playSound = (soundType: string | null) => {
     // Stop all sounds first
     stopAllSounds();
     
-    // If clicking the same sound, just stop it
-    if (soundType === currentlyPlaying) {
+    // If null or clicking the same sound, just stop it
+    if (!soundType || soundType === currentlyPlaying) {
       setSoundPlaying(null);
       currentlyPlaying = null;
       return;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { 
-  LightbulbIcon, 
+  MessageSquare, 
   ArchiveIcon,
   TrashIcon,
   Tag,
@@ -146,9 +146,9 @@ const NoteSidebar = ({
       "h-full border-r bg-background relative transition-all duration-300 flex flex-col",
       collapsed ? "w-20" : "w-64"
     )}>
-      <div className="flex-1 flex flex-col gap-2 p-2 overflow-y-auto pb-16">
+      <div className="flex-1 flex flex-col gap-2 p-2 overflow-y-auto pb-16 md:pt-2 pt-12">
         <SidebarItem
-          icon={<LightbulbIcon className="h-5 w-5" />}
+          icon={<MessageSquare className="h-5 w-5" />}
           label="Notes"
           active={activeView === 'notes'}
           onClick={() => onViewChange('notes')}

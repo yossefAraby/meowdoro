@@ -149,6 +149,42 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
   // Function to generate AI response using Gemini API
   const generateAIResponse = async (userMessage: string) => {
     try {
+      // Get notes from localStorage for context
+      let userNotes: string[] = [];
+      try {
+        const savedNotes = localStorage.getItem('notes');
+        if (savedNotes) {
+          const parsedNotes = JSON.parse(savedNotes);
+          // Extract titles and content for context, limited to most recent 5 notes
+          userNotes = parsedNotes
+            .filter((note: any) => !note.trashed && !note.archived) // Only include active notes
+            .slice(0, 5) // Limit to most recent 5 notes
+            .map((note: any) => {
+              // Format note as a string with title and content
+              if (note.type === 'note') {
+                return `${note.title ? note.title + ': ' : ''}${note.content.replace(/<[^>]*>/g, '')}`;
+              } else if (note.type === 'checklist') {
+                // For checklists, include tasks
+                const taskList = note.tasks.map((task: any) => 
+                  `${task.completed ? '✓' : '☐'} ${task.text}`
+                ).join(', ');
+                return `${note.title ? note.title + ': ' : ''}${taskList}`;
+              }
+              return note.title || '';
+            })
+            .filter((note: string) => note.trim() !== ''); // Remove empty notes
+        }
+      } catch (error) {
+        console.error("Error loading notes from localStorage:", error);
+        // Fallback to empty array if there's an error
+        userNotes = [];
+      }
+
+      // Prepare context for the AI
+      const notesContext = userNotes.length > 0 
+        ? `\n\nUser's recent notes:\n${userNotes.map(note => `- ${note}`).join('\n')}\n`
+        : '';
+
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
@@ -159,7 +195,7 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
             {
               parts: [
                 {
-                  text: `You are Meowdoro, a cat-themed AI study assistant. You should respond with short, helpful advice about productivity, studying, and focus. Use cat puns when possible, but sparingly. Keep responses under 150 characters. 
+                  text: `You are Meowdoro, a cat-themed AI study assistant. You should respond with short, helpful advice about productivity, studying, and focus. Use cat puns when possible, but sparingly. Keep responses under 150 characters.${notesContext}
                   
                   The user message is: "${userMessage}"`
                 }

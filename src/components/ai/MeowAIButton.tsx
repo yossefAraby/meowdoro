@@ -144,6 +144,17 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  // Show notification when notes context is enabled
+  useEffect(() => {
+    if (includeContextData) {
+      toast({
+        title: "Notes Context Enabled",
+        description: "Your notes will now be included in the AI chat context.",
+        variant: "default",
+      });
+    }
+  }, [includeContextData, toast]);
+
   // Generate unique IDs
   const generateMessageId = (): string => {
     return Date.now().toString() + Math.random().toString(36).substring(2, 9);
@@ -210,19 +221,57 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
       if (selectedModel === "gemini") {
         let context = undefined;
         if (includeContextData) {
-          const mockNotes = [
-            "Studying for math exam",
-            "Need to review chapter 5"
-          ];
-          const mockTasks = [
-            "Complete math homework",
-            "Review notes from last session"
-          ];
+          // Get real notes from localStorage instead of mock data
+          let userNotes: string[] = [];
+          try {
+            const savedNotes = localStorage.getItem('notes');
+            if (savedNotes) {
+              const parsedNotes = JSON.parse(savedNotes);
+              // Extract titles and content for context, limited to most recent 10 notes
+              userNotes = parsedNotes
+                .filter((note: any) => !note.trashed && !note.archived) // Only include active notes
+                .slice(0, 10) // Limit to most recent 10 notes
+                .map((note: any) => {
+                  // Format note as a string with title and content
+                  if (note.type === 'note') {
+                    return `${note.title ? note.title + ': ' : ''}${note.content.replace(/<[^>]*>/g, '')}`;
+                  } else if (note.type === 'checklist') {
+                    // For checklists, include tasks
+                    const taskList = note.tasks.map((task: any) => 
+                      `${task.completed ? '✓' : '☐'} ${task.text}`
+                    ).join(', ');
+                    return `${note.title ? note.title + ': ' : ''}${taskList}`;
+                  }
+                  return note.title || '';
+                })
+                .filter((note: string) => note.trim() !== ''); // Remove empty notes
+            }
+          } catch (error) {
+            console.error("Error loading notes from localStorage:", error);
+            // Fallback to empty array if there's an error
+            userNotes = [];
+          }
+
+          // Get tasks if available
+          let userTasks: string[] = [];
+          try {
+            const savedTasks = localStorage.getItem('tasks');
+            if (savedTasks) {
+              const parsedTasks = JSON.parse(savedTasks);
+              userTasks = parsedTasks
+                .filter((task: any) => !task.completed) // Only include incomplete tasks
+                .map((task: any) => task.text);
+            }
+          } catch (error) {
+            console.error("Error loading tasks from localStorage:", error);
+            // Fallback to empty array if there's an error
+            userTasks = [];
+          }
 
           context = {
             timerMode,
-            notes: mockNotes,
-            tasks: mockTasks
+            notes: userNotes.length > 0 ? userNotes : ["No notes found"],
+            tasks: userTasks.length > 0 ? userTasks : []
           };
         }
 
@@ -588,13 +637,34 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
               
               {/* Chat input */}
               <form onSubmit={handleSendMessage} className="border-t p-3 flex gap-2 bg-card/80">
-                <Input
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Ask anything..."
-                  className="flex-1"
-                  disabled={isLoading}
-                />
+                <div className="flex-1 relative">
+                  <textarea
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (chatInput.trim()) {
+                          handleSendMessage(e);
+                        }
+                      }
+                    }}
+                    placeholder="Ask anything... (Shift+Enter for new line)"
+                    className="w-full resize-none min-h-[40px] max-h-[120px] px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    rows={1}
+                    disabled={isLoading}
+                    style={{ 
+                      height: 'auto',
+                      overflow: 'hidden'
+                    }}
+                    ref={(textarea) => {
+                      if (textarea) {
+                        textarea.style.height = 'auto';
+                        textarea.style.height = `${Math.min(120, Math.max(40, textarea.scrollHeight))}px`;
+                      }
+                    }}
+                  />
+                </div>
                 <Button type="submit" size="icon" disabled={isLoading || !chatInput.trim()}>
                   <Send className="h-4 w-4" />
                 </Button>
