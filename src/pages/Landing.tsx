@@ -163,10 +163,17 @@ const Landing: React.FC = () => {
   };
 
   const handleGetStarted = () => {
-    // This will trigger the auth dialog to open
-    const authTrigger = document.querySelector('[data-auth-trigger="true"]');
-    if (authTrigger instanceof HTMLElement) {
-      authTrigger.click();
+    // Check if user is signed in or guest
+    const isGuest = localStorage.getItem("meowdoro-user") !== null;
+    const isSignedIn = !!localStorage.getItem("supabase.auth.token"); // or use a better check if available
+    if (isGuest || isSignedIn) {
+      navigate("/timer");
+    } else {
+      // This will trigger the auth dialog to open
+      const authTrigger = document.querySelector('[data-auth-trigger="true"]');
+      if (authTrigger instanceof HTMLElement) {
+        authTrigger.click();
+      }
     }
   };
 

@@ -9,6 +9,8 @@ interface AudioControlsProps {
   toggleTimerMode: () => void;
   soundPlaying: string | null;
   onPlaySound: (soundType: string) => void;
+  volume: number;
+  setVolume: (value: number) => void;
   children?: React.ReactNode;
 }
 
@@ -17,9 +19,10 @@ export const AudioControls: React.FC<AudioControlsProps> = ({
   toggleTimerMode,
   soundPlaying,
   onPlaySound,
+  volume,
+  setVolume,
   children
 }) => {
-  const { volume, setVolume } = useBackgroundSounds();
 
   return (
     <div className="w-full flex justify-end space-x-4 mb-6">

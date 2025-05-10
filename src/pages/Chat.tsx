@@ -122,6 +122,16 @@ const Chat: React.FC = () => {
     }
   }, []);
 
+  // Auto-select the most recent chat on mount or when conversations change
+  useEffect(() => {
+    if (
+      conversations.length > 0 &&
+      !conversations.some((c) => c.id === activeConversation)
+    ) {
+      setActiveConversation(conversations[0].id);
+    }
+  }, [activeConversation, conversations]);
+
   // Save conversations to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
@@ -420,7 +430,7 @@ const Chat: React.FC = () => {
 
   return (
     <>
-      <div className="flex h-screen overflow-hidden bg-background">
+      <div className="flex flex-col md:flex-row fixed inset-0 bg-background pt-20" style={{ height: '100vh' }}>
         {/* Sidebar */}
         <div className="w-80 border-r flex flex-col h-full">
           {/* New chat button */}
@@ -513,7 +523,7 @@ const Chat: React.FC = () => {
         </div>
 
         {/* Main chat area */}
-        <div className="flex-1 flex flex-col h-full">
+        <div className="flex-1 flex flex-col h-full min-h-0">
           {/* Chat header */}
           <div className="flex items-center justify-between px-4 py-3 border-b">
             <div className="flex items-center gap-2">
@@ -531,7 +541,8 @@ const Chat: React.FC = () => {
           {/* Messages - Flex grow and scroll */}
           <div 
             ref={chatContainerRef}
-            className="flex-1 overflow-y-auto p-4 space-y-4"
+            className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4"
+            style={{ maxHeight: '100vh' }}
           >
             <AnimatePresence>
               {currentConversation?.messages.map((message) => (

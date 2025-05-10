@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { TimerCircle } from "@/components/timer/TimerCircle";
 import { ProgressBar } from "@/components/timer/ProgressBar";
-import { AudioControls, useBackgroundSounds } from "@/components/timer/AudioControls";
+import { AudioControls } from "@/components/timer/AudioControls";
+import { useBackgroundSounds } from "@/contexts/BackgroundSoundContext";
 import { TimerSettings } from "@/components/timer/TimerSettings";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -408,11 +409,13 @@ const Timer: React.FC = () => {
         <TabsContent value="personal" className="space-y-6">
           <div className="flex flex-col items-center">
             {/* Timer controls */}
-            <AudioControls 
+            <AudioControls
               isCountdown={isCountdown}
               toggleTimerMode={toggleTimerMode}
               soundPlaying={soundPlaying}
               onPlaySound={playSound}
+              volume={volume}
+              setVolume={setVolume}
             >
               {/* Settings button */}
               <TimerSettings
