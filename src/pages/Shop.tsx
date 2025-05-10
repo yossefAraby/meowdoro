@@ -87,7 +87,7 @@ const Shop = () => {
 
     // Check for daily check-in
     if (lastVisit !== today) {
-      addFish(4);
+      addFish(1);
       localStorage.setItem('meowdoro-last-visit', today);
       setShowDailyRewardDialog(true);
     }
@@ -963,14 +963,14 @@ const Shop = () => {
               Daily Reward!
             </DialogTitle>
             <DialogDescription>
-              Welcome back to Meowdoro! Here's your daily reward of 4 fish.
+              Welcome back to Meowdoro! Here's your daily reward of 1 fish.
             </DialogDescription>
           </DialogHeader>
           
           <div className="py-4">
             <div className="flex items-center justify-center gap-2 text-2xl font-bold text-primary">
               <Fish className="h-8 w-8" />
-              <span>+4</span>
+              <span>+1</span>
             </div>
           </div>
 

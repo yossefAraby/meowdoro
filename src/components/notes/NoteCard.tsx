@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { motion } from "framer-motion";
 import DOMPurify from 'dompurify';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface Task {
   id: string;
@@ -67,7 +68,6 @@ const NoteCard: React.FC<NoteCardProps> = ({
   selectionMode = false,
 }) => {
   const [showActions, setShowActions] = React.useState(false);
-  const [showColorPicker, setShowColorPicker] = React.useState(false);
 
   const colors = [
     { name: 'Default', value: 'bg-card' },
@@ -156,7 +156,6 @@ const NoteCard: React.FC<NoteCardProps> = ({
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => {
         setShowActions(false);
-        setShowColorPicker(false);
       }}
       onClick={selectionMode && onSelect ? (e) => {
         e.stopPropagation();
@@ -236,17 +235,37 @@ const NoteCard: React.FC<NoteCardProps> = ({
             showActions ? "opacity-100" : "opacity-0"
           )}
         >
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 rounded-full"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowColorPicker(!showColorPicker);
-            }}
-          >
-            <Palette className="h-3.5 w-3.5" />
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 rounded-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Palette className="h-3.5 w-3.5" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-1.5" align="start">
+              <div className="grid grid-cols-4 gap-1">
+                {colors.map((c) => (
+                  <button
+                    key={c.value}
+                    className={cn(
+                      'h-6 w-6 rounded-full border transition-transform hover:scale-110',
+                      c.value.split(' ')[0]
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onColorChange(id, c.value);
+                    }}
+                    title={c.name}
+                  />
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+          
           <Button
             variant="ghost"
             size="icon"
@@ -269,28 +288,6 @@ const NoteCard: React.FC<NoteCardProps> = ({
           >
             <Trash2Icon className="h-3.5 w-3.5" />
           </Button>
-        </div>
-      )}
-
-      {/* Color picker */}
-      {showColorPicker && (
-        <div className="absolute bottom-full left-2 mb-2 rounded-lg border bg-background p-1.5 shadow-lg z-20">
-          <div className="grid grid-cols-4 gap-1">
-            {colors.map((c) => (
-              <button
-                key={c.value}
-                className={cn(
-                  'h-6 w-6 rounded-full border transition-transform hover:scale-110',
-                  c.value.split(' ')[0]
-                )}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onColorChange(id, c.value);
-                  setShowColorPicker(false);
-                }}
-              />
-            ))}
-          </div>
         </div>
       )}
     </motion.div>

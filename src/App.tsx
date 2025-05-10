@@ -13,6 +13,7 @@ import { ShopProvider } from "./contexts/ShopContext";
 import { TimerProvider } from '@/contexts/TimerContext';
 import { BackgroundSoundProvider } from './contexts/BackgroundSoundContext';
 import { PageContainer } from "./components/layout/PageContainer";
+import { TimerPauseProvider } from './contexts/TimerPauseContext';
 
 // Import page components
 import Landing from "./pages/Landing";
@@ -104,15 +105,17 @@ const App = () => {
                   <Toaster />
                   <Sonner />
                   <BackgroundSoundProvider>
-                  <BrowserRouter>
-                    <div className="flex flex-col min-h-screen">
-                      <Navbar />
-                      <main className="flex-1 pt-0 md:pt-20">
-                        <AppRoutes />
-                      </main>
-                      <MobileNavbar />
-                    </div>
-                  </BrowserRouter>
+                    <BrowserRouter>
+                      <TimerPauseProvider>
+                        <div className="min-h-screen bg-background font-sans antialiased scrollbar-hide">
+                          <Navbar />
+                          <main className="flex-1 pt-0 md:pt-20">
+                            <AppRoutes />
+                          </main>
+                          <MobileNavbar />
+                        </div>
+                      </TimerPauseProvider>
+                    </BrowserRouter>
                   </BackgroundSoundProvider>
                 </TooltipProvider>
               </TimerProvider>

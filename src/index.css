@@ -1,7 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
+/* Hide scrollbars globally */
+html, body {
+  @apply scrollbar-hide;
+}
+
 @layer base {
   :root {
     /* Light mode - Default theme (Improved for better readability and accessibility) */

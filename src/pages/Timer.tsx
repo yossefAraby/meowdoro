@@ -14,15 +14,7 @@ import MeowAIButton from "@/components/ai/MeowAIButton";
 import { useShop } from "@/contexts/ShopContext";
 import { useLocation } from "react-router-dom";
 import { PageContainer } from "@/components/layout/PageContainer";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { useTimerPause } from "@/contexts/TimerPauseContext";
 
 // Define the keys for localStorage
 const STORAGE_KEYS = {
@@ -40,90 +32,6 @@ const STORAGE_KEYS = {
   FOCUS_PROGRESS: "meowdoro-focus-progress",
   LAST_UPDATE: "meowdoro-last-update"
 };
-
-// Custom hook for tracking actual navigation away from timer page
-function usePageNavigationTracker() {
-  const [showDialog, setShowDialog] = useState(false);
-  // Keep track of user actions to avoid showing dialog unnecessarily
-  const userActionRef = useRef({
-    // True when user manually paused timer
-    manuallyPaused: false,
-    // True when user switched between timer/stopwatch
-    modeSwitched: false,
-    // True when document had focus and lost it (tab/window change)
-    hadFocus: document.hasFocus(),
-  });
-  
-  // Track timer activity on mount
-  const timerActiveRef = useRef({
-    timerWasActive: false,
-    timestamp: Date.now()
-  });
-  
-  // Called when user manually pauses timer
-  const registerPause = useCallback(() => {
-    userActionRef.current.manuallyPaused = true;
-    // Reset after a short delay
-    setTimeout(() => {
-      userActionRef.current.manuallyPaused = false;
-    }, 1000);
-  }, []);
-  
-  // Called when user switches timer mode
-  const registerModeSwitch = useCallback(() => {
-    userActionRef.current.modeSwitched = true;
-    // Reset after a short delay
-    setTimeout(() => {
-      userActionRef.current.modeSwitched = false;
-    }, 1000);
-  }, []);
-  
-  // Setup visibility change listener
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        // Page is being hidden, save current focus state
-        userActionRef.current.hadFocus = true;
-      } else if (userActionRef.current.hadFocus) {
-        // Page is becoming visible again, and previously had focus
-        
-        // Don't show dialog if timer was just paused or mode was switched
-        if (!userActionRef.current.manuallyPaused && 
-            !userActionRef.current.modeSwitched && 
-            timerActiveRef.current.timerWasActive &&
-            // Ensure at least 2 seconds passed (avoids false positives)
-            Date.now() - timerActiveRef.current.timestamp > 2000) {
-          setShowDialog(true);
-        }
-        
-        // Reset state
-        userActionRef.current.hadFocus = false;
-        timerActiveRef.current.timerWasActive = false;
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-  
-  // Method to update timer status
-  const setTimerActive = useCallback((isActive) => {
-    timerActiveRef.current = {
-      timerWasActive: isActive,
-      timestamp: Date.now()
-    };
-  }, []);
-  
-  return {
-    showDialog,
-    setShowDialog,
-    registerPause,
-    registerModeSwitch,
-    setTimerActive
-  };
-}
 
 const Timer: React.FC = () => {
   // Timer state - whether countdown or count-up
@@ -205,6 +113,13 @@ const Timer: React.FC = () => {
     return localStorage.getItem("meowdoro-show-fish-bar") !== "false";
   });
   
+  const [showMeowAI, setShowMeowAI] = useState(() => {
+    // Default to hidden on mobile, visible on desktop
+    const isMobileDevice = window.innerWidth <= 768;
+    const savedValue = localStorage.getItem("meowdoro-show-meow-ai");
+    return savedValue !== null ? savedValue === "true" : !isMobileDevice;
+  });
+  
   // Settings from localStorage
   const [completionSound, setCompletionSound] = useState(() => {
     return localStorage.getItem("meowdoro-completion-sound") || "";
@@ -234,16 +149,13 @@ const Timer: React.FC = () => {
   const { soundPlaying, playSound, volume, setVolume } = useBackgroundSounds();
   const { addFish } = useShop();
   
-  // Use our custom hook instead of the previous approach
-  const { 
-    showDialog: showPauseDialog, 
-    setShowDialog: setShowPauseDialog,
-    registerPause,
-    registerModeSwitch,
-    setTimerActive: trackTimerActive
-  } = usePageNavigationTracker();
+  // Get pause notification functions from global context
+  const { registerPause, registerModeSwitch } = useTimerPause();
   
   const location = useLocation();
+  
+  // Create a reference to track previous elapsed minutes
+  const prevElapsedMinutesRef = useRef(0);
   
   // Define callbacks first before using them in useEffect hooks
   const checkPartyStatus = useCallback(async () => {
@@ -269,17 +181,19 @@ const Timer: React.FC = () => {
     setTimerCompleted(true);
     
     // Only increment total focus minutes when a focus session completes
-    // (but only for the difference not already counted)
     if (timerMode === "focus") {
       // Calculate how much to add (only what wasn't already counted from real-time updates)
+      // If we already added progress in real-time, this may be zero
       const additionalMinutes = Math.max(0, focusMinutes - currentSessionProgress);
-      const newTotal = totalFocusMinutes + additionalMinutes;
+      
+      // Ensure we never lose progress by taking the max
+      const newTotal = Math.max(totalFocusMinutes, totalFocusMinutes + additionalMinutes);
       
       setTotalFocusMinutes(newTotal);
       
       // Save the focus minutes along with the current date
-      localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
-      localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
+      localStorage.setItem(STORAGE_KEYS.FOCUS_MINUTES, newTotal.toString());
+      localStorage.setItem(STORAGE_KEYS.FOCUS_DATE, new Date().toDateString());
       
       // Update completed sessions
       const newCompletedSessions = completedSessions + 1;
@@ -339,48 +253,66 @@ const Timer: React.FC = () => {
     
     // Only track progress in focus mode
     if (timerMode === "focus") {
-      // Calculate elapsed minutes
-      const elapsedSeconds = (focusMinutes * 60) - seconds;
+      // Calculate elapsed minutes in current session
+      const totalSessionSeconds = focusMinutes * 60;
+      const elapsedSeconds = totalSessionSeconds - seconds;
       const elapsedMinutes = Math.floor(elapsedSeconds / 60);
       
-      // Always save the current session progress
+      // Update current session progress
       setCurrentSessionProgress(elapsedMinutes);
       
-      // If any time was spent, add it to the total (never subtract)
+      // Update total focus minutes in real-time
       if (elapsedMinutes > 0) {
-        setTotalFocusMinutes(prevTotal => {
-          // Only update if the new time is higher than what we've tracked before
-          const newTotal = Math.max(prevTotal, totalFocusMinutes + elapsedMinutes);
-          localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
-          localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
-          return newTotal;
-        });
+        // Always keep the highest value to never lose progress
+        const newTotal = Math.max(totalFocusMinutes, totalFocusMinutes + (elapsedMinutes - currentSessionProgress));
+        setTotalFocusMinutes(newTotal);
+        
+        // Save progress
+        localStorage.setItem(STORAGE_KEYS.FOCUS_MINUTES, newTotal.toString());
+        localStorage.setItem(STORAGE_KEYS.FOCUS_DATE, new Date().toDateString());
+        localStorage.setItem(STORAGE_KEYS.FOCUS_PROGRESS, elapsedMinutes.toString());
       }
     }
     
     setTimerCompleted(false);
-  }, [timerMode, focusMinutes, totalFocusMinutes]);
+  }, [timerMode, focusMinutes, totalFocusMinutes, currentSessionProgress]);
   
   // Handle stopwatch updates
-  const handleStopwatchUpdate = useCallback((seconds: number) => {
+  const handleStopwatchUpdate = useCallback((seconds: number, isActive: boolean = false) => {
     setStopwatchSeconds(seconds);
     
-    // Calculate elapsed minutes
-    const elapsedMinutes = Math.floor(seconds / 60);
-    setCurrentSessionProgress(elapsedMinutes);
-    
-    // Update total focus time in real-time for stopwatch
-    if (elapsedMinutes > 0) {
-      setTotalFocusMinutes(prev => {
-        const newTotal = Math.max(prev, elapsedMinutes);
-        localStorage.setItem("meowdoro-focus-minutes", newTotal.toString());
-        localStorage.setItem("meowdoro-focus-date", new Date().toDateString());
-        return newTotal;
-      });
+    // Only update progress if stopwatch is active or if this is not a reset
+    if (isActive || seconds > 0) {
+      // Calculate elapsed minutes
+      const elapsedMinutes = Math.floor(seconds / 60);
+      
+      // Update current session progress
+      setCurrentSessionProgress(elapsedMinutes);
+      
+      // Only update if minutes have changed
+      if (elapsedMinutes > prevElapsedMinutesRef.current) {
+        // Calculate the incremental minutes (only the new minute)
+        const incrementalMinutes = elapsedMinutes - prevElapsedMinutesRef.current;
+        
+        // Update total focus minutes with just the increment
+        const newTotal = totalFocusMinutes + incrementalMinutes;
+        setTotalFocusMinutes(newTotal);
+        
+        // Save progress
+        localStorage.setItem(STORAGE_KEYS.FOCUS_MINUTES, newTotal.toString());
+        localStorage.setItem(STORAGE_KEYS.FOCUS_DATE, new Date().toDateString());
+        localStorage.setItem(STORAGE_KEYS.FOCUS_PROGRESS, elapsedMinutes.toString());
+        
+        // Update the previous elapsed minutes reference
+        prevElapsedMinutesRef.current = elapsedMinutes;
+      }
+    } else {
+      // Reset the reference when stopwatch is reset
+      prevElapsedMinutesRef.current = 0;
     }
-  }, []);
+  }, [totalFocusMinutes]);
   
-  // Handle mode change
+  // Handle mode change while preserving progress
   const handleModeChange = useCallback((mode: "focus" | "break" | "longBreak") => {
     setTimerMode(mode);
     
@@ -394,9 +326,12 @@ const Timer: React.FC = () => {
     
     setTimerActive(false);
     setTimerCompleted(false);
+    
+    // Don't reset progress when changing modes
+    // currentSessionProgress and totalFocusMinutes are preserved
   }, [focusMinutes, breakMinutes, longBreakMinutes]);
   
-  // Modify toggleTimerMode to notify our tracker
+  // Modify toggleTimerMode to preserve progress when switching modes
   const toggleTimerMode = useCallback(() => {
     // Toggle between countdown and stopwatch
     const newCountdownMode = !isCountdown;
@@ -408,7 +343,7 @@ const Timer: React.FC = () => {
     // Save preference to localStorage
     localStorage.setItem(STORAGE_KEYS.TIMER_COUNTDOWN, newCountdownMode.toString());
     
-    // Reset current active timer
+    // Reset current active timer but preserve progress
     if (timerActive || stopwatchActive) {
       if (newCountdownMode) {
         // Switching to countdown, reset timer
@@ -420,11 +355,15 @@ const Timer: React.FC = () => {
         setTimerActive(false);
         setStopwatchActive(false);
         setStopwatchSeconds(0);
+        // Reset the minute tracking reference when switching to stopwatch
+        prevElapsedMinutesRef.current = 0;
+        // Don't reset progress when switching to stopwatch
+        handleStopwatchUpdate(0, false);
       }
       
       toast({
         title: `Switched to ${newCountdownMode ? "Pomodoro Timer" : "Stopwatch"}`,
-        description: "Timer has been reset.",
+        description: "Timer has been reset, but your progress is preserved.",
       });
     } else {
       // Reset appropriate timer based on new mode
@@ -432,24 +371,35 @@ const Timer: React.FC = () => {
         handleModeChange(timerMode);
       } else {
         setStopwatchSeconds(0);
+        // Reset the minute tracking reference when switching to stopwatch
+        prevElapsedMinutesRef.current = 0;
+        // Don't reset progress when switching to stopwatch
+        handleStopwatchUpdate(0, false);
       }
       
       toast({
         title: `Switched to ${newCountdownMode ? "Pomodoro Timer" : "Stopwatch"}`,
       });
     }
-  }, [isCountdown, timerActive, stopwatchActive, timerMode, handleModeChange, toast, registerModeSwitch]);
+  }, [isCountdown, timerActive, stopwatchActive, timerMode, handleModeChange, toast, registerModeSwitch, handleStopwatchUpdate]);
   
   // Use the appropriate timer state based on mode
   const seconds = isCountdown ? timerSeconds : stopwatchSeconds;
   const isActive = isCountdown ? timerActive : stopwatchActive;
   const setIsActive = isCountdown ? setTimerActive : setStopwatchActive;
-  const onTimerUpdate = isCountdown ? handleTimerUpdate : handleStopwatchUpdate;
-  
-  // Update our custom hook whenever timer active state changes
-  useEffect(() => {
-    trackTimerActive(timerActive || stopwatchActive);
-  }, [timerActive, stopwatchActive, trackTimerActive]);
+
+  // Create a wrapper for the onTimerUpdate callback to handle stopwatch resets
+  const onTimerUpdateWrapper = useCallback((seconds: number) => {
+    if (isCountdown) {
+      handleTimerUpdate(seconds);
+    } else {
+      // If the stopwatch is being reset to 0, we need to reset the prevElapsedMinutesRef
+      if (seconds === 0) {
+        prevElapsedMinutesRef.current = 0;
+      }
+      handleStopwatchUpdate(seconds, false);
+    }
+  }, [isCountdown, handleTimerUpdate, handleStopwatchUpdate]);
 
   // Custom wrapper for setIsActive that also registers pause events
   const handleSetIsActive = useCallback((active) => {
@@ -560,6 +510,10 @@ const Timer: React.FC = () => {
     localStorage.setItem("meowdoro-show-fish-bar", showFishBar.toString());
   }, [showFishBar]);
   
+  useEffect(() => {
+    localStorage.setItem("meowdoro-show-meow-ai", showMeowAI.toString());
+  }, [showMeowAI]);
+  
   // Check if user is in a party
   useEffect(() => {
     if (user) {
@@ -612,19 +566,37 @@ const Timer: React.FC = () => {
     if (timerActive && isCountdown) {
       intervalId = setInterval(() => {
         setTimerSeconds(prev => {
-          if (prev <= 1) {
+          const newSeconds = prev - 1;
+          if (newSeconds <= 0) {
             clearInterval(intervalId);
             setTimerActive(false);
             setTimerCompleted(true);
             handleTimerComplete();
             return 0;
           }
-          return prev - 1;
+          
+          // Update progress every second
+          handleTimerUpdate(newSeconds);
+          return newSeconds;
         });
       }, 1000);
     } else if (stopwatchActive && !isCountdown) {
       intervalId = setInterval(() => {
-        setStopwatchSeconds(prev => prev + 1);
+        setStopwatchSeconds(prev => {
+          const newSeconds = prev + 1;
+          
+          // Check if we've crossed a minute boundary
+          const prevMinutes = Math.floor(prev / 60);
+          const newMinutes = Math.floor(newSeconds / 60);
+          
+          // Only update progress when crossing a minute boundary
+          if (newMinutes > prevMinutes) {
+            // We need to call this outside of this setState callback to avoid the TypeScript error
+            setTimeout(() => handleStopwatchUpdate(newSeconds, true), 0);
+          }
+          
+          return newSeconds;
+        });
       }, 1000);
     }
     
@@ -633,7 +605,7 @@ const Timer: React.FC = () => {
         clearInterval(intervalId);
       }
     };
-  }, [timerActive, stopwatchActive, isCountdown, handleTimerComplete]);
+  }, [timerActive, stopwatchActive, isCountdown, handleTimerComplete, handleTimerUpdate, handleStopwatchUpdate]);
 
   const saveTimerSettings = () => {
     // Save all timer settings to localStorage
@@ -642,6 +614,7 @@ const Timer: React.FC = () => {
     localStorage.setItem("meowdoro-long-break-time", longBreakMinutes.toString());
     localStorage.setItem("meowdoro-sessions-before-long-break", sessionsBeforeLongBreak.toString());
     localStorage.setItem("meowdoro-daily-goal", dailyGoal.toString());
+    localStorage.setItem("meowdoro-show-meow-ai", showMeowAI.toString());
     
     // Update current timer based on settings
     if (isCountdown && !timerActive) {
@@ -707,6 +680,7 @@ const Timer: React.FC = () => {
                 customYoutubeUrl={customYoutubeUrl}
                 showFocusBar={showFocusBar}
                 showFishBar={showFishBar}
+                showMeowAI={showMeowAI}
                 setFocusMinutes={setFocusMinutes}
                 setBreakMinutes={setBreakMinutes}
                 setLongBreakMinutes={setLongBreakMinutes}
@@ -716,6 +690,7 @@ const Timer: React.FC = () => {
                 setCustomYoutubeUrl={setCustomYoutubeUrl}
                 setShowFocusBar={setShowFocusBar}
                 setShowFishBar={setShowFishBar}
+                setShowMeowAI={setShowMeowAI}
                 saveSettings={saveTimerSettings}
               />
             </AudioControls>
@@ -728,7 +703,7 @@ const Timer: React.FC = () => {
               sessionsBeforeLongBreak={sessionsBeforeLongBreak}
               isCountdown={isCountdown}
               onTimerComplete={onTimerComplete}
-              onTimerUpdate={onTimerUpdate}
+              onTimerUpdate={onTimerUpdateWrapper}
               onModeChange={onModeChange}
               soundUrl={completionSound}
               timeRemaining={seconds}
@@ -749,13 +724,16 @@ const Timer: React.FC = () => {
                 <ProgressBar 
                   currentMinutes={totalFocusMinutes} 
                   goalMinutes={dailyGoal}
-                  fishProgress={totalFocusMinutes + currentSessionProgress}
+                  fishProgress={totalFocusMinutes}
                   showFocusBar={showFocusBar}
                   showFishBar={showFishBar}
                   currentMode={timerMode}
                 />
               )}
             </div>
+            
+            {/* Mobile spacing at bottom */}
+            <div className="h-36 md:hidden w-full" aria-hidden="true"></div>
           </div>
         </TabsContent>
         
@@ -765,27 +743,9 @@ const Timer: React.FC = () => {
       </Tabs>
       
       {/* AI Chat button */}
-      <div className="fixed bottom-24 md:bottom-6 right-6">
-        <MeowAIButton timerMode={timerMode} />
+      <div className="relative md:fixed md:bottom-6 md:right-6 flex justify-end mb-6 mr-6">
+        {showMeowAI && <MeowAIButton timerMode={timerMode} />}
       </div>
-      
-      {/* Timer Pause Dialog */}
-      <Dialog open={showPauseDialog} onOpenChange={setShowPauseDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Timer Paused</DialogTitle>
-            <DialogDescription>
-              Your timer was paused while you were away from the timer page. 
-              The timer will continue running once you close this notification.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button onClick={() => setShowPauseDialog(false)}>
-              Okay
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </PageContainer>
   );
 };

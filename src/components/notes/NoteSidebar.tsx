@@ -42,7 +42,7 @@ const SidebarItem = ({
     <button
       onClick={onClick}
       className={cn(
-        "flex w-full items-center rounded-r-full py-3 px-6 text-sm font-medium transition-colors relative",
+        "flex w-full items-center rounded-r-full py-2 px-4 text-sm font-medium transition-colors relative",
         active
           ? "bg-primary/15 text-primary dark:bg-primary/25 dark:text-primary"
           : "text-foreground/80 hover:bg-muted hover:text-foreground dark:text-foreground/80 dark:hover:text-foreground"
@@ -90,7 +90,7 @@ const SubItem = ({ label, active, onClick }: SubItemProps) => {
     <button
       onClick={onClick}
       className={cn(
-        "flex w-full items-center py-2 px-10 text-xs font-medium transition-colors",
+        "flex w-full items-center py-1.5 px-8 text-xs font-medium transition-colors",
         active
           ? "text-primary"
           : "text-muted-foreground hover:text-foreground"
@@ -146,7 +146,7 @@ const NoteSidebar = ({
       "h-full border-r bg-background relative transition-all duration-300 flex flex-col",
       collapsed ? "w-20" : "w-64"
     )}>
-      <div className="flex-1 flex flex-col gap-2 p-2 overflow-y-auto pb-16 md:pt-2 pt-12">
+      <div className="flex-1 flex flex-col gap-2 p-1 overflow-y-auto pb-16 md:pt-2 pt-10">
         <SidebarItem
           icon={<MessageSquare className="h-5 w-5" />}
           label="Notes"
@@ -167,7 +167,7 @@ const NoteSidebar = ({
         />
         
         {!collapsed && labelsExpanded && availableLabels.length > 0 && (
-          <div className="border-l ml-8 pl-2">
+          <div className="border-l ml-6 pl-1">
             {availableLabels.map(label => (
               <SubItem 
                 key={label.id}
@@ -214,20 +214,18 @@ const NoteSidebar = ({
         )}
       </div>
       
-      {/* Collapse button positioned on the right side near bottom */}
+      {/* Collapse button positioned on the left side near bottom */}
       <Button
         variant="ghost"
         size="icon"
-        className="sticky right-0 left-auto ml-auto bottom-8 h-6 w-6 rounded-l-full shadow-sm bg-muted/50 hover:bg-muted transform translate-x-1/2 z-10"
-        style={{ top: '80%' }}
+        className="absolute bottom-8 left-2 bg-muted/50 hidden md:flex z-10"
         onClick={toggleCollapse}
         title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
-        {collapsed ? (
-          <ChevronRight className="h-3 w-3" />
-        ) : (
-          <ChevronLeft className="h-3 w-3" />
-        )}
+        <ChevronLeft className={cn(
+          "h-5 w-5 transition-transform",
+          collapsed && "rotate-180"
+        )} />
       </Button>
     </div>
   );

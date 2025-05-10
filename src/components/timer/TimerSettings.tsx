@@ -41,6 +41,7 @@ interface TimerSettingsProps {
   customYoutubeUrl: string;
   showFocusBar?: boolean;
   showFishBar?: boolean;
+  showMeowAI?: boolean;
   
   // Setter functions
   setFocusMinutes: (minutes: number) => void;
@@ -52,6 +53,7 @@ interface TimerSettingsProps {
   setCustomYoutubeUrl: (url: string) => void;
   setShowFocusBar?: (show: boolean) => void;
   setShowFishBar?: (show: boolean) => void;
+  setShowMeowAI?: (show: boolean) => void;
   
   // Save settings function
   saveSettings: () => void;
@@ -67,6 +69,7 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({
   customYoutubeUrl,
   showFocusBar = true,
   showFishBar = true,
+  showMeowAI = true,
   setFocusMinutes,
   setBreakMinutes,
   setLongBreakMinutes,
@@ -76,6 +79,7 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({
   setCustomYoutubeUrl,
   setShowFocusBar,
   setShowFishBar,
+  setShowMeowAI,
   saveSettings
 }) => {
   const { toast } = useToast();
@@ -219,6 +223,18 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({
                   id="show-fish-bar"
                   checked={showFishBar}
                   onCheckedChange={setShowFishBar}
+                />
+              </div>
+            )}
+
+            {/* MeowAI Toggle */}
+            {setShowMeowAI && (
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-meow-ai">Show MeowAI Assistant</Label>
+                <Switch
+                  id="show-meow-ai"
+                  checked={showMeowAI}
+                  onCheckedChange={setShowMeowAI}
                 />
               </div>
             )}

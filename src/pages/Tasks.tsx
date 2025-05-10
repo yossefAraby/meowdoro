@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,9 @@ import {
   Plus,
   Menu,
   Users,
-  FileText
+  FileText,
+  X,
+  ChevronLeft
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -20,6 +22,7 @@ import NoteSidebar from "@/components/notes/NoteSidebar";
 import NoteEditor from "@/components/notes/NoteEditor";
 import MasonryGrid from "@/components/notes/MasonryGrid";
 import EditLabelsDialog from "@/components/notes/EditLabelsDialog";
+import MobileNavbarSpacer from "@/components/layout/MobileNavbarSpacer";
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component<
@@ -96,6 +99,9 @@ const Tasks: React.FC = () => {
     }
   });
 
+  // Ref for main content container
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
   // Labels state
   const [labels, setLabels] = useState<{ id: string; name: string; added: boolean }[]>(() => {
     try {
@@ -113,6 +119,7 @@ const Tasks: React.FC = () => {
   const [editingNote, setEditingNote] = useState<Note | undefined>();
   const [activeView, setActiveView] = useState('notes');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isEditLabelsOpen, setIsEditLabelsOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
@@ -122,6 +129,25 @@ const Tasks: React.FC = () => {
   const { user } = useAuth();
 
   const { toast } = useToast();
+
+  // Scroll to top when note editor opens
+  useEffect(() => {
+    if (isEditorOpen || editingNote) {
+      // Scroll window to top
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      // Also scroll the main content container
+      if (mainContentRef.current) {
+        mainContentRef.current.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [isEditorOpen, editingNote]);
 
   // Save notes to localStorage
   useEffect(() => {
@@ -546,18 +572,55 @@ const Tasks: React.FC = () => {
     setSelectionMode(false);
   };
 
+  // Function to handle mobile sidebar toggle
+  const toggleMobileSidebar = (open: boolean) => {
+    setMobileDrawerOpen(open);
+    setIsSidebarOpen(open);
+  };
+
   return (
     <ErrorBoundary>
       <div className="flex h-screen md:h-[calc(100vh-5rem)] mt-2 md:mt-0">
+        {/* Mobile drawer overlay */}
+        {mobileDrawerOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden" 
+            onClick={() => toggleMobileSidebar(false)}
+          />
+        )}
+        
         {/* Sidebar */}
         <div className={cn(
-          "h-full transition-all duration-300 md:block",
-          isSidebarOpen ? "block" : "hidden md:block",
-          isSidebarCollapsed ? "w-16" : "w-64"
+          "h-full bg-background z-50 transition-all duration-300",
+          "fixed md:static left-0 top-0 md:top-0 bottom-16 md:bottom-0",
+          mobileDrawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+          isSidebarCollapsed ? "w-16" : "w-64",
+          "border-r flex flex-col overflow-hidden"
         )}>
+          {/* Mobile sidebar header with close button */}
+          <div className="flex items-center justify-between gap-2 px-4 py-3 border-b md:hidden">
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              <span className="font-medium">Notes</span>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="md:hidden" 
+              onClick={() => toggleMobileSidebar(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          
           <NoteSidebar
             activeView={activeView}
-            onViewChange={handleViewChange}
+            onViewChange={(view) => {
+              handleViewChange(view);
+              if (window.innerWidth < 768) {
+                toggleMobileSidebar(false);
+              }
+            }}
             onCollapse={handleSidebarCollapse}
             onToggleSelection={toggleSelectionMode}
             isSelectionMode={selectionMode}
@@ -567,32 +630,34 @@ const Tasks: React.FC = () => {
         </div>
         
         {/* Main Content */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <div ref={mainContentRef} className="flex-1 flex flex-col h-full overflow-y-auto scrollbar-hide">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-0 mb-2">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-              <TabsTrigger value="personal" className="gap-2">
-                <FileText className="h-4 w-4" />
-                Personal Notes
-              </TabsTrigger>
-              <TabsTrigger value="party" disabled={!hasActiveParty} className="gap-2">
-                <Users className="h-4 w-4" />
-                Party Notes
-              </TabsTrigger>
-            </TabsList>
+            <div className="flex items-center gap-2 max-w-md mx-auto">
+              {/* Mobile menu button */}
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="md:hidden"
+                onClick={() => toggleMobileSidebar(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="personal" className="gap-2">
+                  <FileText className="h-4 w-4" />
+                  Personal Notes
+                </TabsTrigger>
+                <TabsTrigger value="party" disabled={!hasActiveParty} className="gap-2">
+                  <Users className="h-4 w-4" />
+                  Party Notes
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="personal" className="space-y-4">
               {/* Header */}
               <header className="flex items-center justify-center p-2 md:p-4">
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="md:hidden absolute left-2"
-                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-                
-                <div className="w-full max-w-xl relative md:mx-0 mx-8">
+                <div className="w-full max-w-xl relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="text"
@@ -630,7 +695,7 @@ const Tasks: React.FC = () => {
               )}
                       
               {/* Main content area */}
-              <div className="flex-1 overflow-y-auto p-4 pb-24 md:pb-4">
+              <div className="flex-1 p-4">
                 {/* Note editor - only render if editing or creating */}
                 {(isEditorOpen || editingNote) && (
                   <NoteEditor
@@ -646,6 +711,9 @@ const Tasks: React.FC = () => {
                 
                 {/* Notes grid */}
                 {renderContent()}
+
+                {/* Spacer for mobile navbar */}
+                <MobileNavbarSpacer />
               </div>
 
               {/* Floating action button */}
@@ -682,6 +750,23 @@ const Tasks: React.FC = () => {
             </TabsContent>
           </Tabs>
         </div>
+        
+        {/* Sidebar collapse toggle button - only on desktop */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="fixed top-24 bg-muted/50 hidden md:flex z-10"
+          style={{
+            left: isSidebarCollapsed ? '1rem' : 'calc(64px + 1rem)'
+          }}
+          onClick={() => handleSidebarCollapse(!isSidebarCollapsed)}
+          title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <ChevronLeft className={cn(
+            "h-5 w-5 transition-transform",
+            isSidebarCollapsed && "rotate-180"
+          )} />
+        </Button>
                     
         {/* Edit Labels Dialog */}
         <EditLabelsDialog

@@ -77,6 +77,7 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isCatHappy, setIsCatHappy] = useState(false);
   const [showHappySprite, setShowHappySprite] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { toast } = useToast();
   const geminiServiceRef = useRef<GeminiService | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -154,6 +155,17 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
       });
     }
   }, [includeContextData, toast]);
+
+  // Check if mobile on mount and window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // 768px is the md breakpoint
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Generate unique IDs
   const generateMessageId = (): string => {
@@ -489,14 +501,30 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
               exit={{ opacity: 0, x: 10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
               className={cn(
-                "absolute bottom-0 right-32 bg-card border rounded-lg shadow-lg overflow-hidden",
-                isFullscreen ? "w-[800px] h-[600px]" : "w-80 sm:w-96",
-                "transition-all duration-300"
+                // Mobile: fixed, full screen
+                "fixed md:absolute bg-card border rounded-lg shadow-lg overflow-hidden",
+                // Desktop: position to the left of the cat (cat is w-28 = 7rem, add 2rem gap)
+                "md:bottom-0 md:right-[calc(7rem+2rem)]",
+                // Mobile: full screen
+                "bottom-0 right-0 left-0 top-0 md:top-auto md:left-auto",
+                // Desktop: regular sizing with smooth transition
+                "md:w-80 lg:w-96 transition-all duration-300",
+                // Custom expanded size for desktop
+                isFullscreen ? "md:w-[600px] md:h-[800px]" : "md:h-[500px]",
+                "z-50"
               )}
-              style={{ minHeight: isFullscreen ? '600px' : '24rem' }}
+              style={{ 
+                // Minimum height for non-fullscreen
+                minHeight: '24rem',
+                // Add safe areas for mobile
+                paddingTop: 'env(safe-area-inset-top)',
+                paddingBottom: 'env(safe-area-inset-bottom)',
+                paddingLeft: 'env(safe-area-inset-left)',
+                paddingRight: 'env(safe-area-inset-right)'
+              }}
             >
               {/* Chat header */}
-              <div className="p-3 border-b bg-muted/50 flex items-center justify-between">
+              <div className="p-4 md:p-3 border-b bg-muted/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Cat className="w-5 h-5 text-primary" />
                   <span className="font-medium">Meowdoro AI</span>
@@ -586,10 +614,22 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
               <div 
                 ref={chatContainerRef}
                 className={cn(
-                  "overflow-y-auto p-3 flex flex-col gap-3",
-                  isFullscreen ? "h-[calc(600px-8rem)]" : "h-96",
+                  "overflow-y-auto p-4 md:p-3 flex flex-col gap-3",
+                  // Mobile: fill available space
+                  "h-[calc(100vh-8rem)] md:h-[400px]",
+                  // Adjust height when expanded on desktop
+                  isFullscreen ? "md:h-[700px]" : "",
                   "scrollbar-hide"
                 )}
+                style={{
+                  // On mobile, adjust height to account for fixed input
+                  ...(isMobile ? {
+                    height: 'calc(100vh - 8rem - env(safe-area-inset-bottom, 24px) - 7rem)',
+                    paddingBottom: '7rem'
+                  } : {
+                    marginBottom: 'env(safe-area-inset-bottom, 24px)'
+                  })
+                }}
               >
                 {currentConversation?.messages.map((message) => (
                   <div 
@@ -635,8 +675,20 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
                 ))}
               </div>
               
-              {/* Chat input */}
-              <form onSubmit={handleSendMessage} className="border-t p-3 flex gap-2 bg-card/80">
+              {/* Chat input - fixed on mobile, static on desktop */}
+              <form 
+                onSubmit={handleSendMessage} 
+                className={cn(
+                  "border-t p-4 md:p-3 flex gap-2 bg-card/80",
+                  "fixed bottom-0 left-0 right-0 z-50 md:static md:z-auto"
+                )}
+                style={{
+                  // Different padding for mobile and desktop
+                  paddingBottom: isMobile 
+                    ? 'calc(env(safe-area-inset-bottom, 24px) + 5.5rem)'
+                    : 'calc(env(safe-area-inset-bottom, 24px) + 0.5rem)'
+                }}
+              >
                 <div className="flex-1 relative">
                   <textarea
                     value={chatInput}
@@ -650,7 +702,13 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
                       }
                     }}
                     placeholder="Ask anything... (Shift+Enter for new line)"
-                    className="w-full resize-none min-h-[40px] max-h-[120px] px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    className={cn(
+                      "w-full resize-none min-h-[44px] md:min-h-[40px] max-h-[120px]",
+                      "px-4 md:px-3 py-3 md:py-2 rounded-md border border-input",
+                      "bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary",
+                      // Extra min-height and margin on mobile
+                      "min-h-[3.5rem] mb-2 md:mb-0"
+                    )}
                     rows={1}
                     disabled={isLoading}
                     style={{ 
@@ -660,13 +718,18 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
                     ref={(textarea) => {
                       if (textarea) {
                         textarea.style.height = 'auto';
-                        textarea.style.height = `${Math.min(120, Math.max(40, textarea.scrollHeight))}px`;
+                        textarea.style.height = `${Math.min(120, Math.max(44, textarea.scrollHeight))}px`;
                       }
                     }}
                   />
                 </div>
-                <Button type="submit" size="icon" disabled={isLoading || !chatInput.trim()}>
-                  <Send className="h-4 w-4" />
+                <Button 
+                  type="submit" 
+                  size="icon" 
+                  className="h-11 w-11 md:h-10 md:w-10"
+                  disabled={isLoading || !chatInput.trim()}
+                >
+                  <Send className="h-5 w-5 md:h-4 md:w-4" />
                 </Button>
               </form>
             </motion.div>

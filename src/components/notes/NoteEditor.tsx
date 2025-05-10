@@ -619,7 +619,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 contentEditable
                 suppressContentEditableWarning
                 className={cn(
-                  "min-h-[200px] resize-none bg-transparent border-0 focus:outline-none text-sm leading-relaxed px-4 py-2 rounded-md prose prose-sm max-w-none text-foreground dark:prose-invert empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50",
+                  "min-h-[200px] resize-none bg-transparent border-0 focus:outline-none text-sm leading-relaxed px-4 py-2 rounded-md prose prose-sm max-w-none text-foreground dark:prose-invert empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50 scrollbar-hide",
                   isExpanded && "min-h-[400px]"
                 )}
                 onInput={handleContentChange}
@@ -740,18 +740,35 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
             {isExpanded && (
               <div className="flex items-center justify-between pt-2 border-t border-border/50">
                 <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-full"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowColorPicker(!showColorPicker);
-                    }}
-                    title="Background options"
-                  >
-                    <Palette className="h-4 w-4" />
-                  </Button>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        title="Background options"
+                      >
+                        <Palette className="h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-1" align="start">
+                      <div className="grid grid-cols-4 gap-1">
+                        {colors.map((c) => (
+                          <button
+                            key={c.value}
+                            className={cn(
+                              'h-6 w-6 rounded-full border transition-transform hover:scale-110',
+                              c.value.split(' ')[0]
+                            )}
+                            onClick={() => {
+                              setColor(c.value);
+                            }}
+                            title={c.name}
+                          />
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                   
                   <Popover open={isLabelsPopoverOpen} onOpenChange={setIsLabelsPopoverOpen}>
                     <PopoverTrigger asChild>
@@ -832,29 +849,6 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
               </div>
             )}
           </div>
-          
-          {/* Color picker popup */}
-          {showColorPicker && (
-            <div className="absolute bottom-full left-2 mb-2 rounded-lg border bg-background p-1 shadow-lg z-10">
-              <div className="grid grid-cols-4 gap-1 p-1">
-                {colors.map((c) => (
-                  <button
-                    key={c.value}
-                    className={cn(
-                      'h-6 w-6 rounded-full border',
-                      c.value.split(' ')[0] // Just take first color class for the button
-                    )}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setColor(c.value);
-                      setShowColorPicker(false);
-                    }}
-                    title={c.name}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
         </motion.div>
       </AnimatePresence>
     </div>
