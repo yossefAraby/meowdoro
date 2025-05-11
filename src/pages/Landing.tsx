@@ -114,7 +114,7 @@ const InteractiveLogo: React.FC<{ onClick: () => void }> = ({ onClick }) => {
         <img 
           src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
           alt="Meowdoro Logo" 
-          className="w-56 h-56 md:w-72 md:h-72 drop-shadow-lg"
+          className="w-64 h-64 md:w-[21rem] md:h-[21rem] drop-shadow-lg"
           style={{
             transform: 'translateZ(40px)',
             transition: 'transform 0.3s ease-out',
@@ -357,7 +357,7 @@ const Landing: React.FC = () => {
           <img 
             src="/lovable-uploads/6c3148ec-dc2e-4a2b-a5b6-482ca6e3b664.png" 
             alt="Meowdoro Logo" 
-            className="w-32 h-32 mx-auto relative z-10 animate-float drop-shadow-lg" 
+            className="w-[4.6rem] h-[4.6rem] mx-auto relative z-10 animate-float drop-shadow-lg" 
           />
         </div>
         

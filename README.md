@@ -46,12 +46,34 @@ This project is the implementation of a business idea created for MOT at the Bus
 
 ## 🤖 AI Development Tools
 
-The development of Meowdoro was assisted by several AI tools:
+Meowdoro was developed utilizing cutting-edge AI-assisted development methodologies, leveraging the following tools:
 
 - **Cursor** - AI-powered code editor (+300 prompts)
 - **Lovable** - Visual design and component generation (+100 prompts)
 - **Windsurf** - AI-powered code editor (about 50 prompts)
 - **Roo Cline** - vscode integration used for Debugging and fixes (about 10 prompts)
+
+## 👥 Team Members
+
+Our dedicated team initially attempted traditional development methodologies before transitioning to AI-assisted development (vibe coding) with approval from our MOT project professor:
+
+- **Yossef Mohammed Al-Sayed Khalil** - Team Lead
+- **Ali Al-Sayed Ahmed Ali** - Backend Lead
+- **Ghanem Ezzat Abdel Aziz Musa Ghanem** - Backend
+- **Haitham Abdel Salam Abdel Fattah** - Backend
+- **Mohammed Abdel Qader Abd Rabbo Juma** - Backend
+- **Youssef Mohamed Abdel Hakim Bayoumi Samak** - Backend
+- **Mahmud Abdel Salam Mohammed Mohammed** - Frontend
+- **Youssef Ahmed Abdel Fattah Al-Amoudi** - Frontend
+- **Faris Abdel Salam Jalal Ibrahim Attia** - Frontend
+- **Mahmoud Ahmed Mahmoud Eid** - Frontend
+- **Yahya Muhammad Shahata** - UI/UX
+
+## ✅ Credits
+
+- The notes page implementation is based on the source code of Google Keep Clone by aBrihoum: https://github.com/aBrihoum/google-keep-clone
+- The cat image used in the application is from Adobe Stock: https://stock.adobe.com/eg/images/minimal-cat-drawing/191803592
+- The Meowdoro logo was designed by Yahya Muhammad Shahata, our UI/UX team member
 
 ## 🚀 Getting Started
 

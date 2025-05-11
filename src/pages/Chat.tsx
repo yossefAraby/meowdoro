@@ -656,9 +656,10 @@ const Chat: React.FC = () => {
                 {currentConversation?.messages.map((message) => (
                   <motion.div
                     key={message.id}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 1, y: 0 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.1 }}
                     className={cn(
                       "group flex gap-4 max-w-3xl mx-auto",
                       message.sender === "user" ? "justify-end" : "justify-start"
@@ -684,18 +685,12 @@ const Chat: React.FC = () => {
                     )}>
                       {message.isLoading ? (
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <div className="flex gap-1">
-                            <div className="w-2 h-2 rounded-full bg-current animate-bounce" />
-                            <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0.2s" }} />
-                            <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0.4s" }} />
-                          </div>
                           <span>Thinking...</span>
                         </div>
                       ) : (
                         <>
                           <div className={cn(
-                            "prose prose-sm dark:prose-invert max-w-none break-words",
-                            message.isStreaming && "animate-pulse"
+                            "prose prose-sm dark:prose-invert max-w-none break-words"
                           )}>
                             <ReactMarkdown>{message.text}</ReactMarkdown>
                           </div>

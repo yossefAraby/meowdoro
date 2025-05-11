@@ -627,7 +627,8 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
                     height: 'calc(100vh - 8rem - env(safe-area-inset-bottom, 24px) - 7rem)',
                     paddingBottom: '7rem'
                   } : {
-                    marginBottom: 'env(safe-area-inset-bottom, 24px)'
+                    marginBottom: 'env(safe-area-inset-bottom, 24px)',
+                    paddingBottom: '20px' // Add padding to prevent messages from being hidden behind the input on desktop
                   })
                 }}
               >
@@ -680,13 +681,15 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
                 onSubmit={handleSendMessage} 
                 className={cn(
                   "border-t p-4 md:p-3 flex gap-2 bg-card/80",
-                  "fixed bottom-0 left-0 right-0 z-50 md:static md:z-auto"
+                  "fixed bottom-0 left-0 right-0 z-50 md:static md:z-auto",
+                  "md:relative md:bottom-[25px]" // Increased from 10px to 25px
                 )}
                 style={{
                   // Different padding for mobile and desktop
                   paddingBottom: isMobile 
                     ? 'calc(env(safe-area-inset-bottom, 24px) + 5.5rem)'
-                    : 'calc(env(safe-area-inset-bottom, 24px) + 0.5rem)'
+                    : 'calc(env(safe-area-inset-bottom, 24px) + 0.5rem)',
+                  marginBottom: !isMobile ? '15px' : '0' // Increased from 10px to 15px
                 }}
               >
                 <div className="flex-1 relative">
