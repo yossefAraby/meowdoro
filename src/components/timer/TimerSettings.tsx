@@ -242,9 +242,8 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({
         </div>
         
         <SettingsFooter>
-          <Button onClick={saveSettings}>Save Settings</Button>
           <SettingsClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button onClick={saveSettings}>Close</Button>
           </SettingsClose>
         </SettingsFooter>
       </SettingsContent>
