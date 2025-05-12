@@ -281,33 +281,35 @@ const Timer: React.FC = () => {
   const handleStopwatchUpdate = useCallback((seconds: number, isActive: boolean = false) => {
     setStopwatchSeconds(seconds);
     
-    // Only update progress if stopwatch is active or if this is not a reset
+    // Calculate elapsed minutes
+    const elapsedMinutes = Math.floor(seconds / 60);
+    
+    // Update progress state based on conditions
     if (isActive || seconds > 0) {
-      // Calculate elapsed minutes
-      const elapsedMinutes = Math.floor(seconds / 60);
-      
       // Update current session progress
       setCurrentSessionProgress(elapsedMinutes);
       
-      // Only update if minutes have changed
+      // Check if we've reached a new minute
       if (elapsedMinutes > prevElapsedMinutesRef.current) {
-        // Calculate the incremental minutes (only the new minute)
+        // Calculate the incremental minutes since last update
         const incrementalMinutes = elapsedMinutes - prevElapsedMinutesRef.current;
         
-        // Update total focus minutes with just the increment
-        const newTotal = totalFocusMinutes + incrementalMinutes;
+        // Update total focus minutes with the increment
+        const newTotal = Math.max(totalFocusMinutes + incrementalMinutes, totalFocusMinutes);
         setTotalFocusMinutes(newTotal);
         
-        // Save progress
+        // Save progress to localStorage
         localStorage.setItem(STORAGE_KEYS.FOCUS_MINUTES, newTotal.toString());
         localStorage.setItem(STORAGE_KEYS.FOCUS_DATE, new Date().toDateString());
         localStorage.setItem(STORAGE_KEYS.FOCUS_PROGRESS, elapsedMinutes.toString());
         
-        // Update the previous elapsed minutes reference
+        // Update reference for next increment
         prevElapsedMinutesRef.current = elapsedMinutes;
       }
-    } else {
-      // Reset the reference when stopwatch is reset
+    }
+    
+    // Only reset reference if explicitly resetting the stopwatch
+    if (seconds === 0 && !isActive) {
       prevElapsedMinutesRef.current = 0;
     }
   }, [totalFocusMinutes]);
@@ -333,6 +335,10 @@ const Timer: React.FC = () => {
   
   // Modify toggleTimerMode to preserve progress when switching modes
   const toggleTimerMode = useCallback(() => {
+    // Store current progress before switching
+    const currentProgress = currentSessionProgress;
+    const currentTotal = totalFocusMinutes;
+    
     // Toggle between countdown and stopwatch
     const newCountdownMode = !isCountdown;
     setIsCountdown(newCountdownMode);
@@ -343,44 +349,32 @@ const Timer: React.FC = () => {
     // Save preference to localStorage
     localStorage.setItem(STORAGE_KEYS.TIMER_COUNTDOWN, newCountdownMode.toString());
     
-    // Reset current active timer but preserve progress
-    if (timerActive || stopwatchActive) {
-      if (newCountdownMode) {
-        // Switching to countdown, reset timer
-        setStopwatchActive(false);
-        setTimerActive(false);
-        handleModeChange(timerMode);
-      } else {
-        // Switching to stopwatch
-        setTimerActive(false);
-        setStopwatchActive(false);
-        setStopwatchSeconds(0);
-        // Reset the minute tracking reference when switching to stopwatch
-        prevElapsedMinutesRef.current = 0;
-        // Don't reset progress when switching to stopwatch
-        handleStopwatchUpdate(0, false);
-      }
-      
-      toast({
-        title: `Switched to ${newCountdownMode ? "Pomodoro Timer" : "Stopwatch"}`,
-        description: "Timer has been reset, but your progress is preserved.",
-      });
+    // Always stop both timers when switching modes
+    setTimerActive(false);
+    setStopwatchActive(false);
+    
+    if (newCountdownMode) {
+      // Switching to countdown mode
+      handleModeChange(timerMode);
+      // Restore progress state
+      setCurrentSessionProgress(currentProgress);
+      setTotalFocusMinutes(currentTotal);
     } else {
-      // Reset appropriate timer based on new mode
-      if (newCountdownMode) {
-        handleModeChange(timerMode);
-      } else {
-        setStopwatchSeconds(0);
-        // Reset the minute tracking reference when switching to stopwatch
-        prevElapsedMinutesRef.current = 0;
-        // Don't reset progress when switching to stopwatch
-        handleStopwatchUpdate(0, false);
-      }
-      
-      toast({
-        title: `Switched to ${newCountdownMode ? "Pomodoro Timer" : "Stopwatch"}`,
-      });
+      // Switching to stopwatch mode
+      setStopwatchSeconds(0);
+      prevElapsedMinutesRef.current = 0;
+      // Restore progress for stopwatch
+      setCurrentSessionProgress(currentProgress);
+      setTotalFocusMinutes(currentTotal);
+      // Update localStorage with preserved progress
+      localStorage.setItem(STORAGE_KEYS.FOCUS_PROGRESS, currentProgress.toString());
+      localStorage.setItem(STORAGE_KEYS.FOCUS_MINUTES, currentTotal.toString());
     }
+    
+    toast({
+      title: `Switched to ${newCountdownMode ? "Pomodoro Timer" : "Stopwatch"}`,
+      description: "Your progress has been preserved.",
+    });
   }, [isCountdown, timerActive, stopwatchActive, timerMode, handleModeChange, toast, registerModeSwitch, handleStopwatchUpdate]);
   
   // Use the appropriate timer state based on mode

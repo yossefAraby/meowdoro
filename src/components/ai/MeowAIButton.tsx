@@ -428,6 +428,29 @@ export const MeowAIButton: React.FC<MeowAIButtonProps> = ({ timerMode }) => {
   // Get current conversation
   const currentConversation = conversations.find(c => c.id === activeConversation);
 
+  const handleRegenerateMessage = async () => {
+    const conversation = conversations.find(c => c.id === activeConversation);
+    if (!conversation || conversation.messages.length === 0) return; // Ensure there are messages
+
+    const messages = conversation.messages;
+    const lastUserMessageIndex = [...messages].reverse().findIndex(msg => msg.sender === "user");
+    
+    if (lastUserMessageIndex === -1) return; // No user message found
+    
+    const lastUserMessage = [...messages].reverse()[lastUserMessageIndex];
+    const updatedMessages = messages.slice(0, messages.length - lastUserMessageIndex); // Keep messages before the last user message
+    
+    updateConversation(activeConversation, []); // Clear the current conversation messages
+    setConversations(prev => prev.map(conv => {
+      if (conv.id === activeConversation) {
+        return { ...conv, messages: updatedMessages }; // Update the conversation with the remaining messages
+      }
+      return conv;
+    }));
+    
+    await handleSendMessage(null, lastUserMessage.text); // Send the last user message again
+  };
+
   return (
     <>
       <div className="relative z-50">

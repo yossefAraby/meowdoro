@@ -284,24 +284,37 @@ export const CatCompanion: React.FC<CatCompanionProps> = ({ status }) => {
                   key={index} 
                   className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
+                  {message.sender === 'cat' && (
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mr-2 bg-accent/70 border border-border/50">
+                      <Cat className="h-4 w-4 text-primary" />
+                    </div>
+                  )}
                   <div 
-                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                    className={`max-w-[80%] ${
                       message.sender === 'user' 
-                        ? 'bg-primary text-primary-foreground shadow-sm' 
-                        : 'bg-accent/80 border border-border shadow-sm'
-                    }`}
+                        ? 'bg-primary text-primary-foreground shadow-sm rounded-l-lg rounded-br-lg' 
+                        : 'bg-accent/80 border border-border shadow-sm rounded-r-lg rounded-bl-lg'
+                    } px-4 py-2`}
                   >
                     <p>{message.text}</p>
                     <p className="text-xs opacity-70 mt-1">
                       {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                     </p>
                   </div>
+                  {message.sender === 'user' && (
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 ml-2 bg-primary/30 border border-primary/20">
+                      <span className="text-xs font-bold text-primary">You</span>
+                    </div>
+                  )}
                 </div>
               ))}
               
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="max-w-[80%] rounded-lg px-4 py-2 bg-accent/80 border border-border shadow-sm">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mr-2 bg-accent/70 border border-border/50">
+                    <Cat className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="max-w-[80%] rounded-r-lg rounded-bl-lg px-4 py-2 bg-accent/80 border border-border shadow-sm">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 rounded-full bg-primary/70 animate-bounce"></div>
                       <div className="w-2 h-2 rounded-full bg-primary/70 animate-bounce" style={{ animationDelay: '0.2s' }}></div>

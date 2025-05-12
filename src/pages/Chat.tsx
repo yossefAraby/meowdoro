@@ -265,21 +265,36 @@ const Chat: React.FC = () => {
     if (!conversation) return;
 
     const messages = conversation.messages;
-    const lastUserMessageIndex = [...messages].reverse().findIndex(msg => msg.sender === "user");
+    // Find the last user message and its corresponding AI response
+    let lastUserIndex = messages.length - 1;
+    while (lastUserIndex >= 0 && messages[lastUserIndex].sender !== 'user') {
+      lastUserIndex--;
+    }
     
-    if (lastUserMessageIndex === -1) return;
-    
-    const lastUserMessage = [...messages].reverse()[lastUserMessageIndex];
-    const updatedMessages = messages.slice(0, messages.length - lastUserMessageIndex);
-    
-    updateConversation(activeConversation, []);
+    if (lastUserIndex === -1) return;
+
+    // Find the second-to-last user message index to remove everything after it
+    let previousUserIndex = lastUserIndex - 1;
+    while (previousUserIndex >= 0 && messages[previousUserIndex].sender !== 'user') {
+      previousUserIndex--;
+    }
+
+    const lastUserMessage = messages[lastUserIndex];
+
+    // Keep messages up to the previous user message (if any) or empty array
     setConversations(prev => prev.map(conv => {
       if (conv.id === activeConversation) {
-        return { ...conv, messages: updatedMessages };
+        return {
+          ...conv,
+          messages: previousUserIndex >= 0
+            ? conv.messages.slice(0, previousUserIndex + 1)
+            : []
+        };
       }
       return conv;
     }));
-    
+
+    // Generate new message chain
     await handleSendMessage(null, lastUserMessage.text);
   };
 
@@ -661,27 +676,26 @@ const Chat: React.FC = () => {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.1 }}
                     className={cn(
-                      "group flex gap-4 max-w-3xl mx-auto",
+                      "group flex gap-3 max-w-3xl mx-auto my-3",
                       message.sender === "user" ? "justify-end" : "justify-start"
                     )}
                   >
-                    {/* Avatar */}
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0">
-                      {message.sender === "user" ? (
-                        <div className="bg-primary/20 w-full h-full rounded-full flex items-center justify-center">
-                          <span className="text-xs font-medium text-primary">You</span>
+                    {/* Avatar - For AI messages, show avatar first */}
+                    {message.sender === "ai" && (
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
+                        <div className="bg-accent/70 w-full h-full rounded-full flex items-center justify-center">
+                          <Cat className="h-5 w-5 text-primary" />
                         </div>
-                      ) : (
-                        <div className="bg-accent/50 w-full h-full rounded-full flex items-center justify-center">
-                          <Cat className="h-4 w-4 text-primary" />
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                     {/* Message content */}
                     <div className={cn(
                       "flex-1 space-y-1", 
-                      "max-w-[calc(100%-4rem)]"
+                      "max-w-[calc(100%-4rem)]",
+                      message.sender === "user" 
+                        ? "bg-primary/10 text-primary-foreground rounded-l-lg rounded-br-lg p-3 border border-primary/20 shadow-sm" 
+                        : "bg-accent/30 rounded-r-lg rounded-bl-lg p-3 border border-border shadow-sm"
                     )}>
                       {message.isLoading ? (
                         <div className="flex items-center gap-2 text-muted-foreground">
@@ -690,7 +704,7 @@ const Chat: React.FC = () => {
                       ) : (
                         <>
                           <div className={cn(
-                            "prose prose-sm dark:prose-invert max-w-none break-words"
+                            "prose prose-base dark:prose-invert max-w-none break-words font-medium text-base leading-relaxed"
                           )}>
                             <ReactMarkdown>{message.text}</ReactMarkdown>
                           </div>
@@ -698,9 +712,9 @@ const Chat: React.FC = () => {
                           {/* Message actions */}
                           <div className="flex items-center gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                             <Button
-                              variant="ghost"
+                              variant="secondary"
                               size="sm"
-                              className="h-7 px-2 text-xs"
+                              className="h-7 px-2 text-xs font-semibold bg-accent/80 hover:bg-primary hover:text-primary-foreground"
                               onClick={() => handleCopyMessage(message.text)}
                             >
                               <Copy className="h-3 w-3 mr-1" />
@@ -709,9 +723,9 @@ const Chat: React.FC = () => {
                             
                             {message.sender === "ai" && (
                               <Button
-                                variant="ghost"
+                                variant="secondary"
                                 size="sm"
-                                className="h-7 px-2 text-xs"
+                                className="h-7 px-2 text-xs font-semibold bg-accent/80 hover:bg-primary hover:text-primary-foreground"
                                 onClick={handleRegenerateMessage}
                               >
                                 <RefreshCw className="h-3 w-3 mr-1" />
@@ -722,6 +736,15 @@ const Chat: React.FC = () => {
                         </>
                       )}
                     </div>
+
+                    {/* Avatar - For user messages, show avatar last */}
+                    {message.sender === "user" && (
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
+                        <div className="bg-primary/30 w-full h-full rounded-full flex items-center justify-center">
+                          <span className="text-sm font-bold text-primary">You</span>
+                        </div>
+                      </div>
+                    )}
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -775,7 +798,7 @@ const Chat: React.FC = () => {
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-xs text-center text-muted-foreground mt-2 mb-2">
+                <p className="text-[10px] text-center text-muted-foreground mt-1 mb-1 opacity-70">
                   Meowdoro AI may produce inaccurate information about people, places, or facts.
                 </p>
               </form>
